@@ -1,0 +1,85 @@
+@model Web_Novel.ViewModels.GenrePageViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Model.GenreName;
+}
+
+<div class="container-xxl" style="max-width:950px;">
+
+    <h4 class="my-3 text-body fw-semibold">
+        หมวด: @Model.GenreName
+    </h4>
+
+    @if (!Model.Novels.Any())
+    {
+        <div class="text-body-secondary">
+            ยังไม่มีนิยายในหมวดนี้
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+            @foreach (var novel in Model.Novels)
+            {
+                <div class="col">
+                    <a asp-area="Reader"
+                       asp-controller="Novel"
+                       asp-action="NovelDetail"
+                       asp-route-id="@novel.NovelId"
+                       class="text-decoration-none">
+
+                        <div class="card h-100 bg-body-secondary border-0">
+                            <img src="@(novel.CoverImageUrl ?? "https://picsum.photos/300/400")"
+                                 class="card-img-top object-fit-cover"
+                                 style="height:180px;" />
+
+                            <div class="card-body p-2">
+                                <p class="text-body fw-semibold small mb-1">
+                                    @novel.Title
+                                </p>
+                                <p class="text-body-secondary small mb-0">
+                                    👁 @novel.TotalViews
+                                </p>
+                            </div>
+                        </div>
+
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+    @* ── Pagination ── *@
+    @if (Model.TotalPages > 1)
+    {
+        <div class="d-flex justify-content-center mt-4 gap-2">
+
+            @if (Model.CurrentPage > 1)
+            {
+                <a class="btn btn-outline-secondary btn-sm"
+                   asp-action="ByGenre"
+                   asp-route-genreId="@Model.GenreId"
+                   asp-route-page="@(Model.CurrentPage - 1)">
+                    ← ก่อนหน้า
+                </a>
+            }
+
+            <span class="align-self-center small text-body-secondary">
+                หน้า @Model.CurrentPage / @Model.TotalPages
+            </span>
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <a class="btn btn-outline-secondary btn-sm"
+                   asp-action="ByGenre"
+                   asp-route-genreId="@Model.GenreId"
+                   asp-route-page="@(Model.CurrentPage + 1)">
+                    ถัดไป →
+                </a>
+            }
+
+        </div>
+    }
+
+</div>

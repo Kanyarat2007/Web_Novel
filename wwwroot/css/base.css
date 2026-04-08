@@ -1,0 +1,87 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+    scroll-behavior: smooth;
+}
+
+#commentSection {
+    scroll-margin-top: 180px; /* ปรับตามความสูง navbar */
+}
+
+body {
+  font-family:      var(--font-body);
+  font-size:        var(--text-base);
+  color:            var(--text-primary);
+  background-color: var(--bg-base);
+  line-height:      1.6;
+  transition:       background-color 0.2s, color 0.2s;
+}
+
+/* ===== Typography ===== */
+h1 { font-size: var(--text-3xl); font-weight: 700; }
+h2 { font-size: var(--text-2xl); font-weight: 600; }
+h3 { font-size: var(--text-xl);  font-weight: 600; }
+้h4 { font-size: var(--text-lg);  font-weight: 500; }
+p  { color: var(--text-basic); line-height: 1.7; }
+
+/* ===== Card Component ===== */
+.card {
+  background:    var(--bg-surface);
+  border:        1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding:       var(--space-6);
+  box-shadow:    var(--shadow-sm);
+}
+
+/* ===== Button ===== */
+.btn {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            var(--space-2);
+  padding:        var(--space-2) var(--space-4);
+  border-radius:  var(--border-radius);
+  font-size:      var(--text-sm);
+  font-weight:    500;
+  cursor:         pointer;
+  border:         none;
+  transition:     background 0.15s, transform 0.1s;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--color-primary);
+  color:      var(--text-inverse);
+}
+.btn-primary:hover { background: var(--color-primary-hover); }
+
+.btn-outline {
+  background: transparent;
+  border:     1px solid var(--border-color);
+  color:      var(--text-primary);
+}
+.btn-outline:hover { background: var(--bg-elevated); }
+
+/* ===== Responsive Breakpoints ===== */
+/* Mobile first approach */
+/* sm  → 640px  */
+/* md  → 768px  */
+/* lg  → 1024px */
+/* xl  → 1280px */
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover; /* สำคัญมาก ไม่ให้รูปยืด */
+}
+
+@media (min-width: 640px)  { .container { padding: 0 var(--space-6); } }
+@media (min-width: 1024px) { .container { padding: 0 var(--space-8); } }

@@ -1,0 +1,216 @@
+﻿@model Web_Novel.ViewModels.HomeViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "หน้าแรก";
+}
+
+<div class="container-xxl" style="max-width:950px;">
+
+    @* ── Banner ── *@
+    @if (!Model.IsLoggedIn)
+    {
+        <div class="bg-body-secondary border rounded-3 my-3
+            d-flex flex-column align-items-center justify-content-center gap-3" style="height:300px;">
+            <h4 class="text-body m-0">อ่านนิยายออนไลน์ฟรี</h4>
+            <p class="text-body-secondary small mb-0">สมัครสมาชิกเพื่ออ่านได้ไม่จำกัด</p>
+            <div class="d-flex gap-2">
+                <a asp-area="" asp-controller="Account" asp-action="Register" class="btn btn-primary">สมัครสมาชิกฟรี</a>
+                <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">เข้าสู่ระบบ</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="bg-body-secondary border rounded-3 my-3
+            d-flex align-items-center justify-content-center" style="height:300px;">
+            <h2 class="m-0 text-body">ยินดีต้อนรับ</h2>
+        </div>
+    }
+
+    @* ── กิจกรรม ── *@
+    <div class="mb-3">
+        <p class="fw-semibold text-body-secondary mb-2">กิจกรรม</p>
+    </div>
+
+
+    @* ── ส่วนที่แสดงเฉพาะ login ── *@
+    @if (Model.IsLoggedIn)
+    {
+        @* ── ประวัติการอ่าน ── *@
+        <div class="my-4">
+
+            @* Header แบบเดียวกับหมวดหมู่ *@
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-body fw-semibold mb-0">
+                    อ่านล่าสุด
+                </h5>
+
+                <a asp-area="Reader" asp-controller="Bookshelf" asp-action="Index" asp-route-tab="recent"
+                       class="btn btn-outline-primary btn-sm">
+                    ดูทั้งหมด
+                </a>
+            </div>
+
+            @if (!Model.RecentNovels.Any())
+            {
+                <div class="text-body-secondary small">
+                    ยังไม่มีประวัติการอ่าน
+                </div>
+            }
+            else
+            {
+                {
+                    <div class="my-4">
+                        <partial name="_RecentNovelRow" model="Model.RecentNovels" />
+                    </div>
+                }
+            }
+
+        </div>
+    }
+
+    @* ── หมวดหมู่ที่สนใจ ── *@
+    @if (Model.IsLoggedIn)
+    {
+        @if (!Model.InterestedGenres.Any())
+        {
+            <h5 class="mt-4 text-body fw-bold">หมวดที่คุณสนใจ</h5>
+
+            <div class="card bg-body-secondary border-0 p-4 my-3 text-center">
+                <h6 class="text-body">เลือกหมวดหมู่ที่คุณสนใจ</h6>
+
+                <p class="text-body-secondary small mb-3">
+                    เพื่อให้เราแนะนำนิยายที่ตรงใจคุณมากขึ้น
+                </p>
+
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editGenreModal">
+                    เลือกหมวดหมู่
+                </button>
+            </div>
+        }
+        else
+        {
+            @* ✅ header + ปุ่มอยู่บรรทัดเดียว *@
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                <h5 class="text-body fw-bold mb-0">
+                    หมวดที่คุณสนใจ
+                </h5>
+
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#editGenreModal">
+                    ✎ แก้ไข
+                </button>
+            </div>
+
+            @foreach (var genre in Model.InterestedGenres)
+            {
+                <div class="my-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-body fw-semibold mb-0">@genre.GenreName</h5>
+
+                        <a asp-area="Reader" asp-controller="Novel" asp-action="ByGenre" asp-route-genreId="@genre.GenreId"
+                               class="btn btn-outline-secondary btn-sm">
+                            ดูทั้งหมด
+                        </a>
+                    </div>
+
+                    @if (genre.Novels != null && genre.Novels.Any())
+                    {
+                        <partial name="_NovelRow" model="genre.Novels" />
+                    }
+                    else
+                    {
+                        <div class="bg-body-secondary d-flex gap-3 overflow-auto pb-2 text-center" style="width:100px;">
+                            <p class="text-body-secondary small mb-0">
+                                ยังไม่มีนิยายในหมวดนี้
+                            </p>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    }
+
+    @* ── หมวดหมู่ทั้งหมด ── *@
+    <h5 class="mt-5 text-body fw-bold">หมวดทั้งหมด</h5>
+    @foreach (var genre in Model.AllGenres
+                                                        .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
+    {
+        <div class="my-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-body fw-semibold mb-0">@genre.GenreName</h5>
+
+                <a asp-area="Reader" asp-controller="Novel" asp-action="ByGenre" asp-route-genreId="@genre.GenreId"
+                       class="btn btn-outline-secondary btn-sm">
+                    ดูทั้งหมด
+                </a>
+            </div>
+
+            @if (genre.Novels != null && genre.Novels.Any())
+            {
+                <partial name="_NovelRow" model="genre.Novels" />
+            }
+            else
+            {
+                <div class="bg-body-secondary rounded-3 p-3 text-center">
+                    <p class="text-body-secondary small mb-2">
+                        ยังไม่มีนิยายในหมวดนี้
+                    </p>
+                </div>
+            }
+        </div>
+    }
+
+    @* ── Modal แก้ไขหมวดที่สนใจ ── *@
+    @if (Model.IsLoggedIn)
+    {
+        <div class="modal fade" id="editGenreModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content bg-body">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-body">เลือกหมวดหมู่ที่สนใจ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form asp-area="Reader" asp-controller="Home" asp-action="SaveGenrePreferences" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="modal-body">
+                            <div class="d-flex flex-wrap gap-2">
+
+                                @foreach (var genre in Model.InterestedGenres)
+                                {
+                                    <div class="form-check form-check-inline m-0">
+                                        <input class="form-check-input" type="checkbox" name="genreIds" value="@genre.GenreId"
+                                               id="gm_@genre.GenreId" checked />
+                                        <label class="form-check-label text-body" for="gm_@genre.GenreId">
+                                            @genre.GenreName
+                                        </label>
+                                    </div>
+                                }
+
+                                @foreach (var genre in Model.AllGenres)
+                                {
+                                    <div class="form-check form-check-inline m-0">
+                                        <input class="form-check-input" type="checkbox" name="genreIds" value="@genre.GenreId"
+                                               id="gm_@genre.GenreId" />
+                                        <label class="form-check-label text-body" for="gm_@genre.GenreId">
+                                            @genre.GenreName
+                                        </label>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="submit" class="btn btn-primary btn-sm">บันทึก</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

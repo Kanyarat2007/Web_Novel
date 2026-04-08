@@ -1,0 +1,12 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model Web_Novel.ViewModels.WriterProfileViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+}
+
+<div class="container mt-4" style="max-width:950px;">
+    
+    
+</div>

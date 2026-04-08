@@ -1,0 +1,125 @@
+@model Web_Novel.ViewModels.BookshelfViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "ชั้นหนังสือ";
+    var tab = ViewBag.Tab as string ?? "writer";
+}
+
+<div class="container-xxl" style="max-width:950px;">
+    <h4 class="my-3 text-body">ชั้นหนังสือของฉัน</h4>
+
+    @* ── Tabs ── *@
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link @(tab == "shelf" ? "active" : "")" asp-action="Index" asp-route-tab="shelf">
+                นิยายที่เพิ่มไว้
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "bookmark" ? "active" : "")" asp-action="Index" asp-route-tab="bookmark">
+                บุ๊คมาร์ค
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tab == "recent" ? "active" : "")" asp-action="Index" asp-route-tab="recent">
+                อ่านล่าสุด
+            </a>
+        </li>
+    </ul>
+
+    @* ── Tab: shelf ── *@
+    @if (tab == "shelf")
+    {
+        @if (!Model.Novels.Any())
+        {
+            <p class="text-body-secondary">ยังไม่มีนิยายในชั้นหนังสือ</p>
+        }
+        else
+        {
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                @foreach (var novel in Model.Novels)
+                {
+                    <div class="col">
+                        <a asp-area="Reader" asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId"
+                               class="text-decoration-none">
+                            <div class="card h-100 bg-body-secondary border-0">
+                                <img src="@(novel.CoverImageUrl ?? "https://picsum.photos/300/400")"
+                                     class="card-img-top object-fit-cover" style="height:200px;" alt="@novel.Title" />
+                                <div class="card-body p-2">
+                                    <p class="card-title text-body fw-semibold small mb-0">
+                                        @novel.Title
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    @* ── Tab: bookmark ── *@
+    @if (tab == "bookmark")
+    {
+        @if (!Model.Bookmarks.Any())
+        {
+            <p class="text-body-secondary">ยังไม่มีบุ๊คมาร์ค</p>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var bm in Model.Bookmarks)
+                {
+                    if (bm.Chapter != null)
+                    {
+                        <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@bm.Chapter.NovelId"
+                               asp-route-chapterNumber="@bm.Chapter.ChapterNumber"
+                               class="list-group-item list-group-item-action bg-body-secondary border-0 mb-2 rounded-3">
+
+                            <div class="fw-semibold text-body">
+                                @bm.Chapter.Novel?.Title
+                            </div>
+                            <div class="small text-body-secondary">
+                                ตอนที่ @bm.Chapter.ChapterNumber — @bm.Chapter.Title
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        }
+    }
+
+    @* ── Tab: recent ── *@
+    @if (tab == "recent")
+    {
+        @if (!Model.RecentNovels.Any())
+        {
+            <p class="text-body-secondary">ยังไม่มีประวัติการอ่าน</p>
+        }
+        else
+        {
+            {
+                <div class="my-4">
+                    <partial name="_RecentNovelRow" model="Model.RecentNovels" />
+                </div>
+            }
+        }
+        @* else
+        {
+            <div class="list-group">
+                @foreach (var rh in Model.RecentNovels)
+                {
+                    <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@rh.NovelId"
+                           asp-route-chapterNumber="@rh.LastChapter?.ChapterNumber" class="list-group-item list-group-item-action
+                        bg-body-secondary border-0 mb-2 rounded-3">
+                        <div class="fw-semibold text-body">@rh.Novel?.Title</div>
+                        <div class="small text-body-secondary">
+                            อ่านถึงตอนที่ @rh.LastChapter?.ChapterNumber
+                            — @rh.LastReadAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </a>
+                }
+            </div>
+        } *@
+    }
+</div>

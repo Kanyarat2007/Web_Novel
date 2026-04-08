@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <!-- Dark mode โหลดก่อน body เพื่อป้องกัน flash -->
+    <script src="~/js/theme.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
+
+    <!-- CSS ของเรา -->
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+</head>
+
+<body>
+    <header class="sticky-top border-bottom" style="background-color: var(--bg-base);">
+        <div class="container-lg py-4" style="max-width:950px;">
+            @await Html.PartialAsync("_Navbar")
+        </div>
+    </header>
+
+</body>
+
+</html>
+

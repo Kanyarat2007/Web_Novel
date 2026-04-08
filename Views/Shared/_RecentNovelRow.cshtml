@@ -1,0 +1,23 @@
+@model List<Web_Novel.Models.Readinghistory>
+
+<div class="d-flex gap-3 overflow-auto pb-2">
+    @foreach (var rh in Model)
+    {
+        <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@rh.NovelId"
+               asp-route-chapterNumber="@rh.LastChapter?.ChapterNumber" class="text-decoration-none flex-shrink-0">
+
+            <div style="width:120px;">
+                <img src="@(rh.Novel?.CoverImageUrl ?? "https://picsum.photos/100/130")"
+                     class="rounded-2 object-fit-cover w-100" style="height:140px;" />
+
+                <p class="text-body small mt-1 mb-0 text-truncate">
+                    @rh.Novel?.Title
+                </p>
+
+                <p class="text-body-secondary mb-0" style="font-size:11px;">
+                    ตอนที่ @rh.LastChapter?.ChapterNumber
+                </p>
+            </div>
+        </a>
+    }
+</div>

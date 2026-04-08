@@ -1,0 +1,191 @@
+@* บน *@
+<div class="sticky-top bg-body border-bottom py-2" style="top:89px; z-index:1020;">
+    <div class="container" style="max-width:950px;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <!-- 🔹 ฝั่งซ้าย -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a asp-action="NovelDetail" asp-route-id="@Model.NovelId"
+                       class="btn btn-sm btn-outline-secondary rounded-pill">
+                    ← กลับ
+                </a>
+
+                <!-- สารบัญ -->
+                <button class="btn btn-sm btn-outline-primary rounded-pill" data-bs-toggle="offcanvas"
+                        data-bs-target="#tocPanel">
+                    📑 <span class="d-none d-sm-inline">สารบัญ</span>
+                </button>
+
+                <div class="text-body-secondary small text-truncate" style="max-width:200px;">
+                    @Model.ChapterTitle
+                </div>
+            </div>
+
+            <!-- 🔹 ฝั่งขวา -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                <!-- โน๊ต -->
+                <button class="btn btn-sm btn-outline-info rounded-pill" data-bs-toggle="offcanvas"
+                        data-bs-target="#notePanel">
+                    📝 <span class="d-none d-sm-inline">โน๊ต</span>
+                </button>
+                
+                <!-- บุ๊คมาร์ค -->
+                <button class="btn btn-sm @(Model.IsBookmarked ? "btn-warning" : "btn-outline-warning") rounded-pill"
+                        id="bookmarkBtn" onclick="toggleBookmark()">
+                    🔖 <span class="d-none d-sm-inline">
+                    @(Model.IsBookmarked ? "บันทึกแล้ว" : "บุ๊คมาร์ค")
+                </span>
+            </button>
+        </div>
+
+        @* สารบัญ *@
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="tocPanel">
+            <div class="offcanvas-header">
+                <h5>สารบัญ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                    
+            </div>
+
+            <div class="offcanvas-body">
+                @foreach (var ch in Model.Chapters)
+                {
+                    <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
+                           asp-route-chapterNumber="@ch.ChapterNumber" class="d-block mb-2 text-decoration-none">
+                        #@ch.ChapterNumber @ch.Title
+                        @(ch.ChapterNumber == Model.ChapterNumber ? "fw-bold text-primary" : "")
+                    </a>
+                        
+                }
+            </div>
+        </div>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="notePanel">
+            <div class="offcanvas-header">
+                <h5>โน๊ตของฉัน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+
+            @if (Model.IsLoggedIn)
+            {
+                <textarea id="noteText" class="form-control bg-body-secondary border-0" rows="3"
+                          placeholder="เขียนโน๊ตส่วนตัว...">@Model.UserNote</textarea>
+
+                <button onclick="saveNote()" class="btn btn-primary btn-sm mt-2">
+                    บันทึกโน๊ต
+                </button>
+            }
+            else
+            {
+                <div class="text-center mt-3">
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="text-primary">
+                        ล็อกอินเพื่อเขียนโน๊ต
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+</div>
+
+@* ล่าง *@
+<div class="fixed-bottom bg-body border-top py-2" style="z-index:1000;">
+    <div class="container" style="max-width:950px;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <!-- ซ้าย คอมเม้น -->
+            <div class="small text-body-secondary">
+                <a href="#commentSection" class="btn btn-sm btn-outline-secondary rounded-pill">
+                    💬 คอมเมนต์
+                </a>
+            </div>
+
+            <!-- ขวา ปุ่ม -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                @if (Model.PrevChapterNumber != null)
+                {
+                    <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
+                        asp-route-chapterNumber="@Model.PrevChapterNumber" class="btn btn-outline-secondary btn-sm">
+                        ← ตอนก่อน
+                    </a>
+                }
+
+                @if (Model.NextChapterNumber != null)
+                {
+                    <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
+                        asp-route-chapterNumber="@Model.NextChapterNumber" class="btn btn-primary btn-sm">
+                        ตอนถัดไป →
+                    </a>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleBookmark() {
+        if (!@Model.IsLoggedIn.ToString().ToLower()) {
+            alert("กรุณาเข้าสู่ระบบก่อน");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("chapterId", @Model.ChapterId);
+
+        fetch('/Reader/Novel/ChapterBookmark', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => {
+                if (res.status === 401) {
+                    alert("กรุณาเข้าสู่ระบบก่อน");
+                    return;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                const btn = document.getElementById("bookmarkBtn");
+
+                if (data.bookmarked) {
+                    btn.innerText = "🔖 บันทึกแล้ว";
+                    btn.classList.remove("btn-outline-warning");
+                    btn.classList.add("btn-warning");
+                } else {
+                    btn.innerText = "🔖 บุ๊คมาร์ค";
+                    btn.classList.remove("btn-warning");
+                    btn.classList.add("btn-outline-warning");
+                }
+            });
+    }
+</script>
+
+<script>
+    function saveNote() {
+        if (!@Model.IsLoggedIn.ToString().ToLower()) {
+            alert("กรุณาเข้าสู่ระบบก่อน");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("chapterId", @Model.ChapterId);
+        formData.append("content", document.getElementById("noteText").value);
+
+        fetch('/Reader/Novel/SaveNote', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => {
+                if (res.status === 401) {
+                    alert("กรุณาเข้าสู่ระบบก่อน");
+                    return;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data) alert("บันทึกแล้ว");
+            });
+    }
+</script>

@@ -1,0 +1,45 @@
+@model Web_Novel.ViewModels.SearchViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = $"ค้นหา: {Model.Query}";
+}
+
+<div class="container-xxl" style="max-width:950px;">
+
+    <h5 class="text-body my-3">
+        ผลการค้นหา "@Model.Query"
+        <span class="text-body-secondary small fw-normal">
+            (@Model.Novels.Count เรื่อง)
+        </span>
+    </h5>
+
+    @if (!Model.Novels.Any())
+    {
+        <div class="bg-body-secondary border rounded-3 p-5 text-center">
+            <p class="text-body-secondary mb-0">ไม่พบนิยายที่ตรงกับ "@Model.Query"</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+            @foreach (var novel in Model.Novels)
+            {
+                <div class="col">
+                    <a asp-area="Reader" asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId"
+                           class="text-decoration-none">
+                        <div class="card h-100 bg-body-secondary border-0">
+                            <img src="@(novel.CoverImageUrl ?? "https://picsum.photos/seed/@novel.NovelId/300/400")"
+                                 class="card-img-top object-fit-cover" style="height:180px;" alt="@novel.Title" />
+                            <div class="card-body p-2">
+                                <p class="text-body fw-semibold small mb-1">@novel.Title</p>
+                                <p class="text-body-secondary small mb-0">
+                                    👁 @novel.TotalViews
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>

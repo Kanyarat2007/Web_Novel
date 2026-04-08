@@ -1,0 +1,121 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@* @model Web_Novel.ViewModels.TopUpViewModel *@
+
+@{
+    var http = HttpContextAccessor.HttpContext;
+    var isLoggedIn = http?.Session.GetString("UserId") != null;
+    var displayName = http?.Session.GetString("DisplayName") ?? "";
+    var coinBalance = http?.Session.GetString("CoinBalance") ?? "0";
+    var avatarUrl = http?.Session.GetString("AvatarUrl") ?? "";
+    var role = http?.Session.GetString("Role") ?? "";
+
+    if (string.IsNullOrEmpty(avatarUrl))
+        avatarUrl = "https://ui-avatars.com/api/?name="
+                    + Uri.EscapeDataString(displayName)
+                    + "&background=ff84ab&color=fff";
+}
+
+<nav class="d-flex justify-content-between align-items-center">
+
+    @* ซ้าย *@
+    <div class="d-flex gap-3 align-items-center">
+        <a asp-area="Reader" asp-controller="Home" asp-action="Index"
+               class="text-decoration-none d-flex align-items-center gap-2">
+            <i class="bi bi-book fs-3 text-primary"></i>
+            <span class="fw-bold fs-5 text-primary">NovelWeb</span>
+        </a>
+    </div>
+
+    @* ขวา *@
+    <div class="d-flex gap-3 align-items-center">
+
+        <form asp-area="Reader" asp-controller="Novel" asp-action="NovelSearch" method="get">
+            <div class="position-relative">
+                <input name="q" class="form-control form-control-sm rounded-pill ps-4" style="width:200px"
+                       placeholder="ค้นหานิยาย..." value="@Context.Request.Query["q"]" />
+                <button type="submit" class="position-absolute top-50 start-0 translate-middle-y ms-2
+                    border-0 bg-transparent p-0">
+                    <i class="bi bi-search text-body-secondary"></i>
+                </button>
+            </div>
+        </form>
+
+        @if (string.IsNullOrEmpty(displayName))
+        {
+            <a asp-area="" asp-controller="Account" asp-action="Login">
+                เข้าสู่ระบบ / สมัครสมาชิก
+            </a>
+        }
+        else
+        {
+            <a asp-area="" asp-controller="Notification" asp-action="Index">
+                <i class="bi bi-bell-fill fs-5"></i>
+            </a>
+
+            <div class="dropdown">
+                <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+
+                    <img src="@Context.Session.GetString("AvatarUrl")" class="profile-img" />
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li class="px-3 py-2">
+                        <strong>@displayName</strong>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-area="Reader" asp-controller="Profile" asp-action="UserProfile">
+                            โปรไฟล์ของฉัน
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-area="Reader" asp-controller="Coin" asp-action="TopUp">
+                            เหรียญของฉัน
+                            @* @Model.CurrentBalance *@
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-area="Reader" asp-controller="Coin" asp-action="History">
+                            ประวัติการสั่งซื้อ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-area="Reader" asp-controller="Bookshelf" asp-action="Index">
+                            นิยายที่เพิ่มเข้าชั้น
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-area="Writer" asp-controller="Writer" asp-action="Dashboard">
+                            โหมดนักเขียน
+                        </a>
+                    </li>
+
+                    @* Dark mode toggle *@
+                    <div class="form-check form-switch mb-0 d-flex align-items-center gap-1">
+                        <input class="form-check-input" type="checkbox" id="darkModeSwitch" onchange="toggleTheme()"
+                               style="cursor:pointer; width:2.2em; height:1.2em;" />
+                        <label class="form-check-label text-body-secondary small" for="darkModeSwitch">
+                            <i class="bi bi-moon-stars"></i>
+                        </label>
+                    </div>
+
+                    <li>
+                        <a class="dropdown-item text-danger" asp-area="" asp-controller="Account" asp-action="Logout">
+                            ออกจากระบบ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        }
+    </div>
+</nav>

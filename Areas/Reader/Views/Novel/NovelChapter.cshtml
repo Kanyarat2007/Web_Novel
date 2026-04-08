@@ -1,0 +1,129 @@
+@model Web_Novel.ViewModels.NovelChapterViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = $"{Model.NovelTitle} — ตอนที่ {Model.ChapterNumber}";
+}
+
+<div class="container" style="max-width:950px;">
+    <partial name="_ChapterNavbar" model="Model" />
+    
+    <div style="height:60px;"></div>
+
+    @if (Model.CanRead)
+    {
+        <!-- อ่านได้ -->
+        <div class="chapter-content">
+            @Html.Raw(Model.Content)
+        </div>
+    }
+    else
+    {
+        <!-- ล็อค -->
+        <div class="text-center p-5 border rounded bg-light">
+
+            <h4 class="text-danger">ตอนนี้ติดเหรียญ</h4>
+
+            @if (!Model.IsLoggedIn)
+            {
+                <p>กรุณาเข้าสู่ระบบก่อน</p>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                    เข้าสู่ระบบ
+                </a>
+            }
+            else
+            {
+                <p>ราคาตอนนี้: <strong>@Model.CoinPrice เหรียญ</strong></p>
+
+                <form asp-controller="Coin" asp-action="BuyChapter" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="chapterId" value="@Model.ChapterId" />
+                    <input type="hidden" name="novelId" value="@Model.NovelId" />
+
+                    <button type="submit" class="btn btn-warning">
+                        ซื้อเพื่ออ่าน
+                    </button>
+                </form>
+            }
+
+        </div>
+    }
+
+    <!-- ความคิดเห็น -->
+    <div id="commentSection" class="d-flex justify-content-between align-items-center mt-5">
+        <h6 class="mb-0">
+            ความคิดเห็น (@Model.Comments.Count)
+        </h6>
+
+        <div>
+            <a asp-route-novelId="@Model.NovelId" asp-route-chapterNumber="@Model.ChapterNumber" asp-route-sort="new"
+                   class="btn btn-sm @(Model.Sort == "new" ? "btn-primary" : "btn-outline-secondary")">
+                ใหม่
+            </a>
+
+            <a asp-route-novelId="@Model.NovelId" asp-route-chapterNumber="@Model.ChapterNumber" asp-route-sort="old"
+                   class="btn btn-sm @(Model.Sort == "old" ? "btn-primary" : "btn-outline-secondary")">
+                เก่า
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Comment -->
+    @if (Model.IsLoggedIn)
+    {
+        <form asp-area="Reader" asp-controller="Comment" asp-action="AddComment" method="post" class="mt-3">
+            <input type="hidden" name="novelId" value="@Model.NovelId" />
+            <input type="hidden" name="ChapterId" value="@Model.ChapterId" />
+            <textarea name="content" class="form-control" placeholder="เขียนความคิดเห็น..." rows="3"></textarea>
+            <button class="btn btn-primary btn-sm mt-2">ส่งความคิดเห็น</button>
+        </form>
+    }
+    else
+    {
+        <div class="text-center mt-3">
+            <a asp-area="" asp-controller="Account" asp-action="Login">
+                ล็อกอินเพื่อแสดงความคิดเห็น
+            </a>
+        </div>
+    }
+
+    <!-- Comment List -->
+    @if (!Model.Comments.Any())
+    {
+        <p class="text-body-secondary small mt-2">ยังไม่มีความคิดเห็น</p>
+    }
+    else
+    {
+        <div class="list-group mt-2">
+            @foreach (var c in Model.Comments)
+            {
+                <div class="list-group-item bg-body-secondary border-0 mb-2 rounded-3">
+
+                    <div class="small text-body-secondary">
+                        <a asp-area="Reader" asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@c.UserId">
+                            @c.UserName
+                        </a>
+                        • @TimeHelper.ToThaiString(c.CreatedAt)
+
+                        @if (c.UserId == Model.CurrentUserId)
+                        {
+                            <span class="badge bg-primary ms-1">ของฉัน</span>
+                        }
+                    </div>
+
+                    <div class="text-body mt-1">
+                        @c.Content
+                    </div>
+
+                    @if (c.UserId == Model.CurrentUserId)
+                    {
+                        <form asp-area="Reader" asp-controller="Comment" asp-action="DeleteComment" method="post" class="mt-2">
+                            <input type="hidden" name="commentId" value="@c.CommentId" />
+                            <button class="btn btn-sm btn-outline-danger">ลบ</button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    }
+    }
+</div>

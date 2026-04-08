@@ -1,0 +1,61 @@
+@using Web_Novel.ViewModels
+@using Web_Novel.Helpers
+@model Web_Novel.ViewModels.PurchaseHistoryViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "ประวัติการซื้อนิยาย";
+}
+
+
+<div class="container-xxl" style="max-width:950px;">
+
+    <h2 class="m-0">ประวัติการซื้อนิยาย</h2>
+
+    @if (!Model.NovelGroups.Any())
+    {
+        <p>คุณยังไม่ได้ซื้อนิยายใด ๆ</p>
+    }
+    else
+    {
+        @foreach (var novel in Model.NovelGroups)
+        {
+            <div class="card mb-3">
+                <div class="row g-0">
+
+                    <!-- รูปปก -->
+                    <div class="col-md-2">
+                        <img src="@novel.CoverImageUrl" class="img-fluid rounded-start" />
+                    </div>
+
+                    <!-- ข้อมูล -->
+                    <div class="col-md-10">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="m-0">@novel.NovelTitle</h5>
+                        </div>
+
+                        <ul class="list-group list-group-flush">
+                            @foreach (var chapter in novel.Chapters)
+                            {
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>
+                                        ตอน @chapter.ChapterNumber: @chapter.ChapterTitle
+                                    </span>
+                                    <span>
+                                        @chapter.CoinSpent เหรียญ
+                                        <a class="btn btn-sm btn-primary ms-2" asp-area="Reader" asp-controller="Novel"
+                                               asp-action="NovelChapter" asp-route-novelId="@novel.NovelId"
+                                               asp-route-chapterNumber="@chapter.ChapterNumber">
+                                            อ่าน
+                                        </a>
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        }
+    }
+
+</div>

@@ -1,0 +1,71 @@
+@using Web_Novel.ViewModels
+@using Web_Novel.Helpers
+@model Web_Novel.ViewModels.TopUpViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "เหรียญของฉัน";
+}
+
+<div class="container-xxl" style="max-width:950px;">
+
+    <div class="mb-3">
+        <h5>เหรียญของฉัน
+            <span class="text-success">@Model.CurrentBalance</span> เหรียญ
+        </h5>
+    </div>
+    <h2 class="mb-3">เติมเหรียญ</h2>
+
+
+    <div class="row">
+        @foreach (var package in Model.Packages)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">@package.Name</h5>
+
+                        <h3 class="text-warning">
+                            @(package.CoinAmount + package.BonusCoin)
+                        </h3>
+
+                        <p class="text-muted mb-1">
+                            + โบนัส @package.BonusCoin
+                        </p>
+
+                        <p class="fw-bold">
+                            @package.Price บาท
+                        </p>
+
+                        <form asp-action="Purchase" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="packageId" value="@package.PackageId" />
+
+                            <button type="submit" class="btn btn-primary w-100"
+                                    onclick="return confirm('ยืนยันการซื้อแพ็คนี้?')">
+                                ซื้อแพ็ค
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+</div>

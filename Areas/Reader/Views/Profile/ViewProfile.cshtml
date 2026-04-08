@@ -1,0 +1,26 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model Web_Novel.ViewModels.UserProfileViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+}
+
+<h4>@Model.DisplayName</h4>
+<p class="text-body-secondary">@Model.Bio</p>
+
+@if (!Model.IsCurrentUser)
+{
+    <form method="post">
+        <input type="hidden" name="blockedUserId" value="@Model.UserId" />
+
+        @if (Model.IsBlocked)
+        {
+            <button asp-action="UnblockUser" asp-controller="Block" class="btn btn-secondary btn-sm">ยกเลิกบล็อค</button>
+        }
+        else
+        {
+            <button asp-action="BlockUser" asp-controller="Block" class="btn btn-danger btn-sm">บล็อคผู้ใช้</button>
+        }
+    </form>
+}

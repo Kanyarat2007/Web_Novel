@@ -1,0 +1,227 @@
+@using Web_Novel.ViewModels
+@using Web_Novel.Helpers
+@model Web_Novel.ViewModels.NovelDetailViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container-xxl" style="max-width:860px;">
+
+    @* ── ข้อมูลนิยาย ── *@
+    <div class="row g-4 my-3">
+
+        @* ปก *@
+        <div class="col-auto">
+            <img src="@(Model.CoverImageUrl ?? "https://picsum.photos/300/400")" class="rounded-3 object-fit-cover"
+                 style="width:180px; height:240px;" alt="@Model.Title" />
+        </div>
+
+        @* รายละเอียด + ปุ่ม (อยู่ใน col เดียวกัน) *@
+        <div class="col d-flex flex-column gap-2">
+            <h4 class="text-body fw-bold mb-0">@Model.Title</h4>
+
+            @* <p class="text-body-secondary small mb-0">
+                สถานะ: @Model.Status | ประเภท: @Model.SeriesType
+            </p> *@
+
+            <p class="text-body small mb-0">@Model.Synopsis</p>
+            <div>
+                @foreach (var g in Model.GenreNames)
+                {
+                    <span class="badge bg-body-secondary text-body me-1">@g</span>
+                }
+            </div>
+
+            @* นักเขียน *@
+            <p class="text-body-secondary small mb-0">
+                นักเขียน
+            </p>
+
+            <div class="d-flex gap-3 text-body-secondary small">
+                <span>👁 @Model.TotalViews</span>
+                <span>❤ @Model.TotalLikes</span>
+                <span>📚 @Model.TotalBookshelf</span>
+            </div>
+
+            @* ── ปุ่ม อยู่ใน col เดียวกับรายละเอียด ── *@
+            <div class="d-flex gap-2 mt-1">
+
+                @if (Model.IsLoggedIn)
+                {
+                    @* ปุ่มเพิ่ม/ลบชั้นหนังสือ *@
+                    @if (Model.IsInBookshelf)
+                    {
+                        <form asp-area="Reader" asp-controller="Bookshelf" asp-action="Remove" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="novelId" value="@Model.NovelId" />
+                            <button type="submit" class="btn btn-secondary btn-sm">
+                                ✓ อยู่ในชั้นแล้ว
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-area="Reader" asp-controller="Bookshelf" asp-action="Add" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="novelId" value="@Model.NovelId" />
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                + เพิ่มเข้าชั้น
+                            </button>
+                        </form>
+                    }
+
+                    @* ปุ่มไลค์ *@
+                    <form asp-area="Reader" asp-controller="Novel" asp-action="ToggleLike" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="novelId" value="@Model.NovelId" />
+                        <button type="submit" class="btn btn-sm @(Model.IsLiked ? "btn-danger" : "btn-outline-secondary")">
+                            @(Model.IsLiked ? "ถูกใจแล้ว" : "กดไลค์")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    @* Guest เห็นปุ่ม Login แทน *@
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">
+                        เข้าสู่ระบบเพื่อเพิ่มเข้าชั้น
+                    </a>
+                }
+
+            </div>
+        </div>
+        
+    </div>
+
+    @* trigger warning *@
+    <div class="card bg-body-secondary border-0 p-4 my-4">
+        <h6 class="text-body fw-semibold mb-2">
+            trigger warning
+        </h6>
+    </div>
+
+    @* แนะนำเรื่อง *@
+    <div class="card bg-body-secondary border-0 p-4 my-4">
+        <h6 class="text-body fw-semibold mb-2">
+            แนะนำเรื่อง
+        </h6>
+
+        @if (!string.IsNullOrWhiteSpace(Model.AuthorNote))
+        {
+            <p class="text-body small mb-0" style="white-space: pre-line;">
+                @Model.AuthorNote
+            </p>
+        }
+        else
+        {
+            <p class="text-body-secondary small mb-0">
+                ยังไม่มีข้อมูลแนะนำเรื่อง
+            </p>
+        }
+    </div>
+
+    @* ── สารบัญตอน ── *@
+    <h5 class="text-body mt-4 mb-3">สารบัญ</h5>
+    <div class="list-group">
+        @foreach (var ch in Model.Chapters)
+        {
+            <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
+                   asp-route-chapterNumber="@ch.ChapterNumber" 
+                   class="list-group-item list-group-item-action bg-body-secondary border-0 mb-1 rounded-3">
+                   
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-body">
+                        #@ch.ChapterNumber @ch.Title
+                    </span>
+                    @if (ch.IsPurchased)
+                    {
+                        <span class="badge bg-success">ซื้อแล้ว</span>
+                    }
+                    else if (ch.IsCoinRequired)
+                    {
+                        <span class="badge bg-warning text-dark">
+                            @ch.CoinPrice เหรียญ
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">ฟรี</span>
+                    }
+                </div>
+            </a>
+        }
+    </div>
+
+    @* ความคิดเห็น *@
+    <h5 class="mt-4">ความคิดเห็น (@Model.Comments.Count)</h5>
+
+    @if (Model.IsLoggedIn)
+    {
+        <form asp-area="Reader" asp-controller="Comment" asp-action="AddComment" method="post" class="mt-3">
+            <input type="hidden" name="novelId" value="@Model.NovelId" />
+            <input type="hidden" name="chapterId" value="" /> @* null = คอมเมนต์ทั้งเรื่อง *@
+
+            <textarea name="content" class="form-control" placeholder="แสดงความคิดเห็นเกี่ยวกับเรื่องนี้..."
+                      rows="3"></textarea>
+            <button class="btn btn-primary btn-sm mt-2">ส่งความคิดเห็น</button>
+        </form>
+    }
+    else
+    {
+        <div class="text-center mt-3">
+            <a asp-area="" asp-controller="Account" asp-action="Login">
+                ล็อกอินเพื่อแสดงความคิดเห็น
+            </a>
+        </div>
+    }
+
+    @if (!Model.Comments.Any())
+    {
+        <p class="text-body-secondary mt-3">ยังไม่มีความคิดเห็น</p>
+    }
+    else
+    {
+        <div class="list-group mt-3">
+            @foreach (var c in Model.Comments)
+            {
+                <div class="list-group-item bg-body-secondary border-0 mb-2 rounded-3">
+
+                    <div class="small text-body-secondary">
+                        <a asp-area="Reader" asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@c.UserId">
+                            @c.UserName
+                        </a>
+                        • @TimeHelper.ToThaiString(c.CreatedAt)
+
+                        @if (c.UserId == Model.CurrentUserId)
+                        {
+                            <span class="badge bg-primary ms-1">ของฉัน</span>
+                        }
+
+                        @if (c.ChapterId != null)
+                        {
+                            <span class="badge bg-info ms-1">ตอน @c.ChapterNumber</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary ms-1">คอมเมนต์เรื่อง</span>
+                        }
+                    </div>
+
+                    <div class="text-body mt-1">
+                        @c.Content
+                    </div>
+
+                    @if (c.UserId == Model.CurrentUserId)
+                    {
+                        <form asp-area="Reader" asp-controller="Comment" asp-action="DeleteComment" method="post" class="mt-2">
+                            <input type="hidden" name="commentId" value="@c.CommentId" />
+                            <button class="btn btn-sm btn-outline-danger">ลบ</button>
+                        </form>
+                    }
+
+                </div>
+            }
+        </div>
+    }
+
+</div>

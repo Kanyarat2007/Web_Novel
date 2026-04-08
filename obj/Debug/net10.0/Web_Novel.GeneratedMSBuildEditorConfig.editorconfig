@@ -1,0 +1,227 @@
+is_global = true
+build_property.TargetFramework = net10.0
+build_property.TargetFramework = net10.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v10.0
+build_property.RootNamespace = Web_Novel
+build_property.RootNamespace = Web_Novel
+build_property.ProjectDir = C:\Users\kanya\Desktop\Web_Novel\Web_Novel\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\kanya\Desktop\Web_Novel\Web_Novel
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 10.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Bookshelf/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXEJvb2tzaGVsZlxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Coin/History.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXENvaW5cSGlzdG9yeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Coin/TopUp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXENvaW5cVG9wVXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXEhvbWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXEhvbWVcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Manga/MangaChapter.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE1hbmdhXE1hbmdhQ2hhcHRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Manga/MangaDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE1hbmdhXE1hbmdhRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Manga/MangaSearch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE1hbmdhXE1hbmdhU2VhcmNoLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Novel/ByGenre.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE5vdmVsXEJ5R2VucmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Novel/NovelChapter.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE5vdmVsXE5vdmVsQ2hhcHRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Novel/NovelDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE5vdmVsXE5vdmVsRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Novel/NovelSearch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXE5vdmVsXE5vdmVsU2VhcmNoLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Profile/UserProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXFByb2ZpbGVcVXNlclByb2ZpbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Profile/ViewProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXFByb2ZpbGVcVmlld1Byb2ZpbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/Profile/WriterView.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXFByb2ZpbGVcV3JpdGVyVmlldy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Reader/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUmVhZGVyXFZpZXdzXF9WaWV3SW1wb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Manga/MangaCreate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE1hbmdhXE1hbmdhQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Manga/MangaDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE1hbmdhXE1hbmdhRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Manga/MangaInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE1hbmdhXE1hbmdhSW5mby5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Manga/MangaUpload.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE1hbmdhXE1hbmdhVXBsb2FkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Novel/ChapterAdd.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE5vdmVsXENoYXB0ZXJBZGQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Novel/ChapterEdit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE5vdmVsXENoYXB0ZXJFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Novel/NovelCreate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE5vdmVsXE5vdmVsQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Novel/NovelDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE5vdmVsXE5vdmVsRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Novel/NovelInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXE5vdmVsXE5vdmVsSW5mby5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/PenName/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFBlbk5hbWVcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Shared/_MyNovels.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFNoYXJlZFxfTXlOb3ZlbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Shared/_Payments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFNoYXJlZFxfUGF5bWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Shared/_PenNameForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFNoYXJlZFxfUGVuTmFtZUZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Shared/_PenNames.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFNoYXJlZFxfUGVuTmFtZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Shared/_Stats.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFNoYXJlZFxfU3RhdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/WriterUpgrade/Apply.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFdyaXRlclVwZ3JhZGVcQXBwbHkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/Writer/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXFdyaXRlclxEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Areas/Writer/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcV3JpdGVyXFZpZXdzXF9WaWV3SW1wb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Notification/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_BookCard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Cb29rQ2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_ChapterNavbar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9DaGFwdGVyTmF2YmFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_Footer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Gb290ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_Header.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9IZWFkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_Navbar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9OYXZiYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_NovelRow.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Ob3ZlbFJvdy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_RecentNovelRow.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9SZWNlbnROb3ZlbFJvdy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kanya/Desktop/Web_Novel/Web_Novel/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-q1c7m0jg4c

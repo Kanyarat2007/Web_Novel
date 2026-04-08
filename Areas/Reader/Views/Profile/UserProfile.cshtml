@@ -1,0 +1,110 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model Web_Novel.ViewModels.UserProfileViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+}
+
+<div class="container mt-4" style="max-width:950px;">
+    <h3 class="mb-3">โปรไฟล์ของฉัน</h3>
+    
+    <!-- 🔹 แสดงข้อมูล -->
+    <div class="card shadow-sm p-3 mb-3 text-basic">
+        <div class="d-flex align-items-center gap-4">
+            <img src="@(string.IsNullOrEmpty(Context.Session.GetString("AvatarUrl")) 
+                                                                                                                                                                                                                                                        ? "/images/default-avatar.png"
+                                                                                                                                                                                                                                                        : Context.Session.GetString("AvatarUrl"))"
+                 class="rounded-circle border" style="width:90px;height:90px;object-fit:cover;"
+                 onerror="this.src='/images/default-avatar.png'" />
+            <div>
+                <p><strong>ชื่อ</strong> @Model.DisplayName</p>
+                <p><strong>ชื่อผู้ใช้</strong> @Model.Username</p>
+            </div>
+        </div>
+
+        <p><strong>อีเมล</strong> @Model.Email</p>
+        <p><strong>วันเกิด</strong> @Model.BirthDate</p>
+        <p><strong>เกี่ยวกับฉัน</strong> @Model.Bio</p>
+        <button class="btn btn-primary mt-2" onclick="toggleEdit()">
+            แก้ไขโปรไฟล์ </button>
+        </div>
+    
+        <!-- ฟอร์มแก้ไข -->
+        <div id="editSection" class="card shadow-sm p-3" style="display:none;">
+            <h3 class="mb-3">แก้ไขโปรไฟล์</h3>
+
+                <form method="post" asp-area="Reader" asp-controller="Profile" asp-action="UpdateProfile"
+                      enctype="multipart/form-data">
+
+                    <div class="row align-items-center">
+
+                        <!-- 🔹 LEFT: Avatar -->
+                        <div class="d-flex align-items-center gap-4">
+                            <input type="file" name="ProfileImageFile" class="form-control mb-2"
+                                   value="@Model.ProfileImageFile" placeholder="URL รูปโปรไฟล์" />
+                    
+                            <button type="submit" name="removeImage" value="true" class="btn btn-danger btn-sm">
+                                ลบรูปโปรไฟล์
+                            </button>
+                        </div>
+
+                
+                        <div >
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="fw-semibold">Username</label>
+                                    <input name="Username" class="form-control mb-3" value="@Model.Username" readonly />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="fw-semibold">ชื่อที่แสดง</label>
+                                    <input name="DisplayName" class="form-control mb-3" value="@Model.DisplayName" />
+                                </div>
+                            </div>
+
+                            <label class="fw-semibold">Email</label>
+                            <input name="Email" class="form-control mb-3" value="@Model.Email" />
+
+                            <label class="fw-semibold">วันเกิด</label>
+                            <input name="BirthDate" type="date" class="form-control mb-3"
+                                   value="@Model.BirthDate?.ToString("yyyy-MM-dd")" />
+
+                            <label class="fw-semibold">เกี่ยวกับฉัน</label>
+                            <textarea name="Bio" class="form-control mb-3" rows="3">@Model.Bio</textarea>
+
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-2"> <button class="btn btn-success">บันทึก</button> <button type="button"
+                                                                                                                class="btn btn-secondary" onclick="toggleEdit()"> ยกเลิก </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function toggleEdit() {
+                const section = document.getElementById("editSection");
+
+                if (section.style.display === "none") {
+                    section.style.display = "block";
+
+                    // 👇 เลื่อนลงไปหาฟอร์ม
+                    section.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    section.style.display = "none";
+                }
+            }
+        </script>
+
+        <script>
+            function previewFile(event) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    document.getElementById('previewImage').src = reader.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        </script>

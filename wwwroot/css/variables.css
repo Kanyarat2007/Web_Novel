@@ -1,0 +1,108 @@
+/* ===== Light Mode (default) ===== */
+:root {
+  /* Colors */
+  --color-primary:        #ffe2fa;   /* สีหลัก (purple) */
+  --color-primary-hover:  #ffd6e3;
+  --color-secondary:      #F3F4F6;
+  --color-accent:         #F59E0B;   /* สีเหรียญ */
+
+  /* Background */
+  --bg-base:        #FFFFFF;
+  --bg-surface:     #F9FAFB;         /* card, sidebar */
+  --bg-elevated:    #F3F4F6;         /* dropdown, modal */
+
+  /* Text */
+  --text-primary:   #ff5d90;
+  --text-secondary: #ff8fb2;
+  --text-basic: #000000;
+  --text-muted:     #9CA3AF;
+  --text-inverse:   #FFFFFF;
+
+  /* Border */
+  --border-color:   #E5E7EB;
+  --border-radius:  8px;
+  --border-radius-lg: 12px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Typography */
+  --font-body:    'Sarabun', sans-serif;   /* รองรับภาษาไทย */
+  --font-heading: 'Sarabun', sans-serif;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-lg:   18px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+
+  /* Navbar */
+  --navbar-height: 64px;
+  --sidebar-width: 260px;
+
+      /* Bootstrap overrides */
+    --bs-primary:          #ff84ab;
+    --bs-primary-rgb:      255, 132, 171;
+    --bs-secondary:        #ffc7d0;
+    --bs-secondary-rgb:    255, 199, 208;
+    --bs-link-color:       #ff84ab;
+    --bs-link-hover-color: #ff6b9d;
+    --bs-body-bg:          #FFFFFF;
+    --bs-body-color:       #000000;
+
+}
+
+/* ===== Dark Mode ===== */
+[data-bs-theme="dark"] {
+    --color-primary:       #ff84ab;   /* สีหลักเหมือนกัน */
+    --color-primary-hover: #ff9dc0;   /* hover สว่างขึ้นนิดนึงใน dark */
+
+    --bg-base:     #111827;
+    --bg-surface:  #1F2937;
+    --bg-elevated: #374151;
+
+    --text-primary:   #ffb3cc;        /* สว่างขึ้นให้อ่านง่ายบนพื้นมืด */
+    --text-secondary: #ff84ab;
+    --text-basic:     #F9FAFB;        /* ขาวแทนดำ */
+    --text-muted:     #9CA3AF;
+
+    --border-color: #374151;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+
+    /* Bootstrap overrides dark */
+    --bs-body-bg:    #111827;
+    --bs-body-color: #F9FAFB;
+
+    /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Typography */
+  --font-body:    'Sarabun', sans-serif;   /* รองรับภาษาไทย */
+  --font-heading: 'Sarabun', sans-serif;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-lg:   18px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+
+  /* Navbar */
+  --navbar-height: 64px;
+  --sidebar-width: 260px
+}

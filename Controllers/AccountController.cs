@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Web_Novel.Models;
 using Web_Novel.ViewModels;
 using Web_Novel.Helpers;
-using Microsoft.EntityFrameworkCore;
 
 namespace Web_Novel.Controllers;
 
@@ -16,13 +16,9 @@ public class AccountController : Controller
         _db = db;
     }
 
-    public IActionResult Index(string username)
-    {
-        ViewBag.Username = username;
-        return View();
-    }
-
-    // ── Login ──────────────────────────────────────────
+    // =========================
+    // LOGIN
+    // =========================
     [HttpGet]
     public IActionResult Login()
     {
@@ -32,39 +28,76 @@ public class AccountController : Controller
     [HttpPost]
     public IActionResult Login(LoginViewModel data)
     {
-        var user = (from u in _db.Users
-                        .Include(u => u.Roles)
-                    where u.Username == data.Username
-                    select u).FirstOrDefault();
+        if (!ModelState.IsValid)
+            return View(data);
 
-        var hash = PasswordHelper.HashPassword(data.Password);
+        var user = _db.Users
+            .Include(u => u.Roles)
+            .FirstOrDefault(u => u.Username == data.Username);
 
-        if (user == null || user.PasswordHash != hash)
+        if (user == null)
         {
             ViewBag.Error = "Username หรือ Password ไม่ถูกต้อง";
             return View();
         }
 
+        // ✅ ใช้ Verify แทน hash เทียบตรง
+        var isPasswordValid = PasswordHelper.VerifyPassword(
+            data.Password,
+            user.PasswordHash
+        );
+
+        if (!isPasswordValid)
+        {
+            ViewBag.Error = "Username หรือ Password ไม่ถูกต้อง";
+            return View();
+        }
+
+        // =========================
+        // update login time
+        // =========================
         user.LastLoginAt = DateTime.UtcNow;
         _db.SaveChanges();
 
-        var roleName = (from r in user.Roles
-                        select r.RoleName).FirstOrDefault() ?? "Reader";
+        // =========================
+        // ROLE PRIORITY
+        // =========================
+        var roleName =
+            user.Roles.Any(r => r.RoleName == "Admin") ? "Admin" :
+            user.Roles.Any(r => r.RoleName == "Moderator") ? "Moderator" :
+            user.Roles.Any(r => r.RoleName == "Writer") ? "Writer" :
+            "Reader";
 
+        var role = HttpContext.Session.GetString("Role");
+
+        // =========================
+        // SESSION
+        // =========================
         HttpContext.Session.SetString("UserId", user.UserId.ToString());
         HttpContext.Session.SetString("Username", user.Username);
-        HttpContext.Session.SetString("DisplayName", user.DisplayName);
+        HttpContext.Session.SetString("DisplayName", user.DisplayName ?? user.Username);
         HttpContext.Session.SetString("CoinBalance", user.CoinBalance.ToString());
         HttpContext.Session.SetString("AvatarUrl", user.ProfileImageUrl ?? "");
         HttpContext.Session.SetString("Role", roleName);
 
-        if (roleName == "Admin" || roleName == "Moderator")
-            return RedirectToAction("Dashboard", "Home", new { area = "Admin" });
+        // =========================
+        // REDIRECT BY ROLE
+        // =========================
+        return roleName switch
+        {
+            "Admin" => RedirectToAction("Index", "Report", new { area = "Admin" }),
 
-        return RedirectToAction("Index", "Home", new { area = "Reader" });
+            "Moderator" => RedirectToAction("Index", "Report", new { area = "Admin" }),
+
+            "Writer" => RedirectToAction("Dashboard", "Writer", new { area = "Writer" }),
+
+            _ => RedirectToAction("Index", "Home", new { area = "Reader" })
+        };
     }
 
-    // ── Register ───────────────────────────────────────
+    // =========================
+    // REGISTER
+    // =========================
     [HttpGet]
     public IActionResult Register()
     {
@@ -74,57 +107,56 @@ public class AccountController : Controller
     [HttpPost]
     public IActionResult Register(RegisterViewModel data)
     {
-        if (string.IsNullOrEmpty(data.Password))
+        if (!ModelState.IsValid)
+            return View(data);
+
+        if (string.IsNullOrWhiteSpace(data.Password))
         {
             ViewBag.Error = "กรุณากรอกรหัสผ่าน";
-            return View();
+            return View(data);
         }
 
-        var dupUsername = (from u in _db.Users
-                           where u.Username == data.Username
-                           select u).FirstOrDefault();
-
-        if (dupUsername != null)
+        // ตรวจ username ซ้ำ
+        if (_db.Users.Any(u => u.Username == data.Username))
         {
             ViewBag.Error = "Username นี้มีคนใช้แล้ว";
-            return View();
+            return View(data);
         }
 
-        var dupEmail = (from u in _db.Users
-                        where u.Email == data.Email
-                        select u).FirstOrDefault();
-
-        if (dupEmail != null)
+        // ตรวจ email ซ้ำ
+        if (_db.Users.Any(u => u.Email == data.Email))
         {
             ViewBag.Error = "Email นี้มีคนใช้แล้ว";
-            return View();
+            return View(data);
         }
 
-        if (!DateOnly.TryParse(data.BirthDate, out DateOnly birth))
+        // parse birthdate
+        if (!DateOnly.TryParseExact(data.BirthDate, "yyyy-MM-dd",
+    System.Globalization.CultureInfo.InvariantCulture,
+    System.Globalization.DateTimeStyles.None,
+    out DateOnly birth))
         {
             ViewBag.Error = "รูปแบบวันเกิดไม่ถูกต้อง";
-            return View();
+            return View(data);
         }
 
-        var readerRole = (from r in _db.Roles
-                          where r.RoleName == "Reader"
-                          select r).FirstOrDefault();
+        var readerRole = _db.Roles.FirstOrDefault(r => r.RoleName == "Reader");
 
         if (readerRole == null)
         {
-            ViewBag.Error = "ไม่พบข้อมูล Role กรุณาติดต่อผู้ดูแลระบบ";
-            return View();
+            ViewBag.Error = "ไม่พบ Role Reader";
+            return View(data);
         }
 
         var newUser = new User
         {
             Username = data.Username,
             DisplayName = data.Username,
-            PasswordHash = PasswordHelper.HashPassword(data.Password),
             Email = data.Email,
             BirthDate = birth,
+            PasswordHash = PasswordHelper.HashPassword(data.Password),
+
             CoinBalance = 0,
-            IsWriter = false,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -134,31 +166,29 @@ public class AccountController : Controller
         _db.Users.Add(newUser);
         _db.SaveChanges();
 
-        var roleName = (from r in newUser.Roles
-                        select r.RoleName).FirstOrDefault() ?? "Reader";
-
+        // login ทันที
         HttpContext.Session.SetString("UserId", newUser.UserId.ToString());
         HttpContext.Session.SetString("Username", newUser.Username);
         HttpContext.Session.SetString("DisplayName", newUser.DisplayName);
         HttpContext.Session.SetString("CoinBalance", "0");
         HttpContext.Session.SetString("AvatarUrl", "");
-        HttpContext.Session.SetString("Role", roleName);
+        HttpContext.Session.SetString("Role", "Reader");
 
         return RedirectToAction("Index", "Home", new { area = "Reader" });
     }
 
-    // ── Logout ─────────────────────────────────────────
+    // =========================
+    // LOGOUT
+    // =========================
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Login", "Account");
     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
+    // =========================
+    // ERROR
+    // =========================
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

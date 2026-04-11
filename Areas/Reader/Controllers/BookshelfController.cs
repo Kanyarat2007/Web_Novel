@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
 using Web_Novel.Helpers;
 
 namespace Web_Novel.Controllers;
@@ -77,6 +77,64 @@ public class BookshelfController : Controller
 
         ViewBag.Tab = tab;
         return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Add(int novelId)
+    {
+        int.TryParse(HttpContext.Session.GetString("UserId"), out int userId);
+
+        if (userId <= 0)
+            return Unauthorized();
+
+        var exists = _db.Bookshelves
+            .Any(b => b.UserId == userId && b.NovelId == novelId);
+
+        if (!exists)
+        {
+            _db.Bookshelves.Add(new Bookshelf
+            {
+                UserId = userId,
+                NovelId = novelId,
+                AddedAt = DateTime.Now
+            });
+
+            // อัปเดต count (ถ้ามี)
+            var novel = _db.Novels.Find(novelId);
+            if (novel != null)
+                novel.TotalBookshelf++;
+        }
+
+        _db.SaveChanges();
+
+        return RedirectToAction("NovelDetail", "Novel", new { area = "Reader", id = novelId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Remove(int novelId)
+    {
+        int.TryParse(HttpContext.Session.GetString("UserId"), out int userId);
+
+        if (userId <= 0)
+            return Unauthorized();
+
+        var item = _db.Bookshelves
+            .FirstOrDefault(b => b.UserId == userId && b.NovelId == novelId);
+
+        if (item != null)
+        {
+            _db.Bookshelves.Remove(item);
+
+            var novel = _db.Novels.Find(novelId);
+            if (novel != null && novel.TotalBookshelf > 0)
+                novel.TotalBookshelf--;
+        }
+
+        _db.SaveChanges();
+
+        return RedirectToAction("NovelDetail", "Novel", new { area = "Reader", id = novelId });
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

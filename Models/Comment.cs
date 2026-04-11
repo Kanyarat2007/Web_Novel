@@ -5,6 +5,7 @@ namespace Web_Novel.Models;
 
 public partial class Comment
 {
+    
     public int CommentId { get; set; }
 
     public int UserId { get; set; }
@@ -34,4 +35,11 @@ public partial class Comment
     public virtual Novel? Novel { get; set; }
 
     public virtual User User { get; set; } = null!;
+
+    public bool IsDeleted { get; set; } = false;
+    public string? DeleteReason { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public int? DeletedBy { get; set; }
+
+    public string Status { get; set; } = "active";
 }

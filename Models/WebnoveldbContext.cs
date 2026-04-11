@@ -30,6 +30,8 @@ public partial class WebnoveldbContext : DbContext
 
     public virtual DbSet<Comment> Comments { get; set; }
 
+    public virtual DbSet<CommentReport> CommentReports { get; set; }
+
     public virtual DbSet<Genre> Genres { get; set; }
 
     public virtual DbSet<Loginstreak> Loginstreaks { get; set; }
@@ -51,6 +53,9 @@ public partial class WebnoveldbContext : DbContext
     public virtual DbSet<Novelnote> Novelnotes { get; set; }
 
     public virtual DbSet<Novelpurchase> Novelpurchases { get; set; }
+
+    public virtual DbSet<NovelTriggerWarning> NovelTriggerWarnings { get; set; }
+
     public virtual DbSet<Payment> Payments { get; set; }
 
     public virtual DbSet<Penname> Pennames { get; set; }
@@ -64,6 +69,7 @@ public partial class WebnoveldbContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Spinlog> Spinlogs { get; set; }
+    public virtual DbSet<TriggerWarning> TriggerWarnings { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<UserCoin> UserCoins { get; set; }
@@ -238,6 +244,14 @@ public partial class WebnoveldbContext : DbContext
 
         modelBuilder.Entity<Cointransaction>(entity =>
         {
+            entity.HasIndex(e => e.NovelId, "NovelId");
+
+            entity.HasOne(d => d.Novel)
+                .WithMany()
+                .HasForeignKey(d => d.NovelId)
+                // .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("cointransactions_ibfk_novel");
+
             entity.HasKey(e => e.TransactionId).HasName("PRIMARY");
 
             entity
@@ -312,6 +326,9 @@ public partial class WebnoveldbContext : DbContext
                 .HasConstraintName("comments_ibfk_1");
         });
 
+        modelBuilder.Entity<CommentReport>()
+            .HasKey(cr => cr.ReportId);
+
         modelBuilder.Entity<Genre>(entity =>
         {
             entity.HasKey(e => e.GenreId).HasName("PRIMARY");
@@ -381,7 +398,7 @@ public partial class WebnoveldbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValueSql("'ongoing'");
             entity.Property(e => e.Title).HasMaxLength(300);
-            entity.Property(e => e.TriggerWarnings).HasMaxLength(500);
+            // entity.Property(e => e.TriggerWarnings).HasMaxLength(500);
             entity.Property(e => e.UpdatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -536,7 +553,7 @@ public partial class WebnoveldbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValueSql("'ongoing'");
             entity.Property(e => e.Title).HasMaxLength(300);
-            entity.Property(e => e.TriggerWarnings).HasMaxLength(500);
+            // entity.Property(e => e.TriggerWarnings).HasMaxLength(500);
             entity.Property(e => e.UpdatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -655,6 +672,21 @@ public partial class WebnoveldbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("novelpurchases_ibfk_1");
+        });
+
+        modelBuilder.Entity<NovelTriggerWarning>(entity =>
+        {
+            entity.ToTable("NovelTriggerWarnings");
+
+            entity.HasKey(e => new { e.NovelId, e.WarningId });
+
+            entity.HasOne(e => e.Novel)
+                .WithMany(n => n.NovelTriggerWarnings)
+                .HasForeignKey(e => e.NovelId);
+
+            entity.HasOne(e => e.TriggerWarning)
+                .WithMany(t => t.NovelTriggerWarnings)
+                .HasForeignKey(e => e.WarningId);
         });
 
         modelBuilder.Entity<Payment>(entity =>
@@ -799,6 +831,10 @@ public partial class WebnoveldbContext : DbContext
                 .HasDefaultValueSql("'pending'");
             entity.Property(e => e.TargetType).HasMaxLength(20);
 
+            entity.Property(e => e.Description)
+    .HasColumnType("text")
+    .IsRequired(false);
+
             entity.HasOne(d => d.ReporterUser).WithMany(p => p.Reports)
                 .HasForeignKey(d => d.ReporterUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -844,6 +880,20 @@ public partial class WebnoveldbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("spinlogs_ibfk_1");
+        });
+
+        modelBuilder.Entity<TriggerWarning>(entity =>
+        {
+            entity.ToTable("TriggerWarnings");
+
+            entity.HasKey(e => e.WarningId); // 🔥 บอก EF ว่านี่คือ PK
+
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(e => e.Description)
+                .HasColumnType("text");
         });
 
         modelBuilder.Entity<User>(entity =>

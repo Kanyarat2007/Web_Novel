@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
 using Web_Novel.Helpers;
 
 namespace Web_Novel.Controllers;
@@ -118,12 +118,28 @@ public class ProfileController : Controller
     {
         var user = _db.Users
             .Where(u => u.UserId == id)
-            .Select(u => new UserProfileViewModel
+            .Select(u => new
             {
-                UserId = u.UserId,
-                DisplayName = u.DisplayName,
-                Bio = u.Bio,
-                JoinedAt = u.CreatedAt
+                u.UserId,
+                u.DisplayName,
+                u.Bio,
+                u.CreatedAt,
+                u.ProfileImageUrl,
+
+                Pen = _db.Pennames
+                    .Where(p => p.UserId == u.UserId)
+                    .Select(p => new
+                    {
+                        p.PenNameId,
+                        p.PenName,
+                        Novels = p.Novels.Select(n => new MyNovelItemViewModel
+                        {
+                            NovelId = n.NovelId,
+                            Title = n.Title,
+                            CoverImageUrl = n.CoverImageUrl
+                        }).ToList()
+                    })
+                    .FirstOrDefault()
             })
             .FirstOrDefault();
 
@@ -132,15 +148,26 @@ public class ProfileController : Controller
 
         int.TryParse(HttpContext.Session.GetString("UserId"), out int currentUserId);
 
-        // เช็คว่า block อยู่มั้ย
-        var isBlocked = _db.Blocklists.Any(b =>
-            b.BlockerUserId == currentUserId &&
-            b.BlockedUserId == id);
+        var vm = new UserProfileViewModel
+        {
+            UserId = user.UserId,
+            DisplayName = user.DisplayName,
+            Bio = user.Bio,
+            JoinedAt = user.CreatedAt,
+            ProfileImage = user.ProfileImageUrl,
 
-        user.IsBlocked = isBlocked;
-        user.IsCurrentUser = currentUserId == id;
+            PenName = user.Pen?.PenName,
+            PenNameId = user.Pen?.PenNameId,
+            Novels = user.Pen?.Novels ?? new List<MyNovelItemViewModel>(),
 
-        return View(user);
+            IsBlocked = _db.Blocklists.Any(b =>
+                b.BlockerUserId == currentUserId &&
+                b.BlockedUserId == id),
+
+            IsCurrentUser = currentUserId == id
+        };
+
+        return View(vm);
     }
 
     public IActionResult Privacy()

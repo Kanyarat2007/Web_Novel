@@ -51,9 +51,9 @@
                 @foreach (var ch in Model.Chapters)
                 {
                     <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
-                           asp-route-chapterNumber="@ch.ChapterNumber" class="d-block mb-2 text-decoration-none">
-                        #@ch.ChapterNumber @ch.Title
-                        @(ch.ChapterNumber == Model.ChapterNumber ? "fw-bold text-primary" : "")
+                           asp-route-chapterNumber="@ch.ChapterNumber"
+                           class="d-block mb-2 text-decoration-none @(ch.ChapterNumber == Model.ChapterNumber ? "fw-bold text-primary" : "")">
+                        @ch.Title
                     </a>
                         
                 }
@@ -105,7 +105,7 @@
                 @if (Model.PrevChapterNumber != null)
                 {
                     <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
-                        asp-route-chapterNumber="@Model.PrevChapterNumber" class="btn btn-outline-secondary btn-sm">
+                           asp-route-chapterNumber="@Model.PrevChapterNumber" class="btn btn-outline-secondary btn-sm">
                         ← ตอนก่อน
                     </a>
                 }
@@ -113,7 +113,7 @@
                 @if (Model.NextChapterNumber != null)
                 {
                     <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
-                        asp-route-chapterNumber="@Model.NextChapterNumber" class="btn btn-primary btn-sm">
+                           asp-route-chapterNumber="@Model.NextChapterNumber" class="btn btn-primary btn-sm">
                         ตอนถัดไป →
                     </a>
                 }

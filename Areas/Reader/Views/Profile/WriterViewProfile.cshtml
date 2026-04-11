@@ -1,0 +1,116 @@
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@inject IHttpContextAccessor HttpContextAccessor
+@model Web_Novel.ViewModels.UserProfileViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+}
+
+<div class="container mt-4" style="max-width:950px;">
+    
+    <h3 class="mb-3">โปรไฟล์นักเขียน</h3>
+    
+    <!-- 🔹 แสดงข้อมูล -->
+    <div class="card shadow-sm p-3 mb-3 text-basic">
+        <div class="d-flex align-items-center gap-4">
+            <img src="@(string.IsNullOrEmpty(Context.Session.GetString("AvatarUrl")) 
+                                                                                                                                                                                                                                                                                                                                               ? "/images/default-avatar.png"
+                                                                                                                                                                                                                                                                                                                                               : Context.Session.GetString("AvatarUrl"))"
+                 class="rounded-circle border" style="width:90px;height:90px;object-fit:cover;"
+                 onerror="this.src='/images/default-avatar.png'" />
+            <div>
+                <p><strong>ชื่อ</strong> @Model.DisplayName</p>
+                <p><strong>ชื่อผู้ใช้</strong> @Model.Username</p>
+            </div>
+        </div>
+
+        <p><strong>อีเมล</strong> @Model.Email</p>
+        <p><strong>วันเกิด</strong> @Model.BirthDate</p>
+        <p><strong>เกี่ยวกับฉัน</strong> @Model.Bio</p>
+
+        <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#profileModal">
+            แก้ไขโปรไฟล์
+        </button>
+    
+        <!-- ฟอร์มแก้ไข -->
+        <div class="modal fade" id="profileModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">แก้ไขโปรไฟล์</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <form method="post" asp-area="Reader" asp-controller="Profile" asp-action="UpdateProfile"
+                              enctype="multipart/form-data">
+
+                            <div class="row">
+
+                                <!-- 🔹 รูป -->
+                                <div class="col-md-4 text-center">
+                                    <img id="previewImage"
+                                         src="@(string.IsNullOrEmpty(Context.Session.GetString("AvatarUrl")) 
+                                                                                                                                                                                                        ? "/images/default-avatar.png"
+                                                                                                                                                                                                        : Context.Session.GetString("AvatarUrl"))"
+                                         class="rounded-circle border mb-3"
+                                         style="width:120px;height:120px;object-fit:cover;" />
+
+                                    <input type="file" name="ProfileImageFile" class="form-control"
+                                           onchange="previewFile(event)" />
+
+                                    <button type="submit" name="removeImage" value="true"
+                                            class="btn btn-danger btn-sm mt-2">
+                                        ลบรูป
+                                    </button>
+                                </div>
+
+                                <!-- 🔹 ข้อมูล -->
+                                <div class="col-md-8">
+
+                                    <label>Username</label>
+                                    <input name="Username" class="form-control mb-2" value="@Model.Username" readonly />
+
+                                    <label>ชื่อที่แสดง</label>
+                                    <input name="DisplayName" class="form-control mb-2" value="@Model.DisplayName" />
+
+                                    <label>Email</label>
+                                    <input name="Email" class="form-control mb-2" value="@Model.Email" />
+
+                                    <label>วันเกิด</label>
+                                    <input name="BirthDate" type="date" class="form-control mb-2"
+                                           value="@Model.BirthDate?.ToString("yyyy-MM-dd")" />
+
+                                    <label>เกี่ยวกับฉัน</label>
+                                    <textarea name="Bio" class="form-control mb-2">@Model.Bio</textarea>
+
+                                </div>
+                            </div>
+
+                            <div class="text-end mt-3">
+                                <button class="btn btn-success">บันทึก</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <script>
+                    function previewFile(event) {
+                        const reader = new FileReader();
+                        reader.onload = function () {
+                            document.getElementById('previewImage').src = reader.result;
+                        }
+                        reader.readAsDataURL(event.target.files[0]);
+                    }
+        </script> *@

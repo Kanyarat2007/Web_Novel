@@ -1,4 +1,4 @@
-﻿@model Web_Novel.ViewModels.HomeViewModel
+﻿@model HomeViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "หน้าแรก";
@@ -100,6 +100,54 @@
                         data-bs-target="#editGenreModal">
                     ✎ แก้ไข
                 </button>
+                
+                <div class="modal fade" id="editGenreModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content bg-body">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title text-body">เลือกหมวดหมู่ที่สนใจ</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <form asp-area="Reader" asp-controller="Home" asp-action="SaveGenrePreferences" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="modal-body">
+                                    <div class="d-flex flex-wrap gap-2">
+
+                                        @foreach (var genre in Model.InterestedGenres)
+                                        {
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="form-check-input" type="checkbox" name="genreIds"
+                                                       value="@genre.GenreId" id="gm_@genre.GenreId" checked />
+                                                <label class="form-check-label text-body" for="gm_@genre.GenreId">
+                                                    @genre.GenreName
+                                                </label>
+                                            </div>
+                                        }
+
+                                        @foreach (var genre in Model.AllGenres)
+                                        {
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="form-check-input" type="checkbox" name="genreIds"
+                                                       value="@genre.GenreId" id="gm_@genre.GenreId" />
+                                                <label class="form-check-label text-body" for="gm_@genre.GenreId">
+                                                    @genre.GenreName
+                                                </label>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                            data-bs-dismiss="modal">ยกเลิก</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">บันทึก</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
             </div>
 
             @foreach (var genre in Model.InterestedGenres)
@@ -134,7 +182,7 @@
     @* ── หมวดหมู่ทั้งหมด ── *@
     <h5 class="mt-5 text-body fw-bold">หมวดทั้งหมด</h5>
     @foreach (var genre in Model.AllGenres
-                                                        .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
+                                                                .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
     {
         <div class="my-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -161,56 +209,3 @@
         </div>
     }
 
-    @* ── Modal แก้ไขหมวดที่สนใจ ── *@
-    @if (Model.IsLoggedIn)
-    {
-        <div class="modal fade" id="editGenreModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content bg-body">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title text-body">เลือกหมวดหมู่ที่สนใจ</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <form asp-area="Reader" asp-controller="Home" asp-action="SaveGenrePreferences" method="post">
-                        @Html.AntiForgeryToken()
-                        <div class="modal-body">
-                            <div class="d-flex flex-wrap gap-2">
-
-                                @foreach (var genre in Model.InterestedGenres)
-                                {
-                                    <div class="form-check form-check-inline m-0">
-                                        <input class="form-check-input" type="checkbox" name="genreIds" value="@genre.GenreId"
-                                               id="gm_@genre.GenreId" checked />
-                                        <label class="form-check-label text-body" for="gm_@genre.GenreId">
-                                            @genre.GenreName
-                                        </label>
-                                    </div>
-                                }
-
-                                @foreach (var genre in Model.AllGenres)
-                                {
-                                    <div class="form-check form-check-inline m-0">
-                                        <input class="form-check-input" type="checkbox" name="genreIds" value="@genre.GenreId"
-                                               id="gm_@genre.GenreId" />
-                                        <label class="form-check-label text-body" for="gm_@genre.GenreId">
-                                            @genre.GenreName
-                                        </label>
-                                    </div>
-                                }
-
-                            </div>
-                        </div>
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-outline-secondary btn-sm"
-                                    data-bs-dismiss="modal">ยกเลิก</button>
-                            <button type="submit" class="btn btn-primary btn-sm">บันทึก</button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    }
-
-</div>

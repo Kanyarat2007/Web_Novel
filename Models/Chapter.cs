@@ -5,6 +5,7 @@ namespace Web_Novel.Models;
 
 public partial class Chapter
 {
+    public bool IsDeleted { get; set; } = false;
     public int ChapterId { get; set; }
 
     public int NovelId { get; set; }

@@ -1,0 +1,73 @@
+@* views/shared/_MyNovels.cshtml *@
+
+@model List<MyNovelItemViewModel>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>งานเขียนของฉัน</h4>
+
+    <div>
+        <a asp-controller="Novel" asp-action="Create" class="btn btn-primary me-2">
+            + เพิ่มนิยาย
+        </a>
+    </div>
+</div>
+
+<hr />
+
+@if (Model == null || !Model.Any())
+{
+    <div class="text-center mt-5">
+        <p>ยังไม่มีผลงาน</p>
+        <a asp-controller="Novel" asp-action="Create" class="btn btn-primary">
+            เริ่มเขียนเรื่องแรก
+        </a>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+
+                    <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "/images/default-cover.jpg" : item.CoverImageUrl)"
+                         class="card-img-top" style="height:220px; object-fit:cover;" />
+
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+
+                        <p class="text-muted mb-1">
+                            นามปากกา: @item.PenName
+                        </p>
+
+                        <p class="mb-1">
+                            ตอน: @item.TotalChapters
+                        </p>
+
+                        <p class="mb-1">
+                            👁 @item.TotalViews
+                        </p>
+
+                        <small class="text-muted">
+                            อัปเดตล่าสุด: @item.UpdatedAt?.ToString("dd/MM/yyyy")
+                        </small>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 d-flex justify-content-between">
+
+                        <a asp-controller="Novel" asp-action="Edit" asp-route-id="@item.NovelId"
+                               class="btn btn-sm btn-outline-primary">
+                            แก้ไข
+                        </a>
+
+                        <a asp-area="Writer" asp-controller="Chapter" asp-action="Index" asp-route-novelId="@item.NovelId"
+                               class="btn btn-sm btn-outline-dark">
+                            จัดการตอน
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

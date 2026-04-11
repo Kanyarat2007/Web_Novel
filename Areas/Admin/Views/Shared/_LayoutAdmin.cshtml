@@ -1,0 +1,94 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+    var profileImage = HttpContextAccessor.HttpContext.Session.GetString("ProfileImage");
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+            body {
+                overflow-x: hidden;
+            }
+
+            .sidebar {
+                width: 250px;
+                height: 100vh;
+                position: fixed;
+                background-color: #1e1e2f;
+                color: white;
+            }
+
+            .sidebar a {
+                color: #ccc;
+                display: block;
+                padding: 12px 20px;
+                text-decoration: none;
+            }
+
+            .sidebar a:hover,
+            .sidebar a.active {
+                background-color: #343a40;
+                color: #fff;
+            }
+
+            .content {
+                margin-left: 250px;
+                padding: 20px;
+            }
+
+            .profile {
+                text-align: center;
+                padding: 20px;
+                border-bottom: 1px solid #444;
+            }
+
+            .profile img {
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <!-- Profile -->
+        <div class="profile">
+            <img src="@(profileImage ?? "/images/default.png")" />
+            <h6 class="mt-2">@username</h6>
+
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button class="btn btn-sm btn-danger mt-2">Logout</button>
+            </form>
+        </div>
+
+        <!-- Menu -->
+        @* <a asp-controller="Admin" asp-action="Users">จัดการผู้ใช้</a>
+        <a asp-controller="Admin" asp-action="Reports">ตรวจสอบเนื้อหา</a> *@
+        <a asp-controller="Report" asp-action="Index">ตรวจสอบคอมเม้น</a>
+        @* <a asp-controller="Admin" asp-action="Earnings">ระบบรายได้</a>
+        <a asp-controller="Admin" asp-action="Promotions">จัดการโปรโมชั่น</a>
+        <a asp-controller="Admin" asp-action="Banners">จัดการ Banner</a>
+        <a asp-controller="Admin" asp-action="Categories">จัดการหมวดหมู่</a>
+        <a asp-controller="Admin" asp-action="Warnings">จัดการคำเตือน</a> *@
+
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        @RenderBody()
+    </div>
+
+</body>
+
+</html>

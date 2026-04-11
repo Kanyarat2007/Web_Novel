@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Web_Novel.Models.Enums;
 
 namespace Web_Novel.Models;
 
@@ -9,7 +10,7 @@ public partial class Novel
 
     public int AuthorUserId { get; set; }
 
-    public int? PenNameId { get; set; }
+    public int PenNameId { get; set; }
 
     public string Title { get; set; } = null!;
 
@@ -21,12 +22,11 @@ public partial class Novel
     public string? CoverImageUrl { get; set; }
 
     public string SeriesType { get; set; } = null!;
-
-    public string Status { get; set; } = null!;
+    public NovelStatus Status { get; set; }
 
     public string PublishStatus { get; set; } = null!;
 
-    public string? TriggerWarnings { get; set; }
+    public virtual ICollection<NovelTriggerWarning> NovelTriggerWarnings { get; set; }
 
     public bool IsCoinRequired { get; set; }
 
@@ -42,7 +42,7 @@ public partial class Novel
 
     public DateTime? UpdatedAt { get; set; }
 
-    public int? GenreId { get; set; }
+    public int GenreId { get; set; }
 
     public virtual User AuthorUser { get; set; } = null!;
 
@@ -63,5 +63,6 @@ public partial class Novel
     public virtual ICollection<Readinghistory> Readinghistories { get; set; } = new List<Readinghistory>();
 
     public virtual ICollection<Writerstat> Writerstats { get; set; } = new List<Writerstat>();
+
 
 }

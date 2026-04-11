@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
 using Web_Novel.Helpers;
 
 namespace Web_Novel.Areas.Reader.Controllers

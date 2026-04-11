@@ -1,5 +1,6 @@
-@* Dashboard.cshtml *@
-@model Web_Novel.ViewModels.WriterDashboardViewModel
+@* views/Writer/Dashboard.cshtml *@
+@model WriterDashboardViewModel
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "โหมดนักเขียน";
@@ -52,118 +53,45 @@
         
     @if (Model.ActiveTab == "stats")
     {
-        <partial name="_Stats" />
+        <h3>สถิติผลงาน</h3>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>เรื่อง</th>
+                    @* <th>ประเภท</th> *@
+                    <th>ยอดวิว</th>
+                    <th>ยอดกดถูกใจ</th>
+                    <th>ยอดเพิ่มเข้าชั้นหนังสือ</th>
+                    @* <th>เหรียญ</th> *@
+                    @* <th>อัปเดต</th> *@
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.Stats)
+                {
+                    <tr>
+                        <td>
+                            @(item.ContentType == "Novel"
+                                ? item.NovelTitle
+                                : item.MangaTitle)
+                        </td>
+                        @* <td>@item.ContentType</td> *@
+                        <td>@item.TotalViews</td>
+                        <td>@item.TotalLikes</td>
+                        <td>@item.TotalBookshelf</td>
+                        @* <td>@item.TotalCoinEarned</td> *@
+                        @* <td>@(item.UpdatedAt.HasValue? item.UpdatedAt.Value.ToString("dd/MM/yyyy") : "")</td> *@
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
 
     @if (Model.ActiveTab == "payments")
     {
-        <partial name="_Payments" model="Model.Payments" />
+        <partial name="_Payment" model="Model" />
     }
 
 </div>
-
-@* เพิ่มนามปากกา *@
-<div class="modal fade" id="penModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 id="modalTitle">เพิ่มนามปากกา</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-
-                <form id="penForm" method="post" action="/Writer/PenName/Create">
-
-                    <input type="hidden" name="PenNameId" id="penId" />
-
-                    <label for="penName">นามปากกา</label>
-                    <input name="PenName" id="penName" class="form-control mb-2" placeholder="นามปากกา" />
-
-                    <button class="btn btn-primary mt-3 w-100">บันทึก</button>
-
-                </form>
-
-            </div>
-
-        </div>
-    </div>
-</div>
-
-@* เพิ่มช่องทางการชำระเงิน *@
-<div class="modal fade" id="paymentModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 id="modalTitle">เพิ่มช่องทางการชำระเงิน</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-
-                <form id="paymentForm" method="post" action="/Writer/Payment/Create">
-
-                    <input type="hidden" name="PaymentId" id="paymentId" />
-
-                    <label for="bankName">ธนาคาร</label>
-                    <input name="BankName" id="bankName" class="form-control mb-2" placeholder="ธนาคาร" />
-
-                    <label for="bankAccountNumber">เลขที่บัญชี</label>
-                    <input name="BankAccountNumber" id="bankAccountNumber" class="form-control mb-2"
-                           placeholder="เลขที่บัญชี" />
-
-                    <label for="bankAccountName">ชื่อบัญชี</label>
-                    <input name="BankAccountName" id="bankAccountName" class="form-control mb-2"
-                           placeholder="ชื่อบัญชี" />
-
-                    <button class="btn btn-primary mt-3 w-100">บันทึก</button>
-
-                </form>
-
-            </div>
-
-        </div>
-    </div>
-</div>
-
-@* เพิ่มช่องทางการชำระเงิน *@
-<script>
-    function openpaymentCreate() {
-        document.getElementById("modalTitle").innerText = "เพิ่มช่องทางการชำระเงิน";
-        document.getElementById("paymentForm").action = "/Writer/Payment/Create";
-
-        document.getElementById("bankName").value = "";
-        document.getElementById("bankAccountNumber").value = "";
-        document.getElementById("bankAccountName").value = "";
-    }
-
-    function openpaymentEdit(id, bankName, bankAccountName, bankAccountNumber) {
-        document.getElementById("modalTitle").innerText = "แก้ไขช่องทางการชำระเงิน";
-        document.getElementById("paymentForm").action = "/Writer/Payment/Edit";
-
-        document.getElementById("userId").value = id;
-        document.getElementById("bankName").value = bankName;
-        document.getElementById("bankAccountNumber").value = bankAccountNumber;
-        document.getElementById("bankAccountName").value = bankAccountName;
-    }
-</script>
-
-<script>
-    function openCreate() {
-        document.getElementById("modalTitle").innerText = "เพิ่มช่องทางการชำระเงิน";
-        document.getElementById("penForm").action = "/Writer/PenName/Create";
-
-        document.getElementById("penId").value = 0;
-        document.getElementById("penName").value = "";
-    }
-
-    function openEdit(id, name, bio, avatar, isDefault) {
-        document.getElementById("modalTitle").innerText = "แก้ไขช่องทางการชำระเงิน";
-        document.getElementById("penForm").action = "/Writer/PenName/Edit";
-
-        document.getElementById("penId").value = id;
-        document.getElementById("penName").value = name;
-    }
-</script>

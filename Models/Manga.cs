@@ -25,7 +25,7 @@ public partial class Manga
 
     public string PublishStatus { get; set; } = null!;
 
-    public string? TriggerWarnings { get; set; }
+    // public string? TriggerWarnings { get; set; }
 
     public bool IsCoinRequired { get; set; }
 

@@ -1,0 +1,138 @@
+@* _PenName.cshtml *@
+
+@model List<PenNameViewModel>
+
+<div class="d-flex justify-content-between mb-3">
+    <h4>นามปากกา</h4>
+
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#penModal" onclick="openCreate()">
+        + เพิ่มนามปากกา
+    </button>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <p>ยังไม่มีนามปากกา</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var p in Model)
+        {
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+
+                <div>
+                    <strong>@p.PenName</strong>
+
+                    
+                    @if (p.IsDefault)
+                    {
+                        <span class="badge bg-success ms-2">หลัก</span>
+                    }
+
+                    <div class="text-muted small">@p.Bio</div>
+                </div>
+
+                <div>
+
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#penModal"
+                            onclick="openEdit(this)" data-id="@p.PenNameId" data-name="@p.PenName" data-bio="@p.Bio">
+                        แก้ไข
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                            onclick="setDeleteId(@p.PenNameId, '@p.PenName')">
+                        ลบ
+                    </button>
+                </div>
+
+            </div>
+        }
+    </div>
+}
+
+@* เพิ่มนามปากกา *@
+<div class="modal fade" id="penModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 id="modalTitle">เพิ่มนามปากกา</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form id="penForm" method="post" action="/Writer/PenName/Create">
+
+                    <input type="hidden" name="PenNameId" id="penId" />
+
+                    <label for="penName">นามปากกา</label>
+                    <input name="PenName" id="penName" class="form-control mb-2" placeholder="นามปากกา" />
+
+                    <button class="btn btn-primary mt-3 w-100">บันทึก</button>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* ลบนามปากกา *@
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">ยืนยันการลบ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="deleteText">คุณแน่ใจหรือไม่?</p>
+            </div>
+
+            <div class="modal-footer">
+                <form method="post" asp-action="DeleteConfirmed" asp-area="Writer" asp-controller="PenName">
+                    <input type="hidden" name="penNameId" id="deleteId" />
+                    <button type="submit" class="btn btn-danger">ลบ</button>
+                </form>
+
+                <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* เพิ่ม แก้ไขนามปากกา *@
+<script>
+    function openCreate() {
+        document.getElementById("modalTitle").innerText = "เพิ่มนามปากกา";
+        document.getElementById("penForm").action = "/Writer/PenName/Save";
+
+        document.getElementById("penId").value = 0;
+        document.getElementById("penName").value = "";
+    }
+
+    function openEdit(btn) {
+        const data = btn.dataset;
+
+        document.getElementById("modalTitle").innerText = "แก้ไขนามปากกา";
+        document.getElementById("penForm").action = "/Writer/PenName/Save";
+
+        document.getElementById("penId").value = data.id;
+        document.getElementById("penName").value = data.name;
+    }
+</script>
+
+@* ลบนามปากกา *@
+<script>
+    function setDeleteId(id, name) {
+        document.getElementById("deleteId").value = id;
+        document.getElementById("deleteText").innerText =
+            "คุณต้องการลบนามปากกา \"" + name + "\" ใช่หรือไม่?";
+    }
+</script>

@@ -2,7 +2,8 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
+using Web_Novel.Models.Enums;
 
 namespace Web_Novel.Controllers;
 
@@ -18,10 +19,12 @@ public class NovelController : Controller
     public IActionResult NovelDetail(int id)
     {
 
-        var novel = (from n in _db.Novels
-                         .Include(n => n.Chapters)
-                     where n.NovelId == id
-                     select n).FirstOrDefault();
+        var novel = _db.Novels
+            .Include(n => n.Chapters)
+            .Include(n => n.PenName)
+            .Include(n => n.NovelTriggerWarnings)
+        .ThenInclude(ntw => ntw.TriggerWarning)
+            .FirstOrDefault(n => n.NovelId == id);
 
         if (novel == null)
             return NotFound();
@@ -76,14 +79,21 @@ public class NovelController : Controller
                 Content = c.Content,
                 CreatedAt = c.CreatedAt,
                 ChapterId = c.ChapterId,
-                ChapterNumber = c.Chapter != null ? c.Chapter.ChapterNumber : null
+                ChapterNumber = c.Chapter != null ? c.Chapter.ChapterNumber : null,
+                IsDeleted = c.IsDeleted,
+                IsSpoiler = c.IsSpoiler,
+                Status = c.Status,
+                DeleteReason = c.DeleteReason
             })
             .ToList();
 
         // Map ไปยัง ViewModel
         var vm = new NovelDetailViewModel
         {
+            UserId = novel.PenName != null ? novel.PenName.UserId : 0,
             NovelId = novel.NovelId,
+            PenNameId = novel.PenNameId,
+            PenName = novel.PenName != null ? novel.PenName.PenName : "Unknown",
             Title = novel.Title,
             Synopsis = novel.Synopsis,
             CoverImageUrl = novel.CoverImageUrl,
@@ -92,10 +102,10 @@ public class NovelController : Controller
             TotalViews = novel.TotalViews,
             TotalLikes = novel.TotalLikes,
             TotalBookshelf = novel.TotalBookshelf,
-            TriggerWarnings = novel.TriggerWarnings,
+            NovelTriggerWarnings = novel.NovelTriggerWarnings,
             Comments = comments,
             CurrentUserId = userId,
-            GenreNames = novel.GenreId.HasValue
+            GenreNames = novel.GenreId > 0
         ? (from g in _db.Genres
            where g.GenreId == novel.GenreId
            select g.Name).ToList()
@@ -121,22 +131,34 @@ public class NovelController : Controller
                         }).ToList()
         };
 
+        // เพิ่มยอดวิว
+        string viewKey = $"viewed_novel_{id}";
+
+        if (string.IsNullOrEmpty(HttpContext.Session.GetString(viewKey)))
+        {
+            novel.TotalViews += 1;
+            _db.SaveChanges();
+
+            HttpContext.Session.SetString(viewKey, "1");
+        }
+
         return View(vm);
     }
 
     public IActionResult NovelChapter(int novelId, int chapterNumber, string sort = "new")
     {
-        var chapter = (from c in _db.Chapters
-                       where c.NovelId == novelId
-                         && c.ChapterNumber == chapterNumber
-                         && c.PublishStatus.ToLower() == "published"
-                       select c).FirstOrDefault();
+        var chapter = _db.Chapters
+    .FirstOrDefault(c =>
+        c.NovelId == novelId &&
+        c.ChapterNumber == chapterNumber &&
+        c.PublishStatus.ToLower() == "published");
 
         if (novelId == null || chapterNumber == null)
             return BadRequest();
 
         var chapters = _db.Chapters
-            .Where(c => c.NovelId == novelId && c.PublishStatus.ToLower() == "published")
+            .Where(c => c.NovelId == novelId &&
+            c.PublishStatus.ToLower() == "published")
             .OrderBy(c => c.ChapterNumber)
             .Select(c => new ChapterItemViewModel
             {
@@ -148,6 +170,13 @@ public class NovelController : Controller
         var novel = (from n in _db.Novels
                      where n.NovelId == novelId
                      select n).FirstOrDefault();
+
+
+        // var novel = _db.Novels
+        //     .Include(n => n.Chapters)
+        //     .Include(n => n.PenName)
+        //     .Include(n => n.NovelTriggerWarnings)
+        //     .FirstOrDefault(n => n.NovelId == id);
 
         if (novel == null)
             return NotFound();
@@ -180,17 +209,21 @@ public class NovelController : Controller
         }
 
         // ดึง prev/next
-        var prevNumber = (from c in _db.Chapters
-                          where c.NovelId == novelId
-                            && c.ChapterNumber == chapterNumber - 1
-                            && c.PublishStatus == "published"
-                          select c.ChapterNumber).FirstOrDefault();
+        var prevNumber = _db.Chapters
+    .Where(c => c.NovelId == novelId &&
+                c.PublishStatus == "published" &&
+                c.ChapterNumber < chapterNumber)
+    .OrderByDescending(c => c.ChapterNumber)
+    .Select(c => c.ChapterNumber)
+    .FirstOrDefault();
 
-        var nextNumber = (from c in _db.Chapters
-                          where c.NovelId == novelId
-                            && c.ChapterNumber == chapterNumber + 1
-                            && c.PublishStatus == "published"
-                          select c.ChapterNumber).FirstOrDefault();
+        var nextNumber = _db.Chapters
+            .Where(c => c.NovelId == novelId &&
+                        c.PublishStatus == "published" &&
+                        c.ChapterNumber > chapterNumber)
+            .OrderBy(c => c.ChapterNumber)
+            .Select(c => c.ChapterNumber)
+            .FirstOrDefault();
 
         // โน้ตส่วนตัว (เฉพาะ login)
         var note = isLoggedIn
@@ -249,7 +282,12 @@ public class NovelController : Controller
             UserId = c.UserId,
             UserName = c.User != null ? c.User.DisplayName : "Unknown",
             Content = c.Content,
-            CreatedAt = c.CreatedAt
+            CreatedAt = c.CreatedAt,
+
+            IsDeleted = c.IsDeleted,
+            IsSpoiler = c.IsSpoiler,
+            Status = c.Status,
+            DeleteReason = c.DeleteReason
         }).ToList();
 
         var isBookmarked = false;
@@ -421,6 +459,7 @@ public class NovelController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult ToggleLike(int novelId)
     {
         int.TryParse(HttpContext.Session.GetString("UserId"), out int userId);
@@ -428,38 +467,34 @@ public class NovelController : Controller
         if (userId <= 0)
             return Unauthorized();
 
+        var novel = _db.Novels.Find(novelId);
+        if (novel == null)
+            return NotFound();
+
         var like = _db.Novellikes
             .FirstOrDefault(l => l.UserId == userId && l.NovelId == novelId);
 
         if (like == null)
         {
-            // กดไลค์
             _db.Novellikes.Add(new Novellike
             {
                 UserId = userId,
                 NovelId = novelId
             });
-
-            // เพิ่มจำนวนไลค์
-            var novel = _db.Novels.Find(novelId);
-            if (novel != null)
-                novel.TotalLikes++;
         }
         else
         {
-            // ยกเลิกไลค์
             _db.Novellikes.Remove(like);
-
-            var novel = _db.Novels.Find(novelId);
-            if (novel != null && novel.TotalLikes > 0)
-                novel.TotalLikes--;
         }
 
         _db.SaveChanges();
 
+        // ✅ กันค่าผิด
+        novel.TotalLikes = _db.Novellikes.Count(l => l.NovelId == novelId);
+        _db.SaveChanges();
+
         return RedirectToAction("NovelDetail", new { id = novelId });
     }
-
 
     public IActionResult Privacy()
     {

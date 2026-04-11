@@ -12,13 +12,13 @@ public class AdminController : Controller
     {
         _db = db;
     }
-    public IActionResult Index(String Username)
-    {
-        var username = HttpContext.Session.GetString("Username");
+    // public IActionResult Index(String Username)
+    // {
+    //     var username = HttpContext.Session.GetString("Username");
 
-        ViewBag.Username = Username;
-        return View();
-    }
+    //     ViewBag.Username = Username;
+    //     return View();
+    // }
 
     public IActionResult Privacy()
     {

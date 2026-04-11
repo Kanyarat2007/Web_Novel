@@ -1,6 +1,5 @@
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-@* @model Web_Novel.ViewModels.TopUpViewModel *@
 
 @{
     var http = HttpContextAccessor.HttpContext;
@@ -57,7 +56,10 @@
                 <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
 
-                    <img src="@Context.Session.GetString("AvatarUrl")" class="profile-img" />
+                    <img src="@(string.IsNullOrEmpty(Context.Session.GetString("AvatarUrl")) 
+                                                                                                                                                                                                                                                                                                                                                                        ? "/images/default-avatar.png"
+                                                                                                                                                                                                                                                                                                                                                                        : Context.Session.GetString("AvatarUrl"))"
+                         class="profile-img" onerror="this.src='/images/default-avatar.png'" />
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow">
@@ -90,7 +92,7 @@
 
                     <li>
                         <a class="dropdown-item" asp-area="Reader" asp-controller="Bookshelf" asp-action="Index">
-                            นิยายที่เพิ่มเข้าชั้น
+                            ชั้นหนังสือ
                         </a>
                     </li>
 

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
 
 namespace Web_Novel.Controllers;
 

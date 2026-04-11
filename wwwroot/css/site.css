@@ -75,6 +75,21 @@ body {
   min-height: calc(100vh - var(--navbar-height));
 }
 
+.blur .content {
+    filter: blur(2px);
+    user-select: none;
+}
+
+.spoiler-box {
+    cursor: pointer;
+}
+
+.warning {
+    color: #ff9800;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
 /* ===== Mobile: ซ่อน search bar และบาง element ===== */
 .mobile-menu-btn { display: none; }
 

@@ -8,6 +8,8 @@ public partial class Cointransaction
     public int TransactionId { get; set; }
 
     public int UserId { get; set; }
+    public int? NovelId { get; set; }
+    public virtual Novel? Novel { get; set; }
 
     public int? PackageId { get; set; }
 

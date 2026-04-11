@@ -1,7 +1,7 @@
-@model Web_Novel.ViewModels.NovelChapterViewModel
+@model NovelChapterViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = $"{Model.NovelTitle} — ตอนที่ {Model.ChapterNumber}";
+    ViewData["Title"] = $"{Model.NovelTitle}";
 }
 
 <div class="container" style="max-width:950px;">
@@ -124,6 +124,5 @@
                 </div>
             }
         </div>
-    }
     }
 </div>

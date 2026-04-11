@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
 using Web_Novel.Helpers;
 
 namespace Web_Novel.Controllers;
@@ -90,6 +90,7 @@ public class CoinController : Controller
             _db.Cointransactions.Add(new Cointransaction
             {
                 UserId = user.UserId,
+                // NovelId = novelId,
                 PackageId = package.PackageId,
                 Type = "topup",
                 Amount = totalCoin,
@@ -131,7 +132,11 @@ public class CoinController : Controller
         if (user == null) return NotFound();
 
         // ดึง chapter
-        var chapter = _db.Chapters.FirstOrDefault(c => c.ChapterId == chapterId && c.PublishStatus == "published");
+        var chapter = _db.Chapters
+    .FirstOrDefault(c =>
+        c.ChapterId == chapterId &&
+        c.PublishStatus == "published" &&
+        !c.IsDeleted);
         if (chapter == null) return NotFound();
 
         // เช็คว่าต้องใช้เหรียญหรือไม่
@@ -189,6 +194,7 @@ public class CoinController : Controller
             _db.Cointransactions.Add(new Cointransaction
             {
                 UserId = userId,
+                NovelId = novelId,
                 PackageId = null,
                 Type = "spend",
                 Amount = chapter.CoinPrice,
@@ -245,9 +251,14 @@ public class CoinController : Controller
                          join n in _db.Novels on p.NovelId equals n.NovelId
                          join c in _db.Chapters on p.ChapterId equals c.ChapterId
                          where p.UserId == userId
-                         orderby n.Title, p.PurchasedAt descending
-                         select new { Novel = n, Chapter = c, Purchase = p })
-                        .ToList();
+                         orderby p.PurchasedAt descending
+                         select new
+                         {
+                             Novel = n,
+                             Chapter = c,
+                             Purchase = p
+                         })
+                .ToList();
 
         var grouped = purchases
             .GroupBy(x => x.Novel.NovelId)

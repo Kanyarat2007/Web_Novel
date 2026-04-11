@@ -1,0 +1,39 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model List<ChapterViewModel>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "แก้ไขตอน";
+}
+
+<div class="container mt-4" style="max-width:950px;">
+
+    <h3>แก้ไขตอน</h3>
+
+    <a asp-action="Create" asp-route-novelId="@ViewBag.NovelId" class="btn btn-primary mb-3">เพิ่มตอนนิยาย</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                @* <th>ตอนที่</th> *@
+                <th>ชื่อตอน</th>
+                <th>สถานะ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    @* <td>@c.ChapterNumber</td> *@
+                    <td>@c.Title</td>
+                    <td>@c.PublishStatus</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@c.ChapterId" class="btn btn-sm btn-warning">แก้ไข</a>
+                        <a asp-action="Delete" asp-route-id="@c.ChapterId" class="btn btn-sm btn-danger">ลบ</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

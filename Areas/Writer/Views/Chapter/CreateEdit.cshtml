@@ -1,0 +1,95 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model ChapterViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "แก้ไขตอน";
+}
+
+<div class="container mt-4" style="max-width:950px;">
+    <form asp-action="Save" method="post">
+        <input type="hidden" asp-for="ChapterId" />
+        <input type="hidden" asp-for="NovelId" />
+
+        @* <div class="mb-3">
+            <label>ตอนที่</label>
+            <input asp-for="ChapterNumber" class="form-control" readonly />
+        </div> *@
+
+        <div class="mb-3">
+            <label>ชื่อตอน</label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>เนื้อหา</label>
+            <textarea asp-for="Content" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>สถานะ</label>
+            <select asp-for="PublishStatus" class="form-select">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+            </select>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" asp-for="IsCoinRequired" class="form-check-input" id="isCoin" />
+            <label class="form-check-label" for="isCoin">ตอนติดเหรียญ</label>
+        </div>
+
+        <div class="mb-3">
+            <label>ราคาเหรียญ</label>
+            <input asp-for="CoinPrice" class="form-control" />
+        </div>
+
+        @* <ul id="chapterList">
+            @foreach (var c in Model)
+            {
+                <li data-id="@c.ChapterId">
+                    ตอนที่ @c.ChapterNumber - @c.Title
+                </li>
+            }
+        </ul> *@
+
+        <button type="submit" class="btn btn-primary">บันทึก</button>
+    </form>
+</div>
+
+<script>
+    const checkbox = document.getElementById('isCoin');
+    const priceInput = document.querySelector('[name="CoinPrice"]');
+
+    function togglePrice() {
+        priceInput.disabled = !checkbox.checked;
+        if (!checkbox.checked) priceInput.value = 0;
+    }
+
+    checkbox.addEventListener('change', togglePrice);
+    window.addEventListener('load', togglePrice);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<script>
+    const el = document.getElementById('chapterList');
+
+    new Sortable(el, {
+    animation: 150,
+    onEnd: function () {
+    const ids = Array.from(el.children).map(li => li.dataset.id);
+
+    fetch('/Chapter/Reorder', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+    novelId: @ViewBag.NovelId,
+    orderedIds: ids
+    })
+    });
+    }
+    });
+</script>

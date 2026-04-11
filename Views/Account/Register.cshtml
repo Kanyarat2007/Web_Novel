@@ -15,6 +15,13 @@
 
             <h4 class="text-center mb-2">สมัครสมาชิก</h4>
 
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
             <form asp-controller="Account" asp-action="Register" class="text-start" method="post">
                 <label asp-for="Username"></label>
                 <input asp-for="Username" class="form-control mb-2" />

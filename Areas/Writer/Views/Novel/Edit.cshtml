@@ -1,0 +1,217 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model CreateNovelViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "สร้างนิยายเรื่องใหม่";
+}
+
+<div class="container mt-4" style="max-width:950px;">
+    <p>แก้ไขนิยาย</p>
+
+    @if (Model.PenNames == null || !Model.PenNames.Any())
+    {
+        <div class="alert alert-warning">
+            กรุณาสร้างนามปากกาก่อนที่จะสร้างนิยาย
+        </div>
+    }
+    else
+    {
+        <form asp-action="Create" asp-controller="Novel" method="post" enctype="multipart/form-data">
+
+            @* นามปากกา *@
+            <div class="mb-3">
+                <label for="penNameId" class="form-label">เลือกนามปากกา</label>
+                @* นามปากกา *@
+                <div class="mb-3">
+                    <label for="penNameId" class="form-label">เลือกนามปากกา</label>
+                    <select class="form-select" id="penNameId" name="PenNameId" required @(Model.PenNames == null ||
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 !Model.PenNames.Any() ? "disabled" : "")>
+                        @if (Model.PenNames == null || !Model.PenNames.Any())
+                        {
+                            <option value="">กรุณาสร้างนามปากกาก่อน</option>
+                        }
+                        else
+                        {
+                            <option value="">-- เลือกนามปากกา --</option>
+                            foreach (var pen in Model.PenNames)
+                            {
+                                <option value="@pen.PenNameId" selected="@(pen.PenNameId == Model.PenNameId)">@pen.PenName</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        
+            @* ประเภทนิยาย *@
+            <div class="mb-3">
+                <label for="penNameId" class="form-label">เลือกประเภทนิยาย</label>
+                <select class="form-select" name="SeriesType" required>
+                    @* <option value="">เลือกประเภทนิยาย</option> *@
+                    @foreach (var option in new[] { "short", "series" })
+                    {
+                        <option value="@option">
+                            @(option == "short" ? "เรื่องสั้น" : "เรื่องยาวหลายตอน")
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <!-- 🔹 รูป -->
+            <div class="col-md-4 text-center">
+                <img id="previewImage"
+                     src="@(string.IsNullOrEmpty(Context.Session.GetString("AvatarUrl")) 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ? "/images/default-avatar.png"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    : Context.Session.GetString("AvatarUrl"))"
+                     class="rounded-circle border mb-3" style="width:120px;height:120px;object-fit:cover;" />
+
+                <input type="file" name="CoverImage" class="form-control" onchange="previewFile(event)" />
+
+                <button type="submit" name="removeCoverImage" value="true" class="btn btn-danger btn-sm mt-2">
+                    ลบรูป
+                </button>
+            </div>
+        
+            <div class="mb-3">
+                <label for="title" class="form-label">ชื่อเรื่อง</label>
+                <input type="text" class="form-control" value="@Model.Title" id="title" name="Title" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="synopsis" class="form-label">เรื่องย่อ</label>
+                <textarea class="form-control" id="synopsis" name="Synopsis" rows="4">@Model.Synopsis</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="authorNote" class="form-label">ข้อมูลเกี่ยวกับนิยาย</label>
+                <textarea class="form-control" id="authorNote" name="AuthorNote" rows="3">@Model.AuthorNote</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="genreId" class="form-label">เลือกหมวดหมู่</label>
+                <select class="form-select" id="genreId" name="GenreId" required>
+                    @* <option value="">เลือกหมวดหมู่</option> *@
+                    @if (Model.Genres != null)
+                    {
+                        foreach (var genre in Model.Genres)
+                        {
+                            <option value="@genre.GenreId" selected="@(genre.GenreId == Model.GenreId)">@genre.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <!-- ปุ่มเลือกคำเตือน -->
+            <div class="mb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#editTWModal">
+                    เลือกคำเตือนเนื้อหา
+                </button>
+
+                <!-- แสดง badge ของคำเตือนที่เลือก -->
+                <div class="mt-2" id="selectedWarningsContainer">
+                    @if (Model.SelectedTriggerWarnings != null && Model.SelectedTriggerWarnings.Any())
+                    {
+                        foreach (var tw in Model.SelectedTriggerWarnings)
+                        {
+                            <span class="badge bg-secondary me-1">
+                                @tw.Name
+                            </span>
+                        }
+
+                        <!-- เก็บค่า ID -->
+                        <input type="hidden" id="triggerWarningIds" name="triggerWarningIds"
+                               value="@string.Join(",", Model.SelectedTriggerWarnings.Select(x => x.WarningId))" />
+                    }
+                    else
+                    {
+                        <input type="hidden" id="triggerWarningIds" name="triggerWarningIds"
+                               value="@string.Join(",", Model.SelectedTriggerWarnings.Select(x => x.WarningId))" />
+                    }
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">บันทึก</button>
+        </form>
+    }
+</div>
+
+<!-- Modal เลือกคำเตือน -->
+<div class="modal fade" id="editTWModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">เลือกคำเตือนเนื้อหา</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var tw in Model.TriggerWarnings)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input trigger-checkbox" type="checkbox" value="@tw.WarningId"
+                                   id="tw_@tw.WarningId" />
+                            <label class="form-check-label" for="tw_@tw.WarningId">
+                                <strong>@tw.Name</strong><br />
+                                <small class="text-muted">@tw.Description</small>
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary btn-sm" id="saveTWBtn">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewFile(event) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            document.getElementById('previewImage').src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+
+<!-- JS อัปเดต selected warnings -->
+<script>
+    const saveBtn = document.getElementById('saveTWBtn');
+    const hiddenInput = document.getElementById('triggerWarningIds');
+    const selectedContainer = document.getElementById('selectedWarningsContainer');
+
+    saveBtn.addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.trigger-checkbox');
+        const selectedIds = [];
+        const selectedNames = [];
+
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selectedIds.push(cb.value);
+                const label = document.querySelector(`label[for="${cb.id}"]`);
+                selectedNames.push(label.innerText.trim());
+            }
+        });
+
+        // อัปเดต hidden input
+        hiddenInput.value = selectedIds.join(',');
+
+        // แสดง badge
+        selectedContainer.innerHTML = '';
+        selectedNames.forEach(name => {
+            const span = document.createElement('span');
+            span.className = 'badge bg-secondary me-1';
+            span.innerText = name;
+            selectedContainer.appendChild(span);
+        });
+
+        // ปิด modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editTWModal'));
+        modal.hide();
+    });
+</script>

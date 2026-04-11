@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Reader;
 using Web_Novel.Helpers;
 
 namespace Web_Novel.Controllers;
@@ -77,6 +77,7 @@ public class CommentController : Controller
 
         return Redirect(Request.Headers["Referer"].ToString());
     }
+
 
     public IActionResult Privacy()
     {

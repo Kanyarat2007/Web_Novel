@@ -1,12 +1,12 @@
 @using Web_Novel.ViewModels
 @using Web_Novel.Helpers
-@model Web_Novel.ViewModels.NovelDetailViewModel
+@model NovelDetailViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = Model.Title;
 }
 
-<div class="container-xxl" style="max-width:860px;">
+<div class="container" style="max-width:950px;">
 
     @* ── ข้อมูลนิยาย ── *@
     <div class="row g-4 my-3">
@@ -19,11 +19,64 @@
 
         @* รายละเอียด + ปุ่ม (อยู่ใน col เดียวกัน) *@
         <div class="col d-flex flex-column gap-2">
+
             <h4 class="text-body fw-bold mb-0">@Model.Title</h4>
 
-            @* <p class="text-body-secondary small mb-0">
+            @* รายงานนิยาย *@
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                    ⋯
+                </button>
+
+                <ul class="dropdown-menu">
+                    <li>
+                        <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reportNovelModal"
+                                data-novel-id="@Model.NovelId">
+                            รายงานนิยาย
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            @* Modal รายงานนิยาย *@
+            <div class="modal fade" id="reportNovelModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <form asp-area="Reader" asp-controller="Report" asp-action="Create" method="post">
+                            <input type="hidden" name="targetType" value="novel" />
+                            <input type="hidden" name="targetId" value="@Model.NovelId" />
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">รายงานนิยาย</h5>
+                            </div>
+
+                            <div class="modal-body">
+                                <input type="hidden" name="novelId" id="reportNovelId" />
+
+                                <select name="reason" class="form-select mb-2">
+                                    <option value="inappropriate">เนื้อหาไม่เหมาะสม</option>
+                                    <option value="copyright">ละเมิดลิขสิทธิ์</option>
+                                    <option value="spam">สแปม</option>
+                                </select>
+
+                                <textarea name="description" class="form-control"
+                                          placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-danger">รายงาน</button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-body-secondary small mb-0">
                 สถานะ: @Model.Status | ประเภท: @Model.SeriesType
-            </p> *@
+            </p>
 
             <p class="text-body small mb-0">@Model.Synopsis</p>
             <div>
@@ -35,7 +88,10 @@
 
             @* นักเขียน *@
             <p class="text-body-secondary small mb-0">
-                นักเขียน
+                โดย
+                <a asp-area="Reader" asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@Model.UserId">
+                    @Model.PenName
+                </a>
             </p>
 
             <div class="d-flex gap-3 text-body-secondary small">
@@ -94,10 +150,16 @@
     </div>
 
     @* trigger warning *@
+    <h5 class="text-body mt-4 mb-3">คำเตือนเนื้อหา</h5>
     <div class="card bg-body-secondary border-0 p-4 my-4">
-        <h6 class="text-body fw-semibold mb-2">
-            trigger warning
-        </h6>
+        @foreach (var item in Model.NovelTriggerWarnings)
+        {
+            <span class="badge bg-warning text-dark">
+                @item.TriggerWarning.Name
+                @item.TriggerWarning.Description
+                    
+            </span>
+        }
     </div>
 
     @* แนะนำเรื่อง *@
@@ -122,35 +184,44 @@
 
     @* ── สารบัญตอน ── *@
     <h5 class="text-body mt-4 mb-3">สารบัญ</h5>
-    <div class="list-group">
-        @foreach (var ch in Model.Chapters)
-        {
-            <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
-                   asp-route-chapterNumber="@ch.ChapterNumber" 
-                   class="list-group-item list-group-item-action bg-body-secondary border-0 mb-1 rounded-3">
+    @if (!Model.Chapters.Any())
+    {
+        <p class="text-body-secondary mt-3">ยังไม่มีตอนนิยาย</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var ch in Model.Chapters)
+            {
+                <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
+                       asp-route-chapterNumber="@ch.ChapterNumber"
+                       class="list-group-item list-group-item-action bg-body-secondary border-0 mb-1 rounded-3">
                    
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-body">
-                        #@ch.ChapterNumber @ch.Title
-                    </span>
-                    @if (ch.IsPurchased)
-                    {
-                        <span class="badge bg-success">ซื้อแล้ว</span>
-                    }
-                    else if (ch.IsCoinRequired)
-                    {
-                        <span class="badge bg-warning text-dark">
-                            @ch.CoinPrice เหรียญ
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-body">
+                            @ch.Title
                         </span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-success">ฟรี</span>
-                    }
-                </div>
-            </a>
-        }
-    </div>
+                        @if (ch.IsPurchased)
+                        {
+                            <span class="badge bg-success">ซื้อแล้ว</span>
+                        }
+                        else if (ch.IsCoinRequired)
+                        {
+                            <span class="badge bg-warning text-dark">
+                                @ch.CoinPrice เหรียญ
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">ฟรี</span>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    }
+
+    
 
     @* ความคิดเห็น *@
     <h5 class="mt-4">ความคิดเห็น (@Model.Comments.Count)</h5>
@@ -159,7 +230,7 @@
     {
         <form asp-area="Reader" asp-controller="Comment" asp-action="AddComment" method="post" class="mt-3">
             <input type="hidden" name="novelId" value="@Model.NovelId" />
-            <input type="hidden" name="chapterId" value="" /> @* null = คอมเมนต์ทั้งเรื่อง *@
+            <input type="hidden" name="chapterId" value="" />
 
             <textarea name="content" class="form-control" placeholder="แสดงความคิดเห็นเกี่ยวกับเรื่องนี้..."
                       rows="3"></textarea>
@@ -207,21 +278,140 @@
                         }
                     </div>
 
-                    <div class="text-body mt-1">
-                        @c.Content
-                    </div>
-
-                    @if (c.UserId == Model.CurrentUserId)
+                    @* 🔴 กรณีโดนลบโดยแอดมิน *@
+                    @if (c.Status == "deleted" || c.IsDeleted)
                     {
-                        <form asp-area="Reader" asp-controller="Comment" asp-action="DeleteComment" method="post" class="mt-2">
-                            <input type="hidden" name="commentId" value="@c.CommentId" />
-                            <button class="btn btn-sm btn-outline-danger">ลบ</button>
-                        </form>
+                        <div class="text-muted fst-italic">
+                            คอมเมนต์นี้ถูกลบโดยผู้ดูแล
+                        </div>
                     }
+                    @* 🟡 กรณีเป็นสปอย *@
+                    else if (c.IsSpoiler)
+                    {
+                        <div class="spoiler-box blur"
+                             onclick="this.classList.remove('blur'); this.querySelector('.warning').style.display='none';">
+    
+                            <div class="warning">⚠️ สปอย (คลิกเพื่อดู)</div>
+    
+                            <div class="content">
+                                @c.Content
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        @c.Content
+                    }
+
+                    <div class="mt-2 d-flex gap-2">
+
+                        @* 🔴 ปุ่มลบ (ของตัวเอง) *@
+                        @if (c.UserId == Model.CurrentUserId)
+                        {
+                            <form asp-area="Reader" asp-controller="Comment" asp-action="DeleteComment" method="post">
+                                <input type="hidden" name="commentId" value="@c.CommentId" />
+                                <button class="btn btn-sm btn-outline-danger">ลบ</button>
+                            </form>
+                        }
+
+                        @* 🟠 ปุ่มรายงาน (คนอื่น) *@
+                        @if (Model.IsLoggedIn && c.UserId != Model.CurrentUserId)
+                        {
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                    ⋯
+                                </button>
+
+                                <ul class="dropdown-menu">
+                                    @if (c.UserId == Model.CurrentUserId)
+                                    {
+                                        <li>
+                                            <form asp-action="DeleteComment" method="post">
+                                                <input type="hidden" name="commentId" value="@c.CommentId" />
+                                                <button class="dropdown-item text-danger">ลบ</button>
+                                            </form>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reportModal"
+                                                    data-comment-id="@c.CommentId">
+                                                รายงาน
+                                            </button>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="modal fade" id="reportModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+
+                                        <form asp-area="Reader" asp-controller="Report" asp-action="Create" method="post">
+                                            <input type="hidden" name="targetType" value="comment" />
+                                            <input type="hidden" name="targetId" value="@c.CommentId" />
+    
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">รายงานความคิดเห็น</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <input type="hidden" name="commentId" id="reportCommentId" />
+
+                                                <select name="reason" class="form-select mb-2">
+                                                    <option value="inappropriate">ไม่เหมาะสม</option>
+                                                    <option value="spoiler">สปอย</option>
+                                                    <option value="spam">สแปม</option>
+                                                </select>
+
+                                                <textarea name="description" class="form-control"
+                                                          placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-danger">รายงาน</button>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
 
                 </div>
             }
+
+        
         </div>
     }
 
 </div>
+
+
+
+<script>
+    var reportModal = document.getElementById('reportModal');
+
+    reportModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var commentId = button.getAttribute('data-comment-id');
+
+        var input = document.getElementById('reportCommentId');
+        input.value = commentId;
+    });
+</script>
+
+<script>
+    var modal = document.getElementById('reportNovelModal');
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var novelId = button.getAttribute('data-novel-id');
+
+        document.getElementById('reportNovelId').value = novelId;
+    });
+</script>

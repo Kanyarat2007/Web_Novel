@@ -1,0 +1,40 @@
+@* @model Web_Novel.ViewModels.WriterDashboardViewModel
+
+<div class="d-flex justify-content-between mb-3">
+
+    <h2>สถิติของนักเขียน</h2>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ประเภท</th>
+                <th>ชื่อเรื่อง</th>
+                <th>วิว</th>
+                <th>ไลก์</th>
+                <th>บุ๊กมาร์ก</th>
+                <th>เหรียญ</th>
+                <th>ขายตอน</th>
+                <th>อัปเดตล่าสุด</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.Stats)
+            {
+                <tr>
+                    <td>
+                        @(item.ContentType == "Novel"
+                            ? item.NovelTitle
+                            : item.MangaTitle)
+                    </td>
+                    <td>@item.ContentType</td>
+                    <td>@item.TotalViews</td>
+                    <td>@item.TotalLikes</td>
+                    <td>@item.TotalBookshelf</td>
+                    <td>@item.TotalCoinEarned</td>
+                    <td>@item.UpdatedAt.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div> *@

@@ -1,0 +1,268 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@model CreateNovelViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "สร้างนิยายเรื่องใหม่";
+}
+
+<div class="container mt-4" style="max-width:950px;">
+
+    <p>@(Model.IsEdit ? "แก้ไขนิยาย" : "สร้างนิยายเรื่องใหม่")</p>
+
+    @if (Model.PenNames == null || !Model.PenNames.Any())
+    {
+        <div class="alert alert-warning">
+            กรุณาสร้างนามปากกาก่อนที่จะสร้างนิยาย
+        </div>
+    }
+    else
+    {
+        <form asp-action="Save" method="post" enctype="multipart/form-data">
+            @* <input type="hidden" name="id" value="@Model.NovelId" /> *@
+            <input type="hidden" asp-for="NovelId" />
+
+            <div class="mb-3">
+                <label for="PublishStatus" class="form-label">สถานะการเผยแพร่</label>
+                <select asp-for="PublishStatus" class="form-select">
+                    <option value="draft">Draft</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="published">Published</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="Status" class="form-label">สถานะนิยาย</label>
+                <select asp-for="Status" name="Status" class="form-select">
+                    <option value="ongoing">Ongoing</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+
+                @* นามปากกา *@
+                <div class="mb-3">
+                    <label for="penNameId" class="form-label">เลือกนามปากกา</label>
+                    <select asp-for="PenNameId" class="form-select"
+                            asp-items="@(new SelectList(Model.PenNames, "PenNameId", "PenName"))">
+                        @if (Model.PenNames == null || !Model.PenNames.Any())
+                        {
+                            <option value="">กรุณาสร้างนามปากกาก่อน</option>
+                        }
+                        else
+                        {
+                            <option value="">-- เลือกนามปากกา --</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        
+            @* ประเภทนิยาย *@
+            <div class="mb-3">
+                <label for="penNameId" class="form-label">เลือกประเภทนิยาย</label>
+                <select asp-for="SeriesType" class="form-select">
+                    <option value="short">เรื่องสั้น</option>
+                    <option value="series">เรื่องยาวหลายตอน</option>
+                </select>
+            </div>
+
+            <!-- 🔹 รูป -->
+            <div class="col-md-4 text-center">
+                <img id="previewImage"
+                     src="@(string.IsNullOrEmpty(Model.ExistingCoverImageUrl) 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ? "/images/default-avatar.png"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     : Model.ExistingCoverImageUrl)" />
+
+                <input type="file" name="CoverImage" class="form-control" onchange="previewFile(event)" />
+
+                <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeImage()">
+                    ลบรูป
+                </button>
+            </div>
+        
+            <div class="mb-3">
+                <label for="title" class="form-label">ชื่อเรื่อง</label>
+                <input asp-for="Title" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label for="synopsis" class="form-label">เรื่องย่อ</label>
+                <textarea asp-for="Synopsis" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="authorNote" class="form-label">ข้อมูลเกี่ยวกับนิยาย</label>
+                <textarea asp-for="AuthorNote" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="genreId" class="form-label">เลือกหมวดหมู่</label>
+                <select asp-for="GenreId" class="form-select"
+                        asp-items="@(new SelectList(Model.Genres, "GenreId", "Name"))">
+                </select>
+            </div>
+
+            <!-- ปุ่มเลือกคำเตือน -->
+            <div class="mb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#editTWModal">
+                    เลือกคำเตือนเนื้อหา
+                </button>
+
+                <!-- แสดง badge ของคำเตือนที่เลือก -->
+                <div class="mt-2" id="selectedWarningsContainer"></div>
+
+                <!-- hidden input เก็บ triggerWarningIds -->
+                @* <input type="hidden" id="triggerWarningIds" name="triggerWarningIds"
+                       value="@string.Join(",", Model.TriggerWarningIds ?? new List<int>())" /> *@
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                @(Model.IsEdit ? "บันทึกการแก้ไข" : "สร้างนิยาย")
+            </button>
+
+            @if (Model.IsEdit)
+            {
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteModal">
+                    ลบนิยาย
+                </button>
+            }   
+            
+            <!-- Modal เลือกคำเตือน -->
+            <div class="modal fade" id="editTWModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title">เลือกคำเตือนเนื้อหา</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex flex-column gap-2">
+                                @foreach (var tw in Model.TriggerWarnings)
+                                    {
+                                        var isChecked = Model.TriggerWarningIds != null && Model.TriggerWarningIds.Contains(tw.WarningId);
+
+                                        <div class="form-check">
+                                            <input type="checkbox"
+                                                id="tw_@tw.WarningId"
+                                                name="TriggerWarningIds"
+                                                value="@tw.WarningId"
+                                                class="form-check-input trigger-checkbox"
+                                                @(isChecked ? "checked" : "") />
+
+                                            <label class="form-check-label" for="tw_@tw.WarningId">
+                                                @tw.Name - @tw.Description
+                                            </label>
+                                        </div>
+                                    }
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="saveTWBtn">บันทึก</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    }
+
+            <!-- Modal ยืนยันการลบ -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger">ยืนยันการลบนิยาย</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            คุณแน่ใจหรือไม่ว่าต้องการลบนิยายเรื่องนี้?
+                            <br />
+                            <span class="text-muted">การกระทำนี้ไม่สามารถย้อนกลับได้</span>
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                ยกเลิก
+                            </button>
+
+                            <form asp-action="Delete" method="post">
+                                <input type="hidden" name="id" value="@Model.NovelId" />
+                                <button type="submit" class="btn btn-danger">
+                                    ลบเลย
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+</div>
+
+
+
+<script>
+    function previewFile(event) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            document.getElementById('previewImage').src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function removeImage() {
+        document.getElementById('previewImage').src = '/images/default-avatar.png';
+    }
+</script>
+
+<script>
+    window.addEventListener('load', () => {
+        const selectedContainer = document.getElementById('selectedWarningsContainer');
+        @* const hiddenInput = document.getElementById('triggerWarningIds'); *@
+        const checkboxes = document.querySelectorAll('.trigger-checkbox');
+
+        // โหลด badge จากค่า checked ตอนโหลดหน้า
+        selectedContainer.innerHTML = '';
+        const selectedIds = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selectedIds.push(cb.value);
+                const label = document.querySelector(`label[for="${cb.id}"]`);
+                const span = document.createElement('span');
+                span.className = 'badge bg-secondary me-1';
+                span.innerText = label.innerText.trim();
+                selectedContainer.appendChild(span);
+            }
+        });
+        @* hiddenInput.value = selectedIds.join(','); *@
+
+        // บันทึกคำเตือนเมื่อกดปุ่มใน modal
+        document.getElementById('saveTWBtn').addEventListener('click', () => {
+            selectedContainer.innerHTML = '';
+            const selectedIds = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedIds.push(cb.value);
+                    const label = document.querySelector(`label[for="${cb.id}"]`);
+                    const span = document.createElement('span');
+                    span.className = 'badge bg-secondary me-1';
+                    span.innerText = label.innerText.trim();
+                    selectedContainer.appendChild(span);
+                }
+            });
+            hiddenInput.value = selectedIds.join(',');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editTWModal'));
+            modal.hide();
+        });
+    });
+</script>

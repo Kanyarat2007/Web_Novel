@@ -1,0 +1,63 @@
+@model List<Web_Novel.ViewModels.Admin.ReportAdminViewModel>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h3>จัดการรายงาน</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ประเภท</th>
+            <th>เนื้อหา</th>
+            <th>เหตุผล</th>
+            <th>ผู้รายงาน</th>
+            <th>วันที่</th>
+            <th>สถานะ</th>
+            <th>จัดการ</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.TargetType</td>
+                <td>@r.TargetContent</td>
+                <td>@r.Reason</td>
+                <td>@r.ReporterName</td>
+                <td>@TimeHelper.ToThaiString(r.CreatedAt)</td>
+                <td>
+                    <span class="badge bg-warning">@r.Status</span>
+                </td>
+
+                <td class="d-flex gap-1">
+
+                    <form asp-action="Approve" method="post">
+                        <input type="hidden" name="reportId" value="@r.ReportId" />
+                        <button class="btn btn-success btn-sm">อนุมัติ</button>
+                    </form>
+
+                    <form asp-action="Reject" method="post">
+                        <input type="hidden" name="reportId" value="@r.ReportId" />
+                        <button class="btn btn-secondary btn-sm">ปฏิเสธ</button>
+                    </form>
+
+                    @if (r.TargetType == "comment")
+                    {
+                        <form asp-action="DeleteComment" method="post">
+                            <input type="hidden" name="reportId" value="@r.ReportId" />
+                            <button class="btn btn-danger btn-sm">ลบคอมเมนต์</button>
+                        </form>
+
+                        <form asp-action="MarkSpoiler" method="post">
+                            <input type="hidden" name="reportId" value="@r.ReportId" />
+                            <button class="btn btn-warning btn-sm">สปอย</button>
+                        </form>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

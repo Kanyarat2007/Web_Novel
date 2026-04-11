@@ -1,26 +1,60 @@
 @inject IHttpContextAccessor HttpContextAccessor
-@model Web_Novel.ViewModels.UserProfileViewModel
+@model UserProfileViewModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     var username = HttpContextAccessor.HttpContext.Session.GetString("Username");
+    ViewData["Title"] = @Model.DisplayName;
 }
 
-<h4>@Model.DisplayName</h4>
-<p class="text-body-secondary">@Model.Bio</p>
+<div class="container" style="max-width:950px;">
 
-@if (!Model.IsCurrentUser)
-{
-    <form method="post">
-        <input type="hidden" name="blockedUserId" value="@Model.UserId" />
+    <h1>ดูโปรไฟล์คนอื่น</h1>
 
-        @if (Model.IsBlocked)
-        {
-            <button asp-action="UnblockUser" asp-controller="Block" class="btn btn-secondary btn-sm">ยกเลิกบล็อค</button>
-        }
-        else
-        {
-            <button asp-action="BlockUser" asp-controller="Block" class="btn btn-danger btn-sm">บล็อคผู้ใช้</button>
-        }
-    </form>
-}
+    <img src="@(string.IsNullOrEmpty(Model.ProfileImage) 
+                                                                                      ? "/images/default-avatar.png"
+                                                                                      : Model.ProfileImage)"
+         class="rounded-circle border" style="width:90px;height:90px;object-fit:cover;"
+         onerror="this.src='/images/default-avatar.png'" />
+
+    <h4>@Model.DisplayName</h4>
+    <p class="text-body-secondary">@Model.Bio</p>
+
+    @if (!Model.IsCurrentUser)
+    {
+        <form method="post">
+            <input type="hidden" name="blockedUserId" value="@Model.UserId" />
+
+            @if (Model.IsBlocked)
+            {
+                <button asp-action="UnblockUser" asp-controller="Block" class="btn btn-secondary btn-sm">ยกเลิกบล็อค</button>
+            }
+            else
+            {
+                <button asp-action="BlockUser" asp-controller="Block" class="btn btn-danger btn-sm">บล็อคผู้ใช้</button>
+            }
+        </form>
+    }
+    
+    @if (Model.HasPenName)
+    {
+        @* <span class="badge bg-dark">นักเขียน</span> *@
+        <hr />
+        <h5>ผลงานของ @Model.PenName</h5>
+
+        <div class="row">
+            @foreach (var novel in Model.Novels)
+            {
+                <div class="col-3">
+                    <a asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId">
+
+                        <img src="@novel.CoverImageUrl" class="img-fluid rounded" />
+
+                        <p>@novel.Title</p>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+</div>

@@ -1,7 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
-using Web_Novel.ViewModels;
+using Web_Novel.ViewModels.Writer;
+using Microsoft.EntityFrameworkCore;
 
 namespace Web_Novel.Areas.Writer.Controllers
 
@@ -14,6 +15,7 @@ namespace Web_Novel.Areas.Writer.Controllers
         {
             _db = db;
         }
+
         public IActionResult Dashboard(string tab = "novels")
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -69,18 +71,95 @@ namespace Web_Novel.Areas.Writer.Controllers
                     break;
 
                 case "payments":
+
+                    // 💳 ช่องทางการชำระเงิน
                     vm.Payments = _db.Writerprofiles
                         .Where(w => w.UserId == userId)
                         .Select(w => new WriterPaymentViewModel
                         {
                             UserId = w.UserId,
-                            // PaymentId = w.PaymentId,
+                            PaymentId = w.WriterProfileId,
                             BankName = w.BankName,
                             BankAccountName = w.BankAccountName,
                             BankAccountNumber = w.BankAccountNo,
-                            IsPaymentConfirmed = w.IsVerified
+                            IsPaymentConfirmed = w.IsVerified,
+                            // PromptPay = w.PromptPay
                         })
                         .ToList();
+
+                    // 💰 รายได้ของนักเขียน
+                    var totalEarning = _db.Cointransactions
+    .Where(x => x.UserId == userId && x.Type == "spend")
+    .Sum(x => x.Amount);
+
+                    var earningsList = _db.Cointransactions
+                    .Where(x => x.UserId == userId && x.Type == "spend")
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToList();
+
+                    vm.Earnings = _db.Novelpurchases
+    .Where(x => x.UserId == userId)
+    .OrderByDescending(x => x.PurchasedAt)
+    .Select(x => new WriterEarningItemViewModel
+    {
+        TransactionId = x.PurchaseId,
+        Amount = x.CoinSpent,
+        Type = "spend",
+        CreatedAt = x.PurchasedAt,
+
+        NovelId = x.NovelId,
+        NovelTitle = x.Novel != null ? x.Novel.Title : "-",
+
+        BalanceAfter = 0 // ถ้ายังไม่มี logic
+    })
+    .ToList();
+
+                    // 📊 summary รายได้
+                    vm.EarningSummary = new WriterEarningSummaryViewModel
+                    {
+                        UserId = userId,
+                        TotalEarning = _db.Novelpurchases
+        .Where(x => x.UserId == userId)
+        .Sum(x => x.CoinSpent),
+
+                        MonthlyEarning = _db.Novelpurchases
+        .Where(x => x.UserId == userId &&
+                    x.PurchasedAt.Month == DateTime.Now.Month &&
+                    x.PurchasedAt.Year == DateTime.Now.Year)
+        .Sum(x => x.CoinSpent),
+
+                        TodayEarning = _db.Novelpurchases
+        .Where(x => x.UserId == userId &&
+                    x.PurchasedAt.Date == DateTime.Now.Date)
+        .Sum(x => x.CoinSpent),
+
+                        TotalTransactions = _db.Novelpurchases
+        .Count(x => x.UserId == userId)
+                    };
+
+                    break;
+
+                case "stats":
+
+                    vm.Stats = _db.Novels
+    .Where(x => x.AuthorUserId == userId)
+    .Select(x => new WriterStatsViewModel
+    {
+        NovelId = x.NovelId,
+        NovelTitle = x.Title,
+
+        ContentType = "Novel",
+
+        TotalViews = x.TotalViews,
+        TotalLikes = x.TotalLikes,
+        TotalBookshelf = x.TotalBookshelf,
+
+        TotalCoinEarned = 0, // ยังไม่มีระบบนี้
+        TotalChaptersSold = 0,
+
+        UpdatedAt = x.UpdatedAt
+    })
+    .ToList();
                     break;
             }
 

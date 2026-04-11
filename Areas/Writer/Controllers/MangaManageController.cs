@@ -1,44 +1,44 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using Web_Novel.Models;
-using Web_Novel.ViewModels;
+// using System.Diagnostics;
+// using Microsoft.AspNetCore.Mvc;
+// using Web_Novel.Models;
+// using Web_Novel.ViewModels;
 
-namespace Web_Novel.Controllers;
+// namespace Web_Novel.Controllers;
 
-public class MangaManageController : Controller
-{
-    private readonly WebnoveldbContext _db;
-    public MangaManageController(WebnoveldbContext db)
-    {
-        _db = db;
-    }
+// public class MangaManageController : Controller
+// {
+//     private readonly WebnoveldbContext _db;
+//     public MangaManageController(WebnoveldbContext db)
+//     {
+//         _db = db;
+//     }
 
-    public IActionResult TopUp()
-    {
-        var username = HttpContext.Session.GetString("Username");
+//     public IActionResult TopUp()
+//     {
+//         var username = HttpContext.Session.GetString("Username");
 
-        ViewBag.Username = username;
+//         ViewBag.Username = username;
 
-        return View();
-    }
+//         return View();
+//     }
 
-    public IActionResult History()
-    {
-        var username = HttpContext.Session.GetString("Username");
+//     public IActionResult History()
+//     {
+//         var username = HttpContext.Session.GetString("Username");
 
-        ViewBag.Username = username;
+//         ViewBag.Username = username;
 
-        return View();
-    }
+//         return View();
+//     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+//     public IActionResult Privacy()
+//     {
+//         return View();
+//     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
-}
+//     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+//     public IActionResult Error()
+//     {
+//         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+//     }
+// }

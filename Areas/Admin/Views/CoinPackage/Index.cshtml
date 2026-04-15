@@ -1,0 +1,148 @@
+@model List<Web_Novel.ViewModels.Admin.CoinPackageViewModel>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2 class="mb-0">แพ็กเกจเหรียญ</h2>
+
+        <div class="d-flex gap-2">
+
+            @* ปุ่มเพิ่ม *@
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="bi bi-plus-lg"></i>
+                เพิ่มแพ็กเกจ
+            </button>
+        </div>
+
+        @* modal เพิ่ม *@
+        <div class="modal fade" id="createModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <form asp-action="Create" asp-area="Admin" asp-controller="CoinPackage" method="post">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">เพิ่มแพ็กเกจ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <input name="Name" class="form-control mb-2" placeholder="ชื่อ" />
+                            <input name="Price" class="form-control mb-2" placeholder="ราคา" />
+                            <input name="CoinAmount" class="form-control mb-2" placeholder="จำนวนเหรียญ" />
+                            <input name="BonusCoin" class="form-control mb-2" placeholder="โบนัส" />
+
+                            <div class="form-check">
+                                <input type="checkbox" name="IsActive" class="form-check-input" />
+                                <label>Active</label>
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">บันทึก</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @* ตาราง *@
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ชื่อแพ็คเกจ</th>
+                <th>ราคา</th>
+                <th>เหรียญ</th>
+                <th>โบนัส</th>
+                <th>สถานะ</th>
+                <th>แก้ไข</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Price</td>
+                    <td>@item.CoinAmount</td>
+                    <td>@item.BonusCoin</td>
+                    <td>@(item.IsActive ? "Active" : "Inactive")</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(
+                            @item.PackageId,
+                            '@Html.Raw(item.Name.Replace("'", "\\'"))',
+                            @item.Price,
+                            @item.CoinAmount,
+                            @item.BonusCoin,
+                            @item.IsActive.ToString().ToLower()
+                            )">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* modal แก้ไข *@
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form asp-action="Edit" asp-area="Admin" asp-controller="CoinPackage" method="post">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">แก้ไขแพ็กเกจ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" id="edit_PackageId" name="PackageId" />
+
+                    <input id="edit_Name" name="Name" class="form-control mb-2" />
+                    <input type="number" id="edit_Price" name="Price" class="form-control mb-2" />
+                    <input type="number" id="edit_CoinAmount" name="CoinAmount" class="form-control mb-2" />
+                    <input type="number" id="edit_BonusCoin" name="BonusCoin" class="form-control mb-2" />
+                    <input type="checkbox" id="edit_IsActive" name="IsActive" value="true" class="form-check-input" />
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary">บันทึก</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, name, price, coin, bonus, isActive) {
+        console.log(id, name);
+
+        document.getElementById("edit_PackageId").value = id;
+        document.getElementById("edit_Name").value = name;
+        document.getElementById("edit_Price").value = price;
+        document.getElementById("edit_CoinAmount").value = coin;
+        document.getElementById("edit_BonusCoin").value = bonus;
+
+        document.getElementById("edit_IsActive").checked = isActive;
+
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    }
+</script>

@@ -1,0 +1,26 @@
+@* @model Web_Novel.ViewModels.Admin.EditUserRoleViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>แก้ไข Role: @Model.Username</h2>
+
+<form method="post">
+
+    <input type="hidden" name="UserId" value="@Model.UserId" />
+
+    @foreach (var role in Model.Roles)
+    {
+        <label>
+            <input type="checkbox"
+                   name="SelectedRoleIds"
+                   value="@role.RoleId"
+                   @(Model.SelectedRoleIds.Contains(role.RoleId) ? "checked" : "") />
+            @role.RoleName
+        </label>
+        <br />
+    }
+
+    <button class="btn btn-success">บันทึก</button>
+</form> *@

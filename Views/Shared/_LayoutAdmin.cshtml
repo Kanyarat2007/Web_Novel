@@ -30,43 +30,67 @@
     <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     @await RenderSectionAsync("Styles", required: false)
     
     <style>
             body {
                 overflow-x: hidden;
+                background-color: #fff0f6;
+                /* ชมพูอ่อนมาก */
+                font-family: 'Sarabun', sans-serif;
             }
 
+            /* Sidebar */
             .sidebar {
                 width: 250px;
-                height: 100vh;
+                height: calc(100vh - 40px);
                 position: fixed;
-                background-color: #ffddf2;
-                color: white;
+                top: 20px;
+                left: 20px;
+                background-color: #ffffff;
+                /* ขาว */
+                border-radius: 20px;
+                /* มุมโค้ง */
+                padding-top: 10px;
             }
 
+            /* ลิงก์ */
             .sidebar a {
-                color: #707070;
+                color: #555;
                 display: block;
                 padding: 12px 20px;
                 text-decoration: none;
+                border-radius: 10px;
             }
 
             .sidebar a:hover,
             .sidebar a.active {
-                background-color: #343a40;
-                color: #fff;
+                background-color: #ffe4ef;
+                /* hover ชมพูอ่อน */
+                color: #000;
             }
 
+            /* Content */
             .content {
-                margin-left: 250px;
+                margin-left: 290px;
+                /* เว้นระยะจาก sidebar */
+                margin-top: 20px;
+                margin-right: 20px;
                 padding: 20px;
+                background-color: #ffffff;
+                /* ขาว */
+                border-radius: 20px;
+                /* มุมโค้ง */
+                min-height: calc(100vh - 40px);
             }
 
+            /* Profile */
             .profile {
                 text-align: center;
                 padding: 20px;
-                border-bottom: 1px solid #444;
+                border-bottom: 1px solid #eee;
             }
 
             .profile img {
@@ -76,8 +100,6 @@
                 object-fit: cover;
             }
     </style>
-
-
 </head>
 
 <body>
@@ -86,40 +108,87 @@
     <div class="sidebar">
 
         <!-- Profile -->
-        @* <div class="profile">
-            <img src="@(profileImage ?? "/images/default-avatar.png")" />
-            <h6 class="mt-2">@username</h6>
-        </div> *@
-
-        @if (role == "Admin")
+        @if (role == "Admin" || role == "Moderator")
         {
             <div class="profile">
-            <img src="@(profileImage ?? "/images/default-avatar.png")" />
-            <h6 class="mt-2">@username</h6>
-        </div>
+                <img src="@(profileImage ?? "/images/default-avatar.png")" />
+                <h6 class="mt-2">@username</h6>
+            </div>
         }
 
-        <!-- Menu -->
-        <a asp-controller="User" asp-action="Index">จัดการผู้ใช้</a>
-        <a asp-controller="Report" asp-action="Index">จัดการการรายงาน</a>
+        @if (Context.Session.GetString("Role") == "Admin"
+                                                                                                                                                                                                                                                                         || Context.Session.GetString("Role") == "Moderator")
+        {
+            <a asp-area="Admin" asp-controller="Report" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" ? "active" : "")">
+                <i class="bi bi-book"></i>
+                รายงานจากผู้ใช้</a>
+               
+            }
 
-        <a asp-controller="Admin" asp-action="Earnings">จัดการรายได้</a>
-        <a asp-controller="Admin" asp-action="Promotions">จัดการโปรโมชั่น</a>
-        <a asp-controller="Admin" asp-action="Banners">จัดการ Banner</a>
-        <a asp-controller="Admin" asp-action="Categories">จัดการหมวดหมู่</a>
-        <a asp-controller="Admin" asp-action="Warnings">จัดการคำเตือน</a>
+            @if (Context.Session.GetString("Role") == "Admin")
+            {
+                <a asp-area="Admin" asp-controller="User" asp-action="Index"
+                       class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+                    <i class="bi bi-person-gear"></i>
+                    รายชื่อผู้ใช้</a>
 
-        <form asp-controller="Account" asp-action="Logout" method="post">
-            <button class="btn btn-sm btn-danger mt-2">Logout</button>
-        </form>
+                    <a asp-controller="Admin" asp-action="Earnings">
+                        <i class="bi bi-credit-card"></i>
+                        ยัง รายได้นักเขียน</a>
 
-    </div>
+                        
+                
+                        <a asp-area="Admin" asp-controller="Promotion" asp-action="Index">
+                            <i class="bi bi-cash-coin"></i>
+                            โปรโมชั่น</a>
+                    
+                            <a asp-area="Admin" asp-controller="CoinPackage" asp-action="Index">
+                                <i class="bi bi-coin"></i>
+                                เหรียญ</a>
 
-    <!-- Content -->
-    <div class="content">
-        @RenderBody()
-    </div>
+                                <a asp-area="Admin" asp-controller="Genre" asp-action="Index"
+                                       class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Genre" ? "active" : "")">
+                                    <i class="bi bi-tags"></i>
+                                    หมวดหมู่นิยาย</a>
+    
+                                    <a asp-area="Admin" asp-controller="TriggerWarning" asp-action="Index"
+                                           class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "TriggerWarning" ? "active" : "")">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        คำเตือนนิยาย</a>
+                                    }
 
-</body>
+                                    <a asp-area="Admin" asp-controller=Banner" asp-action="Index">
+                                        <i class="bi bi-badge-ad"></i>
+                                        โฆษณา</a>
 
-</html>
+                                        @* Dark mode toggle *@
+                                        @* <li class="px-3 py-2">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="small text-muted">ธีมสี</span>
+
+                                            <div class="form-check form-switch m-0">
+                                                <input class="form-check-input" type="checkbox" id="darkModeSwitch" onchange="toggleTheme()" />
+                                            </div>
+                                        </div>
+                                    </li> *@
+
+                                        <a class="dropdown-item text-danger" asp-area="" asp-controller="Account" asp-action="Logout">
+                                            <i class="bi bi-box-arrow-left"></i>
+                                            ออกจากระบบ
+                                        </a>
+
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="content">
+                                        @RenderBody()
+                                    </div>
+
+                                </body>
+
+                                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+                            </html>
+
+

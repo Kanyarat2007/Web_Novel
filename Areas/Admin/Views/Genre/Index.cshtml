@@ -1,0 +1,113 @@
+@model Web_Novel.ViewModels.Admin.GenrePageViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2 class="mb-0">หมวดหมู่นิยาย</h2>
+
+        <div class="d-flex gap-2">
+
+            @* ถ้าเพิ่มตัวกรองวันที่ *@
+
+            @* ปุ่มเพิ่ม *@
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-lg"></i>
+                เพิ่มหมวดหมู่
+            </button>
+        </div>
+
+        @* modal *@
+        <div class="modal fade" id="addModal">
+            <div class="modal-dialog">
+                <form asp-action="Create" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5>เพิ่มหมวดหมู่</h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <input name="Form.Name" class="form-control mb-2" placeholder="ชื่อหมวด" />
+                        <input name="Form.Slug" class="form-control" placeholder="Slug" />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-success">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ตาราง -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                @* <th>ID</th> *@
+                <th>ชื่อหมวดหมู่ภาษาไทย</th>
+                <th>ชื่อหมวดหมู่ภาษาอังกฤษ</th>
+                <th>แก้ไข</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var g in Model.Genres)
+            {
+                <tr>
+                    @* <td>@g.GenreId</td> *@
+                    <td>@g.Name</td>
+                    <td>@g.Slug</td>
+                    <td>
+                        @* แก้ไข *@
+                        <button class="btn btn-light btn-sm" onclick="openEdit(@g.GenreId, '@g.Name', '@g.Slug')">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        @* ลบ *@
+                        <form asp-action="Delete" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@g.GenreId" />
+                            <button class="btn btn-outline-danger btn-sm" onclick="return confirm('ยืนยัน')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="editModal">
+    <div class="modal-dialog">
+        <form asp-action="Edit" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5>แก้ไขหมวดหมู่</h5>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="editId" name="Form.GenreId" />
+
+                <input id="editName" name="Form.Name" class="form-control mb-2" />
+                <input id="editSlug" name="Form.Slug" class="form-control" />
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEdit(id, name, slug) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editSlug").value = slug;
+
+        var modal = new bootstrap.Modal(document.getElementById('editModal'));
+        modal.show();
+    }
+</script>

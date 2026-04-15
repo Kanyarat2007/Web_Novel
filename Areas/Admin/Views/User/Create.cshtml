@@ -1,0 +1,27 @@
+@* @model Web_Novel.ViewModels.Admin.CreateUserViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h3>จัดการเพิ่มผู้ใช้</h3>
+
+<form method="post">
+
+    <input name="Username" class="form-control" placeholder="Username" />
+    <input name="Password" class="form-control" placeholder="Password" type="password" />
+    <input name="DisplayName" class="form-control" placeholder="Display Name" />
+
+    <h4>Role</h4>
+
+    @foreach (var role in Model.Roles)
+    {
+        <label>
+            <input type="checkbox" name="SelectedRoleIds" value="@role.RoleId" />
+            @role.RoleName
+        </label>
+        <br />
+    }
+
+    <button class="btn btn-success">บันทึก</button>
+</form> *@

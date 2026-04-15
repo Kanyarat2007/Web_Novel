@@ -197,8 +197,11 @@ public class NovelController : Controller
                 .ToList(),
 
             PenNames = _db.Pennames.Where(p => p.UserId == userId).ToList(),
+            SelectedGenreIds = novel.NovelGenres.Select(x => x.GenreId).ToList(),
+            TriggerWarnings = _db.TriggerWarnings.OrderBy(t => t.Name).ToList(),
+
             Genres = _db.Genres.ToList(),
-            TriggerWarnings = _db.TriggerWarnings.OrderBy(t => t.Name).ToList()
+
         };
 
         return View("Create", model);
@@ -325,13 +328,36 @@ public class NovelController : Controller
 
         // ✅ map fields
         novel.PenNameId = model.PenNameId;
-        novel.GenreId = model.GenreId;
+
+        // novel.NovelGenres ??= new List<NovelGenre>();
+
+        // novel.NovelGenres.Clear();
+
+        if (model.GenreId == 0)
+        {
+            ModelState.AddModelError("GenreId", "กรุณาเลือกหมวดหมู่");
+        }
+
+        // if (model.SelectedGenreIds != null)
+        // {
+        //     foreach (var id in model.SelectedGenreIds)
+        //     {
+        //         novel.NovelGenres.Add(new NovelGenre
+        //         {
+        //             GenreId = id,
+        //             Novel = novel
+        //         });
+        //     }
+        // }
+
         novel.Title = model.Title;
         novel.Synopsis = model.Synopsis;
         novel.AuthorNote = model.AuthorNote;
         novel.SeriesType = model.SeriesType;
         novel.PublishStatus = model.PublishStatus;
         novel.Status = model.Status;
+        novel.PenNameId = model.PenNameId;
+        novel.GenreId = model.GenreId; // ✅ สำคัญมาก
 
         if (!model.IsEdit)
         {
@@ -376,6 +402,28 @@ public class NovelController : Controller
         if (!model.IsEdit)
         {
             _db.Novels.Add(novel);
+        }
+
+        if (model.GenreId == 0)
+        {
+            ModelState.AddModelError("GenreId", "กรุณาเลือกหมวดหมู่");
+        }
+
+        var genreExists = _db.Genres.Any(g => g.GenreId == model.GenreId);
+
+        if (!genreExists)
+        {
+            ModelState.AddModelError("GenreId", "หมวดหมู่ไม่ถูกต้อง");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            // 👇 สำคัญ: ต้อง reload dropdown
+            model.Genres = _db.Genres.ToList();
+            model.PenNames = _db.Pennames.Where(p => p.UserId == userId).ToList();
+            model.TriggerWarnings = _db.TriggerWarnings.OrderBy(t => t.Name).ToList();
+
+            return View("Create", model);
         }
 
         _db.SaveChanges();

@@ -1,12 +1,41 @@
-﻿@{
-    @* ViewData["Title"] = "Home Page"; *@
-}
+﻿@model List<Web_Novel.ViewModels.NotificationViewModel>
 
 <div class="container-xxl" style="max-width:950px;">
 
-    <div class="bg-secondary-subtle my-3 rounded d-flex align-items-center justify-content-center"
-         style="height: 300px;">
-        <h2 class="m-0">แจ้งเตือนต่าง ๆ</h2>
+    <div>
+        <h2 class="mt-3">แจ้งเตือนต่าง ๆ</h2>
+
+        <a asp-action="MarkAllAsRead" class="btn btn-sm btn-secondary mb-3">
+            อ่านทั้งหมด
+        </a>
     </div>
 
+    <div class="card-soft">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>เรื่อง</th>
+                    <th>ข้อความ</th>
+                    <th>เวลา</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in Model)
+                {
+                    <tr style="@(n.IsRead ? "" : "font-weight:bold;")">
+                        <td>@n.NovelTitle</td>
+                        <td>@n.Message</td>
+                        <td>@n.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <a asp-action="MarkAsRead" asp-route-id="@n.NotificationId" class="btn btn-sm btn-primary">
+                                ดู
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

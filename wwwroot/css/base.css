@@ -16,6 +16,7 @@ body {
   background-color: var(--bg-base);
   line-height:      1.6;
   transition:       background-color 0.2s, color 0.2s;
+  margin: 0;
 }
 
 /* ===== Typography ===== */

@@ -72,9 +72,13 @@ public partial class User
 
     public virtual ICollection<Writerstat> Writerstats { get; set; } = new List<Writerstat>();
 
-    public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
+    // public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
 
-    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+    // public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
     public virtual UserCoin? UserCoin { get; set; }
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<UserGenre> UserGenres { get; set; } = new List<UserGenre>();
+    public virtual ICollection<UserReward> UserRewards { get; set; } = new List<UserReward>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

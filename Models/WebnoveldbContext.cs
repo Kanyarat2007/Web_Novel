@@ -16,6 +16,8 @@ public partial class WebnoveldbContext : DbContext
     {
     }
 
+
+    public DbSet<Banner> Banners { get; set; }
     public virtual DbSet<Blocklist> Blocklists { get; set; }
 
     public virtual DbSet<Bookshelf> Bookshelves { get; set; }
@@ -46,7 +48,11 @@ public partial class WebnoveldbContext : DbContext
 
     public virtual DbSet<Moderationlog> Moderationlogs { get; set; }
 
+    public DbSet<Notification> Notifications { get; set; }
+
     public virtual DbSet<Novel> Novels { get; set; }
+
+    public virtual DbSet<NovelGenre> NovelGenres { get; set; }
 
     public virtual DbSet<Novellike> Novellikes { get; set; }
 
@@ -73,8 +79,11 @@ public partial class WebnoveldbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<UserCoin> UserCoins { get; set; }
+    public virtual DbSet<UserGenre> UserGenres { get; set; }
 
     public virtual DbSet<Userpromotion> Userpromotions { get; set; }
+    public virtual DbSet<UserReward> UserRewards { get; set; }
+    public virtual DbSet<UserRole> UserRoles { get; set; }
 
     public virtual DbSet<Writerprofile> Writerprofiles { get; set; }
 
@@ -89,6 +98,50 @@ public partial class WebnoveldbContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_general_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Banner>(entity =>
+        {
+            entity.HasKey(e => e.BannerId).HasName("PRIMARY");
+
+            entity
+                .ToTable("banners")
+                .UseCollation("utf8mb4_unicode_ci");
+
+            entity.Property(e => e.Title)
+                .HasMaxLength(200);
+
+            entity.Property(e => e.ImageUrl)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(e => e.RedirectUrl)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.Position)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasDefaultValue("HomepageTop");
+
+            entity.Property(e => e.DisplayOrder)
+                .HasDefaultValue(0);
+
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true);
+
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .ValueGeneratedOnAddOrUpdate();
+        });
 
         modelBuilder.Entity<Blocklist>(entity =>
         {
@@ -360,6 +413,8 @@ public partial class WebnoveldbContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
+            entity.Property(e => e.LastRewardDate)
+    .HasColumnType("date");
 
             entity.HasOne(d => d.User).WithOne(p => p.Loginstreak)
                 .HasForeignKey<Loginstreak>(d => d.UserId)
@@ -524,6 +579,50 @@ public partial class WebnoveldbContext : DbContext
                 .HasConstraintName("moderationlogs_ibfk_1");
         });
 
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId).HasName("PRIMARY");
+
+            entity
+                .ToTable("notifications")
+                .UseCollation("utf8mb4_unicode_ci");
+
+            entity.HasIndex(e => e.UserId, "UserId");
+            entity.HasIndex(e => e.NovelId, "NovelId");
+            entity.HasIndex(e => e.ChapterId, "ChapterId");
+
+            entity.Property(e => e.Message)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            entity.Property(e => e.IsRead)
+                .HasDefaultValue(false);
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            // FK → User
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("notifications_ibfk_1");
+
+            // FK → Novel
+            entity.HasOne(d => d.Novel)
+                .WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.NovelId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("notifications_ibfk_2");
+
+            // FK → Chapter
+            entity.HasOne(d => d.Chapter)
+                .WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.ChapterId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("notifications_ibfk_3");
+        });
+
         modelBuilder.Entity<Novel>(entity =>
         {
             entity.HasKey(e => e.NovelId).HasName("PRIMARY");
@@ -574,6 +673,21 @@ public partial class WebnoveldbContext : DbContext
             //     .OnDelete(DeleteBehavior.SetNull)
             //     .HasConstraintName("novels_ibfk_genre");
         });
+
+        modelBuilder.Entity<NovelGenre>(entity =>
+{
+    entity.ToTable("novelgenres");
+
+    entity.HasKey(x => new { x.NovelId, x.GenreId });
+
+    entity.HasOne(x => x.Novel)
+        .WithMany(n => n.NovelGenres)
+        .HasForeignKey(x => x.NovelId);
+
+    entity.HasOne(x => x.Genre)
+        .WithMany()
+        .HasForeignKey(x => x.GenreId);
+});
 
         modelBuilder.Entity<Novellike>(entity =>
         {
@@ -757,7 +871,6 @@ public partial class WebnoveldbContext : DbContext
             entity.Property(e => e.MaxUsagePerUser).HasDefaultValueSql("'1'");
             entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
-            entity.Property(e => e.Type).HasMaxLength(30);
         });
 
         modelBuilder.Entity<Readinghistory>(entity =>
@@ -894,6 +1007,10 @@ public partial class WebnoveldbContext : DbContext
 
             entity.Property(e => e.Description)
                 .HasColumnType("text");
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -921,45 +1038,45 @@ public partial class WebnoveldbContext : DbContext
             entity.Property(e => e.ProfileImageUrl).HasMaxLength(500);
             entity.Property(e => e.Username).HasMaxLength(100);
 
-            entity.HasMany(d => d.Genres).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Usergenrepreference",
-                    r => r.HasOne<Genre>().WithMany()
-                        .HasForeignKey("GenreId")
-                        .HasConstraintName("usergenrepreferences_ibfk_2"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("usergenrepreferences_ibfk_1"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "GenreId")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
-                        j
-                            .ToTable("usergenrepreferences")
-                            .UseCollation("utf8mb4_unicode_ci");
-                        j.HasIndex(new[] { "GenreId" }, "GenreId");
-                    });
+            // entity.HasMany(d => d.Genres).WithMany(p => p.Users)
+            //     .UsingEntity<Dictionary<string, object>>(
+            //         "Usergenrepreference",
+            //         r => r.HasOne<Genre>().WithMany()
+            //             .HasForeignKey("GenreId")
+            //             .HasConstraintName("usergenrepreferences_ibfk_2"),
+            //         l => l.HasOne<User>().WithMany()
+            //             .HasForeignKey("UserId")
+            //             .HasConstraintName("usergenrepreferences_ibfk_1"),
+            //         j =>
+            //         {
+            //             j.HasKey("UserId", "GenreId")
+            //                 .HasName("PRIMARY")
+            //                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+            //             j
+            //                 .ToTable("usergenrepreferences")
+            //                 .UseCollation("utf8mb4_unicode_ci");
+            //             j.HasIndex(new[] { "GenreId" }, "GenreId");
+            //         });
 
-            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Userrole",
-                    r => r.HasOne<Role>().WithMany()
-                        .HasForeignKey("RoleId")
-                        .HasConstraintName("userroles_ibfk_2"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("userroles_ibfk_1"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "RoleId")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
-                        j
-                            .ToTable("userroles")
-                            .UseCollation("utf8mb4_unicode_ci");
-                        j.HasIndex(new[] { "RoleId" }, "RoleId");
-                    });
+            // entity.HasMany(d => d.Roles).WithMany(p => p.Users)
+            //     .UsingEntity<Dictionary<string, object>>(
+            //         "Userrole",
+            //         r => r.HasOne<Role>().WithMany()
+            //             .HasForeignKey("RoleId")
+            //             .HasConstraintName("userroles_ibfk_2"),
+            //         l => l.HasOne<User>().WithMany()
+            //             .HasForeignKey("UserId")
+            //             .HasConstraintName("userroles_ibfk_1"),
+            //         j =>
+            //         {
+            //             j.HasKey("UserId", "RoleId")
+            //                 .HasName("PRIMARY")
+            //                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+            //             j
+            //                 .ToTable("userroles")
+            //                 .UseCollation("utf8mb4_unicode_ci");
+            //             j.HasIndex(new[] { "RoleId" }, "RoleId");
+            //         });
         });
 
         modelBuilder.Entity<UserCoin>(entity =>
@@ -981,6 +1098,21 @@ public partial class WebnoveldbContext : DbContext
                 .HasForeignKey<UserCoin>(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<UserGenre>(entity =>
+{
+    entity.ToTable("usergenrepreferences");
+
+    entity.HasKey(e => new { e.UserId, e.GenreId });
+
+    entity.HasOne(e => e.User)
+        .WithMany(u => u.UserGenres)
+        .HasForeignKey(e => e.UserId);
+
+    entity.HasOne(e => e.Genre)
+        .WithMany(g => g.UserGenres)
+        .HasForeignKey(e => e.GenreId);
+});
 
         modelBuilder.Entity<Userpromotion>(entity =>
         {
@@ -1006,6 +1138,40 @@ public partial class WebnoveldbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("userpromotions_ibfk_1");
+        });
+
+        modelBuilder.Entity<UserReward>(entity =>
+{
+    entity.HasKey(e => e.UserRewardId);
+
+    entity.Property(e => e.RewardType)
+        .HasMaxLength(50)
+        .IsRequired();
+
+    entity.Property(e => e.CoinAmount)
+        .HasDefaultValue(0);
+
+    entity.Property(e => e.CreatedAt)
+        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+    entity.HasOne(d => d.User)
+        .WithMany(p => p.UserRewards)
+        .HasForeignKey(d => d.UserId);
+});
+
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.ToTable("userroles");
+
+            entity.HasKey(e => new { e.UserId, e.RoleId });
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(e => e.UserId);
+
+            entity.HasOne(e => e.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(e => e.RoleId);
         });
 
         modelBuilder.Entity<Writerprofile>(entity =>

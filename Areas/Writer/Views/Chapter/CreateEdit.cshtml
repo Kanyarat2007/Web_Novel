@@ -7,6 +7,8 @@
 }
 
 <div class="container mt-4" style="max-width:950px;">
+    <h2>ตอนนิยาย</h2>
+
     <form asp-action="Save" method="post">
         <input type="hidden" asp-for="ChapterId" />
         <input type="hidden" asp-for="NovelId" />
@@ -16,32 +18,37 @@
             <input asp-for="ChapterNumber" class="form-control" readonly />
         </div> *@
 
-        <div class="mb-3">
-            <label>ชื่อตอน</label>
-            <input asp-for="Title" class="form-control" />
+        <div class="card-soft mb-3">
+            <div class="mb-3">
+                <label>ชื่อตอนนิยาย</label>
+                <input asp-for="Title" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>เนื้อหาภายในตอน</label>
+                <textarea asp-for="Content" class="form-control" rows="40"></textarea>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label>เนื้อหา</label>
-            <textarea asp-for="Content" class="form-control"></textarea>
-        </div>
+        <div class="card-soft mb-3">
 
-        <div class="mb-3">
-            <label>สถานะ</label>
-            <select asp-for="PublishStatus" class="form-select">
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-            </select>
-        </div>
+            <div class="mb-3">
+                <label>สถานะ</label>
+                <select asp-for="PublishStatus" class="form-select">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                </select>
+            </div>
 
-        <div class="mb-3 form-check">
-            <input type="checkbox" asp-for="IsCoinRequired" class="form-check-input" id="isCoin" />
-            <label class="form-check-label" for="isCoin">ตอนติดเหรียญ</label>
-        </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" asp-for="IsCoinRequired" class="form-check-input" id="isCoin" />
+                <label class="form-check-label" for="isCoin">ติดเหรียญตอนนี้หรือไม่</label>
+            </div>
 
-        <div class="mb-3">
-            <label>ราคาเหรียญ</label>
-            <input asp-for="CoinPrice" class="form-control" />
+            <div class="mb-3">
+                <label>ราคาเหรียญ</label>
+                <input asp-for="CoinPrice" class="form-control" />
+            </div>
         </div>
 
         @* <ul id="chapterList">
@@ -52,8 +59,10 @@
                 </li>
             }
         </ul> *@
-
-        <button type="submit" class="btn btn-primary">บันทึก</button>
+        
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary">บันทึก</button>
+        </div>
     </form>
 </div>
 

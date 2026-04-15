@@ -9,74 +9,20 @@
 <div class="container" style="max-width:950px;">
 
     @* ── ข้อมูลนิยาย ── *@
-    <div class="row g-4 my-3">
+    <div class="card-soft row mt-3">
 
         @* ปก *@
         <div class="col-auto">
-            <img src="@(Model.CoverImageUrl ?? "https://picsum.photos/300/400")" class="rounded-3 object-fit-cover"
-                 style="width:180px; height:240px;" alt="@Model.Title" />
+            <img src="@(string.IsNullOrEmpty(Model.CoverImageUrl) 
+                                         ? "/images/default-novel.png"
+                                         : Model.CoverImageUrl)" class="rounded-4 object-fit-cover" style="width:250px; height:350px;"
+                 alt="@Model.Title" />
         </div>
 
         @* รายละเอียด + ปุ่ม (อยู่ใน col เดียวกัน) *@
         <div class="col d-flex flex-column gap-2">
 
-            <h4 class="text-body fw-bold mb-0">@Model.Title</h4>
-
-            @* รายงานนิยาย *@
-            <div class="dropdown">
-                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
-                    ⋯
-                </button>
-
-                <ul class="dropdown-menu">
-                    <li>
-                        <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reportNovelModal"
-                                data-novel-id="@Model.NovelId">
-                            รายงานนิยาย
-                        </button>
-                    </li>
-                </ul>
-            </div>
-
-            @* Modal รายงานนิยาย *@
-            <div class="modal fade" id="reportNovelModal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-
-                        <form asp-area="Reader" asp-controller="Report" asp-action="Create" method="post">
-                            <input type="hidden" name="targetType" value="novel" />
-                            <input type="hidden" name="targetId" value="@Model.NovelId" />
-
-                            <div class="modal-header">
-                                <h5 class="modal-title">รายงานนิยาย</h5>
-                            </div>
-
-                            <div class="modal-body">
-                                <input type="hidden" name="novelId" id="reportNovelId" />
-
-                                <select name="reason" class="form-select mb-2">
-                                    <option value="inappropriate">เนื้อหาไม่เหมาะสม</option>
-                                    <option value="copyright">ละเมิดลิขสิทธิ์</option>
-                                    <option value="spam">สแปม</option>
-                                </select>
-
-                                <textarea name="description" class="form-control"
-                                          placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button class="btn btn-danger">รายงาน</button>
-                            </div>
-
-                        </form>
-
-                    </div>
-                </div>
-            </div>
-
-            <p class="text-body-secondary small mb-0">
-                สถานะ: @Model.Status | ประเภท: @Model.SeriesType
-            </p>
+            <h4 class="">@Model.Title</h4>
 
             <p class="text-body small mb-0">@Model.Synopsis</p>
             <div>
@@ -94,14 +40,20 @@
                 </a>
             </p>
 
+            <hr>
+
+            <p class="text-body-secondary small">
+                หมวดหมู่ | สถานะ: @Model.Status | ประเภท: @Model.SeriesType
+            </p>
+
             <div class="d-flex gap-3 text-body-secondary small">
-                <span>👁 @Model.TotalViews</span>
-                <span>❤ @Model.TotalLikes</span>
-                <span>📚 @Model.TotalBookshelf</span>
+                <span><i class="bi bi-eye"></i> @Model.TotalViews</span>
+                <span><i class="bi bi-heart"></i> @Model.TotalLikes</span>
+                <span><i class="bi bi-bookshelf"></i> @Model.TotalBookshelf</span>
             </div>
 
             @* ── ปุ่ม อยู่ใน col เดียวกับรายละเอียด ── *@
-            <div class="d-flex gap-2 mt-1">
+            <div class="d-flex gap-2">
 
                 @if (Model.IsLoggedIn)
                 {
@@ -111,8 +63,8 @@
                         <form asp-area="Reader" asp-controller="Bookshelf" asp-action="Remove" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="novelId" value="@Model.NovelId" />
-                            <button type="submit" class="btn btn-secondary btn-sm">
-                                ✓ อยู่ในชั้นแล้ว
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                เพิ่มเข้าชั้นหนังสือแล้ว
                             </button>
                         </form>
                     }
@@ -121,8 +73,8 @@
                         <form asp-area="Reader" asp-controller="Bookshelf" asp-action="Add" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="novelId" value="@Model.NovelId" />
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                + เพิ่มเข้าชั้น
+                            <button class="btn btn-outline-secondary btn-sm border">
+                                <i class="bi bi-plus"></i> เพิ่มเข้าชั้นหนังสือ
                             </button>
                         </form>
                     }
@@ -130,43 +82,142 @@
                     @* ปุ่มไลค์ *@
                     <form asp-area="Reader" asp-controller="Novel" asp-action="ToggleLike" method="post">
                         @Html.AntiForgeryToken()
+
                         <input type="hidden" name="novelId" value="@Model.NovelId" />
-                        <button type="submit" class="btn btn-sm @(Model.IsLiked ? "btn-danger" : "btn-outline-secondary")">
-                            @(Model.IsLiked ? "ถูกใจแล้ว" : "กดไลค์")
+
+                        <button type="submit" class="btn btn-sm @(Model.IsLiked ? "btn-danger" : "btn-outline-danger")">
+
+                            @if (Model.IsLiked)
+                            {
+                                <i class="bi bi-heart-fill"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-heart"></i>
+                            }
+
                         </button>
                     </form>
+
+                    @* รายงานนิยาย *@
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reportNovelModal"
+                                        data-novel-id="@Model.NovelId">
+                                    รายงานนิยาย
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    @* Modal รายงานนิยาย *@
+                    <div class="modal fade" id="reportNovelModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <form asp-area="Reader" asp-controller="Report" asp-action="Create" method="post">
+                                    <input type="hidden" name="targetType" value="novel" />
+                                    <input type="hidden" name="targetId" value="@Model.NovelId" />
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">รายงานนิยาย</h5>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <input type="hidden" name="novelId" id="reportNovelId" />
+
+                                        <select name="reason" class="form-select mb-2">
+                                            <option value="inappropriate">เนื้อหาไม่เหมาะสม</option>
+                                            <option value="copyright">ละเมิดลิขสิทธิ์</option>
+                                            <option value="spam">สแปม</option>
+                                        </select>
+
+                                        <textarea name="description" class="form-control"
+                                                  placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-danger">รายงาน</button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
                 }
                 else
                 {
                     @* Guest เห็นปุ่ม Login แทน *@
-                    <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn btn-outline-primary btn-sm">
                         เข้าสู่ระบบเพื่อเพิ่มเข้าชั้น
                     </a>
                 }
-
             </div>
         </div>
-        
     </div>
 
     @* trigger warning *@
-    <h5 class="text-body mt-4 mb-3">คำเตือนเนื้อหา</h5>
-    <div class="card bg-body-secondary border-0 p-4 my-4">
-        @foreach (var item in Model.NovelTriggerWarnings)
+    <h5 class="mt-4 mb-3">คำเตือนเนื้อหา</h5>
+    <div class="card-soft">
+
+        @if (Model.NovelTriggerWarnings.Any())
         {
-            <span class="badge bg-warning text-dark">
-                @item.TriggerWarning.Name
-                @item.TriggerWarning.Description
-                    
-            </span>
+            @* ตัวแรก *@
+            <div class="warning-item">
+                <div class="fw-semibold">
+                    @Model.NovelTriggerWarnings.First().TriggerWarning.Name
+                </div>
+
+                <div class="small text-body-secondary mt-1">
+                    @Model.NovelTriggerWarnings.First().TriggerWarning.Description
+                </div>
+            </div>
+
+            @* ตัวที่เหลือ (ซ่อน) *@
+            @if (Model.NovelTriggerWarnings.Count > 1)
+            {
+                <div class="collapse mt-2" id="moreWarnings">
+
+                    @foreach (var item in Model.NovelTriggerWarnings.Skip(1))
+                    {
+                        <div class="warning-item">
+                            <div class="fw-semibold">
+                                @item.TriggerWarning.Name
+                            </div>
+
+                            <div class="small text-body-secondary mt-1">
+                                @item.TriggerWarning.Description
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+                @* ปุ่ม *@
+                <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-bs-toggle="collapse"
+                        data-bs-target="#moreWarnings">
+                    แสดงเพิ่มเติม
+                </button>
+            }
         }
+        else
+        {
+            <p class="text-body-secondary small mb-0">
+                ไม่มีคำเตือน
+            </p>
+        }
+
     </div>
 
     @* แนะนำเรื่อง *@
-    <div class="card bg-body-secondary border-0 p-4 my-4">
-        <h6 class="text-body fw-semibold mb-2">
-            แนะนำเรื่อง
-        </h6>
+    <h5 class="mt-4 mb-3">แนะนำเรื่อง</h5>
+    <div class="card-soft">
 
         @if (!string.IsNullOrWhiteSpace(Model.AuthorNote))
         {
@@ -182,213 +233,243 @@
         }
     </div>
 
-    @* ── สารบัญตอน ── *@
-    <h5 class="text-body mt-4 mb-3">สารบัญ</h5>
+    @* ── สารบัญตอน *@
+    <h5 class="mt-4 mb-3">สารบัญ</h5>
     @if (!Model.Chapters.Any())
     {
         <p class="text-body-secondary mt-3">ยังไม่มีตอนนิยาย</p>
     }
     else
     {
-        <div class="list-group">
-            @foreach (var ch in Model.Chapters)
-            {
-                <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
-                       asp-route-chapterNumber="@ch.ChapterNumber"
-                       class="list-group-item list-group-item-action bg-body-secondary border-0 mb-1 rounded-3">
-                   
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-body">
-                            @ch.Title
-                        </span>
-                        @if (ch.IsPurchased)
-                        {
-                            <span class="badge bg-success">ซื้อแล้ว</span>
-                        }
-                        else if (ch.IsCoinRequired)
-                        {
-                            <span class="badge bg-warning text-dark">
-                                @ch.CoinPrice เหรียญ
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-success">ฟรี</span>
-                        }
-                    </div>
+        <div class="card-soft">
+            <table class="table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>ตอนทั้งหมด</th>
+                        <th class="text-end">สถานะ</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var ch in Model.Chapters)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-area="Reader" asp-controller="Novel" asp-action="NovelChapter"
+                                       asp-route-novelId="@Model.NovelId" asp-route-chapterNumber="@ch.ChapterNumber"
+                                       class="text-decoration-none text-body">
+
+                                    @ch.Title
+                                </a>
+                            </td>
+
+                            <td class="text-end">
+
+                                @if (ch.IsPurchased)
+                                {
+                                    <span class="badge bg-success">ซื้อแล้ว</span>
+                                }
+                                else if (ch.IsCoinRequired)
+                                {
+                                    @ch.CoinPrice
+                                    <i class="bi bi-coin"></i>
+                                    
+                                }
+                                else
+                                {
+                                }
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+    
+    @* คอมเม้น *@
+    <div id="commentSection" class="card-soft mt-5">
+        <h6 class="mb-0">
+            แสดงความคิดเห็นของคุณ
+        </h6>
+
+
+        @* <h5 class="mt-4">ความคิดเห็น (@Model.Comments.Count)</h5> *@
+
+        @if (Model.IsLoggedIn)
+        {
+            <form asp-area="Reader" asp-controller="Comment" asp-action="AddComment" method="post" class="mt-3 text-end">
+                <input type="hidden" name="novelId" value="@Model.NovelId" />
+                <input type="hidden" name="chapterId" value="" />
+                <textarea name="content" class="form-control " placeholder="แสดงความคิดเห็น..." rows="3"></textarea>
+                <button class="btn btn-primary btn-sm mt-2">ส่งความคิดเห็น</button>
+            </form>
+        }
+        else
+        {
+            <div class="text-center mt-3">
+                <a asp-area="" asp-controller="Account" asp-action="Login">
+                    ล็อกอินเพื่อแสดงความคิดเห็น
                 </a>
-            }
+            </div>
+        }
+    </div>
+
+    @* แสดงคอมเม้นทั้งหมด *@
+    <div class="card-soft mt-3">
+        <div class="d-flex justify-content-between align-items-center ">
+
+            <h6 class="mb-0">
+                ความคิดเห็นทั้งหมด (@Model.Comments.Count)
+            </h6>
+
+            @* <div>
+                <a asp-route-novelId="@Model.NovelId" asp-route-chapterNumber="@Model.ChapterNumber"
+                       asp-route-sort="new"
+                       class="btn btn-sm @(Model.Sort == "new" ? "btn-primary" : "btn-outline-secondary")">
+                    ใหม่
+                </a>
+
+                <a asp-route-novelId="@Model.NovelId" asp-route-chapterNumber="@Model.ChapterNumber"
+                       asp-route-sort="old"
+                       class="btn btn-sm @(Model.Sort == "old" ? "btn-primary" : "btn-outline-secondary")">
+                    เก่า
+                </a>
+            </div> *@
         </div>
-    }
 
-    
+        @* คอมเม้นทัง้หมด *@
+        @if (!Model.Comments.Any())
+        {
+            <p class="text-body-secondary mt-3">ยังไม่มีความคิดเห็น</p>
+        }
+        else
+        {
+            <div class="d-flex flex-column justify-content-between gap-2 mt-3">
+                @foreach (var c in Model.Comments)
+                {
+                    <div class="card-soft comment-card">
 
-    @* ความคิดเห็น *@
-    <h5 class="mt-4">ความคิดเห็น (@Model.Comments.Count)</h5>
-
-    @if (Model.IsLoggedIn)
-    {
-        <form asp-area="Reader" asp-controller="Comment" asp-action="AddComment" method="post" class="mt-3">
-            <input type="hidden" name="novelId" value="@Model.NovelId" />
-            <input type="hidden" name="chapterId" value="" />
-
-            <textarea name="content" class="form-control" placeholder="แสดงความคิดเห็นเกี่ยวกับเรื่องนี้..."
-                      rows="3"></textarea>
-            <button class="btn btn-primary btn-sm mt-2">ส่งความคิดเห็น</button>
-        </form>
-    }
-    else
-    {
-        <div class="text-center mt-3">
-            <a asp-area="" asp-controller="Account" asp-action="Login">
-                ล็อกอินเพื่อแสดงความคิดเห็น
-            </a>
-        </div>
-    }
-
-    @if (!Model.Comments.Any())
-    {
-        <p class="text-body-secondary mt-3">ยังไม่มีความคิดเห็น</p>
-    }
-    else
-    {
-        <div class="list-group mt-3">
-            @foreach (var c in Model.Comments)
-            {
-                <div class="list-group-item bg-body-secondary border-0 mb-2 rounded-3">
-
-                    <div class="small text-body-secondary">
-                        <a asp-area="Reader" asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@c.UserId">
-                            @c.UserName
-                        </a>
-                        • @TimeHelper.ToThaiString(c.CreatedAt)
-
-                        @if (c.UserId == Model.CurrentUserId)
-                        {
-                            <span class="badge bg-primary ms-1">ของฉัน</span>
-                        }
-
-                        @if (c.ChapterId != null)
-                        {
-                            <span class="badge bg-info ms-1">ตอน @c.ChapterNumber</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary ms-1">คอมเมนต์เรื่อง</span>
-                        }
-                    </div>
-
-                    @* 🔴 กรณีโดนลบโดยแอดมิน *@
-                    @if (c.Status == "deleted" || c.IsDeleted)
-                    {
-                        <div class="text-muted fst-italic">
-                            คอมเมนต์นี้ถูกลบโดยผู้ดูแล
-                        </div>
-                    }
-                    @* 🟡 กรณีเป็นสปอย *@
-                    else if (c.IsSpoiler)
-                    {
-                        <div class="spoiler-box blur"
-                             onclick="this.classList.remove('blur'); this.querySelector('.warning').style.display='none';">
-    
-                            <div class="warning">⚠️ สปอย (คลิกเพื่อดู)</div>
-    
-                            <div class="content">
-                                @c.Content
+                        @* ส่วนบน *@
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                @if (c.UserId == Model.CurrentUserId)
+                                {
+                                    <span class="badge bg-primary ms-1"> @c.UserName</span>
+                                }
+                                else
+                                {
+                                    <a asp-area="Reader" asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@c.UserId"
+                                           class="fw-semibold text-decoration-none">
+                                        @c.UserName
+                                    </a>
+                                }
                             </div>
+                        
+                            @* Action *@
+                            <div class="d-flex align-items-center gap-2">
+                            
+                                <div class="small text-body-secondary ">
+                                    @TimeHelper.ToThaiString(c.CreatedAt)
 
-                        </div>
-                    }
-                    else
-                    {
-                        @c.Content
-                    }
-
-                    <div class="mt-2 d-flex gap-2">
-
-                        @* 🔴 ปุ่มลบ (ของตัวเอง) *@
-                        @if (c.UserId == Model.CurrentUserId)
-                        {
-                            <form asp-area="Reader" asp-controller="Comment" asp-action="DeleteComment" method="post">
-                                <input type="hidden" name="commentId" value="@c.CommentId" />
-                                <button class="btn btn-sm btn-outline-danger">ลบ</button>
-                            </form>
-                        }
-
-                        @* 🟠 ปุ่มรายงาน (คนอื่น) *@
-                        @if (Model.IsLoggedIn && c.UserId != Model.CurrentUserId)
-                        {
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
-                                    ⋯
-                                </button>
-
-                                <ul class="dropdown-menu">
-                                    @if (c.UserId == Model.CurrentUserId)
+                                    @if (c.ChapterId != null)
                                     {
-                                        <li>
-                                            <form asp-action="DeleteComment" method="post">
-                                                <input type="hidden" name="commentId" value="@c.CommentId" />
-                                                <button class="dropdown-item text-danger">ลบ</button>
-                                            </form>
-                                        </li>
+                                        <span>จากตอนที่ @c.ChapterNumber</span>
                                     }
                                     else
                                     {
-                                        <li>
-                                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reportModal"
-                                                    data-comment-id="@c.CommentId">
-                                                รายงาน
-                                            </button>
-                                        </li>
+                                        <span>คอมเมนต์ภายในเรื่อง</span>
                                     }
-                                </ul>
+                                </div>
+                                
+                                @* ลบของตัวเอง *@
+                                @if (c.UserId == Model.CurrentUserId)
+                                {
+                                    <form asp-area="Reader" asp-controller="Comment" asp-action="DeleteComment" method="post">
+                                        <input type="hidden" name="commentId" value="@c.CommentId" />
+                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></button>
+                                    </form>
+                                }
+                                else if (Model.IsLoggedIn)
+                                {
+                                    <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="modal"
+                                            data-bs-target="#reportModal" data-comment-id="@c.CommentId">
+                                        <i class="bi bi-flag"></i>
+                                    </button>
+                                }
+                                
                             </div>
-                            <div class="modal fade" id="reportModal" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
+                        </div>
+                        
+                        @* content *@
+                        <div class="mt-2">
 
-                                        <form asp-area="Reader" asp-controller="Report" asp-action="Create" method="post">
-                                            <input type="hidden" name="targetType" value="comment" />
-                                            <input type="hidden" name="targetId" value="@c.CommentId" />
-    
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">รายงานความคิดเห็น</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-
-                                            <div class="modal-body">
-                                                <input type="hidden" name="commentId" id="reportCommentId" />
-
-                                                <select name="reason" class="form-select mb-2">
-                                                    <option value="inappropriate">ไม่เหมาะสม</option>
-                                                    <option value="spoiler">สปอย</option>
-                                                    <option value="spam">สแปม</option>
-                                                </select>
-
-                                                <textarea name="description" class="form-control"
-                                                          placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
-                                            </div>
-
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-danger">รายงาน</button>
-                                            </div>
-                                        </form>
-
+                            @* ลบโดยแอดมิน *@
+                            @if (c.Status == "deleted" || c.IsDeleted)
+                            {
+                                <div class="text-muted fst-italic">
+                                    คอมเมนต์นี้ถูกลบโดยผู้ดูแล
+                                </div>
+                            }
+                            @* สปอย *@
+                            else if (c.IsSpoiler)
+                            {
+                                <div class="spoiler-box blur"
+                                     onclick="this.classList.remove('blur'); this.querySelector('.warning').style.display='none';">
+                                    <div class="warning">คลิกเพื่อดูสปอย</div>
+                                    <div class="content text-body">
+                                        @c.Content
                                     </div>
                                 </div>
+                            }
+                            else
+                            {
+                                <div class="text-body">@c.Content</div>
+                            }
+                        </div>
+
+                        <div class="modal fade" id="reportModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <form asp-area="Reader" asp-controller="Report" asp-action="Create" method="post">
+                                        <input type="hidden" name="targetType" value="comment" />
+                                        <input type="hidden" name="targetId" value="@c.CommentId" />
+    
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">รายงานความคิดเห็น</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <input type="hidden" name="commentId" id="reportCommentId" />
+
+                                            <select name="reason" class="form-select mb-2">
+                                                <option value="inappropriate">ไม่เหมาะสม</option>
+                                                <option value="spoiler">สปอย</option>
+                                                <option value="spam">สแปม</option>
+                                            </select>
+
+                                            <textarea name="description" class="form-control"
+                                                      placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">รายงาน</button>
+                                        </div>
+                                    </form>
+
+                                </div>
                             </div>
-                        }
-
+                        </div>
                     </div>
-
-                </div>
-            }
-
-        
-        </div>
-    }
-
+                }
+            </div>
+        }
+    </div>
 </div>
 
 

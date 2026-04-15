@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_Novel.Models;
+using Web_Novel.Services;
 using Web_Novel.ViewModels.Reader;
 using Web_Novel.Helpers;
 
@@ -11,25 +12,82 @@ namespace Web_Novel.Areas.Reader.Controllers
     public class HomeController : Controller
     {
         private readonly WebnoveldbContext _db;
+        private readonly RewardService _rewardService;
 
-        public HomeController(WebnoveldbContext db)
+        public HomeController(WebnoveldbContext db, RewardService rewardService)
         {
             _db = db;
+            _rewardService = rewardService;
         }
-
         public IActionResult Index()
         {
+            _db.ChangeTracker.Clear();
+
             var userIdStr = HttpContext.Session.GetString("UserId");
             int.TryParse(userIdStr, out int userId);
 
-            var wallet = _db.UserCoins.FirstOrDefault(w => w.UserId == userId);
+            Console.WriteLine("📄 INDEX LOAD USER: " + userId);
+
+            // if (!int.TryParse(userIdStr, out int userId))
+            //     userId = 0;
+
+            var wallet = _db.UserCoins
+    .AsNoTracking()
+    .FirstOrDefault(x => x.UserId == userId);
+
+            var rewardCoins = _db.UserRewards
+                .Where(x => x.UserId == userId)
+                .Sum(x => (int?)x.CoinAmount) ?? 0;
 
             var vm = new HomeViewModel
             {
                 UserId = userId,
-                // Username = HttpContext.Session.GetString("Username"),
-                CurrentBalance = wallet?.Balance ?? 0
+                CurrentBalance = (wallet?.Balance ?? 0) + rewardCoins
             };
+
+            var now = DateTime.Now;
+
+            vm.Banners = _db.Banners
+                .Where(b =>
+                    b.IsActive &&
+                    !b.IsDeleted &&
+                    (b.StartDate == null || b.StartDate <= now) &&
+                    (b.EndDate == null || b.EndDate >= now)
+                )
+                .OrderBy(b => b.DisplayOrder)
+                .Select(b => new BannerViewModel
+                {
+                    BannerId = b.BannerId,
+                    Title = b.Title,
+                    ImageUrl = b.ImageUrl,
+                    RedirectUrl = b.RedirectUrl,
+                    DisplayOrder = b.DisplayOrder
+                })
+                .ToList();
+
+            var today = DateTime.Now.Date;
+
+            var alreadyClaimed = _db.UserRewards.Any(x =>
+                x.UserId == userId &&
+                x.RewardType == "daily" &&
+                x.CreatedAt.Date == today
+            );
+
+            vm.CanClaimDaily = !alreadyClaimed;
+
+            var streak = _db.Loginstreaks
+    .FirstOrDefault(x => x.UserId == userId);
+
+            vm.CurrentStreak = streak?.CurrentStreak ?? 0;
+
+            vm.TodayReward = _rewardService.CalculateStreakReward(vm.CurrentStreak);
+
+            // var success = _rewardService.ClaimDailyReward(userId);
+
+            // if (!success)
+            // {
+            //     TempData["Error"] = "วันนี้รับไปแล้ว";
+            // }
 
 
             if (userId > 0)
@@ -46,11 +104,10 @@ namespace Web_Novel.Areas.Reader.Controllers
                                    select rh).ToList();
 
                 // ── หมวดหมู่ที่ผู้ใช้สนใจ ──
-                var interestedGenreIds = (from u in _db.Users
-                                              .Include(u => u.Genres)
-                                          where u.UserId == userId
-                                          from g in u.Genres
-                                          select g.GenreId).ToList();
+                var interestedGenreIds = _db.UserGenres
+                    .Where(x => x.UserId == userId)
+                    .Select(x => x.GenreId)
+                    .ToList();
 
                 if (interestedGenreIds.Any())
                 {
@@ -102,6 +159,36 @@ namespace Web_Novel.Areas.Reader.Controllers
             return View(vm);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ClaimDaily()
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+
+            if (!int.TryParse(userIdStr, out int userId) || userId == 0)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var success = _rewardService.ClaimDailyReward(userId);
+
+            if (success)
+            {
+                TempData["Success"] = "ได้รับฟรี 2 เหรียญ";
+            }
+            else
+            {
+                TempData["Error"] = "วันนี้คุณรับเหรียญไปแล้ว";
+            }
+
+            // _rewardService.ClaimDailyReward(userId);
+
+            // 🔥 บังคับ reload context
+            _db.ChangeTracker.Clear();
+
+            return RedirectToAction("Index");
+        }
+
         // ── บันทึก Genre ที่สนใจ ──
         [HttpPost]
         public IActionResult SaveGenrePreferences(List<int> genreIds)
@@ -110,24 +197,28 @@ namespace Web_Novel.Areas.Reader.Controllers
             if (!int.TryParse(userIdStr, out int userId))
                 return RedirectToAction("Login", "Account", new { area = "" });
 
-            var user = (from u in _db.Users
-                            .Include(u => u.Genres)
-                        where u.UserId == userId
-                        select u).FirstOrDefault();
+            var user = _db.Users
+                .Include(u => u.UserGenres)
+                .FirstOrDefault(u => u.UserId == userId);
 
             if (user == null)
                 return RedirectToAction("Index");
 
-            user.Genres.Clear();
+            // ลบของเก่า
+            user.UserGenres.Clear();
 
-            var selected = (from g in _db.Genres
-                            where genreIds.Contains(g.GenreId)
-                            select g).ToList();
-
-            foreach (var g in selected)
-                user.Genres.Add(g);
+            // เพิ่มของใหม่ (ต้องเป็น UserGenre ไม่ใช่ Genre)
+            foreach (var genreId in genreIds)
+            {
+                user.UserGenres.Add(new UserGenre
+                {
+                    UserId = userId,
+                    GenreId = genreId
+                });
+            }
 
             _db.SaveChanges();
+
             return RedirectToAction("Index");
         }
 

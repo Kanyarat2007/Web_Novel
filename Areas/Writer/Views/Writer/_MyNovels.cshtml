@@ -7,7 +7,7 @@
 
     <div>
         <a asp-controller="Novel" asp-action="Create" class="btn btn-primary me-2">
-            + เพิ่มนิยาย
+            <i class="bi bi-plus-lg"></i>เพิ่มนิยาย
         </a>
     </div>
 </div>
@@ -16,7 +16,7 @@
 
 @if (Model == null || !Model.Any())
 {
-    <div class="text-center mt-5">
+    <div class="card-soft">
         <p>ยังไม่มีผลงาน</p>
         <a asp-controller="Novel" asp-action="Create" class="btn btn-primary">
             เริ่มเขียนเรื่องแรก
@@ -25,47 +25,53 @@
 }
 else
 {
+    
     <div class="row">
         @foreach (var item in Model)
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
+            <div class="col-md-3 mb-4">
+                <div class="card-soft h-100 novel-card">
 
-                    <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "/images/default-cover.jpg" : item.CoverImageUrl)"
-                         class="card-img-top" style="height:220px; object-fit:cover;" />
+                    <!-- รูป -->
+                    <img src="@(string.IsNullOrEmpty(item.CoverImageUrl)
+                                                         ? Url.Content("~/images/default-novel.png")
+                                                         : Url.Content(item.CoverImageUrl))" class="novel-img" />
 
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Title</h5>
+                    <!-- เนื้อหา -->
+                    <div class="p-3">
 
-                        <p class="text-muted mb-1">
-                            นามปากกา: @item.PenName
+                        <h6 class="fw-semibold mb-1 text-truncate">
+                            @item.Title
+                        </h6>
+
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-pen"></i> @item.PenName
                         </p>
 
-                        <p class="mb-1">
-                            ตอน: @item.TotalChapters
-                        </p>
-
-                        <p class="mb-1">
-                            👁 @item.TotalViews
-                        </p>
+                        <!-- ตอน + วิว -->
+                        <div class="d-flex justify-content-between small text-body-secondary mb-1">
+                            <span><i class="bi bi-list-ul"></i> @item.TotalChapters ตอน</span>
+                            <span><i class="bi bi-eye"></i> @item.TotalViews</span>
+                        </div>
 
                         <small class="text-muted">
-                            อัปเดตล่าสุด: @item.UpdatedAt?.ToString("dd/MM/yyyy")
+                            <i class="bi bi-calendar-week"></i> @item.UpdatedAt?.ToString("dd/MM/yyyy")
                         </small>
                     </div>
 
-                    <div class="card-footer bg-white border-0 d-flex justify-content-between">
-
+                    <!-- ปุ่ม -->
+                    <div class="px-3 pb-3 d-flex gap-2">
                         <a asp-controller="Novel" asp-action="Edit" asp-route-id="@item.NovelId"
-                               class="btn btn-sm btn-outline-primary">
+                               class="btn btn-sm btn-outline-primary flex-fill rounded-pill">
                             แก้ไข
                         </a>
 
                         <a asp-area="Writer" asp-controller="Chapter" asp-action="Index" asp-route-novelId="@item.NovelId"
-                               class="btn btn-sm btn-outline-dark">
-                            จัดการตอน
+                               class="btn btn-sm btn-light flex-fill rounded-pill">
+                            ตอน
                         </a>
                     </div>
+
                 </div>
             </div>
         }

@@ -17,6 +17,14 @@ namespace Web_Novel.ViewModels.Reader
         public List<GenreWithNovels> AllGenres { get; set; } = new();
 
         public int CurrentBalance { get; set; }
+
+        public bool CanClaimDaily { get; set; }
+
+        public int CurrentStreak { get; set; }
+
+        public int TodayReward { get; set; }
+
+        public List<BannerViewModel> Banners { get; set; } = new();
     }
 
     public class GenreWithNovels

@@ -1,19 +1,22 @@
 @* บน *@
-<div class="sticky-top bg-body border-bottom py-2" style="top:89px; z-index:1020;">
+<div class="fixed-top bg-body border-top border-bottom py-2" style="top:89px; z-index:1020;">
+
     <div class="container" style="max-width:950px;">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-            <!-- 🔹 ฝั่งซ้าย -->
+            @* ซ้าย *@
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <a asp-action="NovelDetail" asp-route-id="@Model.NovelId"
-                       class="btn btn-sm btn-outline-secondary rounded-pill">
-                    ← กลับ
+                       class="btn btn-sm btn-outline-primary rounded-pill">
+                    <i class="bi bi-book"></i>
+                    นิยาย
                 </a>
 
                 <!-- สารบัญ -->
                 <button class="btn btn-sm btn-outline-primary rounded-pill" data-bs-toggle="offcanvas"
                         data-bs-target="#tocPanel">
-                    📑 <span class="d-none d-sm-inline">สารบัญ</span>
+                    <i class="bi bi-list-ul"></i>
+                    <span class="d-none d-sm-inline">สารบัญ</span>
                 </button>
 
                 <div class="text-body-secondary small text-truncate" style="max-width:200px;">
@@ -21,71 +24,91 @@
                 </div>
             </div>
 
-            <!-- 🔹 ฝั่งขวา -->
+            @* ขวา *@
             <div class="d-flex align-items-center gap-2 flex-wrap">
 
-                <!-- โน๊ต -->
-                <button class="btn btn-sm btn-outline-info rounded-pill" data-bs-toggle="offcanvas"
+                @* เมนูควบคุม *@
+                <div class="reader-controls d-flex align-items-center gap-2">
+                    <button id="font-decrease" class="btn btn-sm btn-outline-primary rounded-pill">A-</button>
+                    <button id="font-increase" class="btn btn-sm btn-outline-primary rounded-pill">A+</button>
+
+                    <select id="font-family" class="form-select form-select-sm w-auto rounded-pill">
+                        <option value="sarabun">Sarabun</option>
+                        <option value="prompt">Prompt</option>
+                    </select>
+                </div>
+                
+                @* โน๊ต *@
+                <button class="btn btn-sm btn-outline-primary rounded-pill" data-bs-toggle="offcanvas"
                         data-bs-target="#notePanel">
-                    📝 <span class="d-none d-sm-inline">โน๊ต</span>
+                    <i class="bi bi-pencil-square"></i>
+                    <span class="d-none d-sm-inline">โน๊ต</span>
                 </button>
                 
-                <!-- บุ๊คมาร์ค -->
-                <button class="btn btn-sm @(Model.IsBookmarked ? "btn-warning" : "btn-outline-warning") rounded-pill"
+                @* บุ๊คมาร์ค *@
+                <button class="btn btn-sm @(Model.IsBookmarked ? "btn-primary" : "btn-outline-primary") rounded-pill"
                         id="bookmarkBtn" onclick="toggleBookmark()">
-                    🔖 <span class="d-none d-sm-inline">
-                    @(Model.IsBookmarked ? "บันทึกแล้ว" : "บุ๊คมาร์ค")
-                </span>
-            </button>
-        </div>
 
-        @* สารบัญ *@
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="tocPanel">
-            <div class="offcanvas-header">
-                <h5>สารบัญ</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-                    
+                    @if (Model.IsBookmarked)
+                    {
+                        <i class="bi bi-bookmark-check-fill"></i>
+                        <span class="ms-1">บันทึกแล้ว</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-bookmark"></i>
+                        <span class="ms-1">เพิ่มบุ๊คมาร์ค</span>
+                    }
+
+                </button>
             </div>
 
-            <div class="offcanvas-body">
-                @foreach (var ch in Model.Chapters)
+            @* สารบัญ *@
+            <div class="offcanvas offcanvas-start px-3 pt-3" tabindex="-1" id="tocPanel">
+                <div class="offcanvas-header mt-3">
+                    <h5>สารบัญ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+
+                <div class="offcanvas-body">
+                    @foreach (var ch in Model.Chapters)
+                    {
+                        <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
+                               asp-route-chapterNumber="@ch.ChapterNumber"
+                               class="d-block mb-2 text-decoration-none @(ch.ChapterNumber == Model.ChapterNumber ? "fw-bold text-primary" : "")">
+                            @ch.Title
+                        </a>
+                    }
+                </div>
+            </div>
+
+            @* เพ่ิมโน๊ต *@
+            <div class="offcanvas offcanvas-end px-3 pt-3" tabindex="-1" id="notePanel">
+                <div class="offcanvas-header mt-3">
+                    <h5>โน๊ตของฉัน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+
+                @if (Model.IsLoggedIn)
                 {
-                    <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
-                           asp-route-chapterNumber="@ch.ChapterNumber"
-                           class="d-block mb-2 text-decoration-none @(ch.ChapterNumber == Model.ChapterNumber ? "fw-bold text-primary" : "")">
-                        @ch.Title
-                    </a>
-                        
+                    <textarea id="noteText" class="form-control bg-body-secondary border-0" rows="3"
+                              placeholder="เขียนโน๊ตส่วนตัว...">@Model.UserNote</textarea>
+
+                    <button onclick="saveNote()" class="btn btn-primary btn-sm mt-2">
+                        บันทึกโน๊ต
+                    </button>
+                }
+                else
+                {
+                    <div class="text-center mt-3">
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="text-primary">
+                            ล็อกอินเพื่อเขียนโน๊ต
+                        </a>
+                    </div>
                 }
             </div>
         </div>
-
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="notePanel">
-            <div class="offcanvas-header">
-                <h5>โน๊ตของฉัน</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-
-            @if (Model.IsLoggedIn)
-            {
-                <textarea id="noteText" class="form-control bg-body-secondary border-0" rows="3"
-                          placeholder="เขียนโน๊ตส่วนตัว...">@Model.UserNote</textarea>
-
-                <button onclick="saveNote()" class="btn btn-primary btn-sm mt-2">
-                    บันทึกโน๊ต
-                </button>
-            }
-            else
-            {
-                <div class="text-center mt-3">
-                    <a asp-area="" asp-controller="Account" asp-action="Login" class="text-primary">
-                        ล็อกอินเพื่อเขียนโน๊ต
-                    </a>
-                </div>
-            }
-        </div>
     </div>
-</div>
 </div>
 
 @* ล่าง *@
@@ -94,9 +117,10 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
             <!-- ซ้าย คอมเม้น -->
-            <div class="small text-body-secondary">
-                <a href="#commentSection" class="btn btn-sm btn-outline-secondary rounded-pill">
-                    💬 คอมเมนต์
+            <div>
+                <a href="#commentSection" class="btn btn-sm btn-outline-primary rounded-pill">
+                    <i class="bi bi-chat-dots"></i>
+                    แสดงความคิดเห็น
                 </a>
             </div>
 
@@ -106,7 +130,8 @@
                 {
                     <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
                            asp-route-chapterNumber="@Model.PrevChapterNumber" class="btn btn-outline-secondary btn-sm">
-                        ← ตอนก่อน
+                        <i class="bi bi-arrow-left"></i>
+                        ตอนก่อนหน้า
                     </a>
                 }
 
@@ -114,7 +139,8 @@
                 {
                     <a asp-action="NovelChapter" asp-route-novelId="@Model.NovelId"
                            asp-route-chapterNumber="@Model.NextChapterNumber" class="btn btn-primary btn-sm">
-                        ตอนถัดไป →
+                        ตอนถัดไป
+                        <i class="bi bi-arrow-right"></i>
                     </a>
                 }
             </div>
@@ -122,6 +148,9 @@
         </div>
     </div>
 </div>
+
+<link rel="stylesheet" href="~/css/reader.css" />
+<script src="~/js/reader.js"></script>
 
 <script>
     function toggleBookmark() {
@@ -150,13 +179,19 @@
                 const btn = document.getElementById("bookmarkBtn");
 
                 if (data.bookmarked) {
-                    btn.innerText = "🔖 บันทึกแล้ว";
-                    btn.classList.remove("btn-outline-warning");
-                    btn.classList.add("btn-warning");
+                    btn.innerHTML = `
+                <i class="bi bi-bookmark-check-fill"></i>
+                <span class="ms-1">บันทึกแล้ว</span>
+            `;
+                    btn.classList.remove("btn-outline-primary");
+                    btn.classList.add("btn-primary");
                 } else {
-                    btn.innerText = "🔖 บุ๊คมาร์ค";
-                    btn.classList.remove("btn-warning");
-                    btn.classList.add("btn-outline-warning");
+                    btn.innerHTML = `
+                <i class="bi bi-bookmark"></i>
+                <span class="ms-1">เพิ่มบุ๊คมาร์ค</span>
+            `;
+                    btn.classList.remove("btn-primary");
+                    btn.classList.add("btn-outline-primary");
                 }
             });
     }

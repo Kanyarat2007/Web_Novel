@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
 using Web_Novel.ViewModels.Reader;
+using Web_Novel.Services;
 using Web_Novel.Helpers;
 
 namespace Web_Novel.Controllers;
@@ -11,9 +12,11 @@ namespace Web_Novel.Controllers;
 public class CoinController : Controller
 {
     private readonly WebnoveldbContext _db;
-    public CoinController(WebnoveldbContext db)
+    private readonly RewardService _rewardService;
+    public CoinController(WebnoveldbContext db, RewardService rewardService)
     {
         _db = db;
+        _rewardService = rewardService;
     }
 
     // ── หน้าเติมเหรียญ ──
@@ -25,13 +28,59 @@ public class CoinController : Controller
 
         var UserCoins = _db.UserCoins.FirstOrDefault(x => x.UserId == user.UserId);
 
+        var now = DateTime.Now;
+
+        var activePromo = _db.Promotions
+            .Where(p => p.StartDate <= now && p.EndDate > now)
+            .ToList();
+
+        var promo = _db.Promotions
+            .Where(p => p.StartDate <= now && p.EndDate > now)
+            .OrderByDescending(p => p.DiscountValue) // กันหลายโปร
+            .FirstOrDefault();
+
+        var packages = _db.Coinpackages
+            .Where(p => p.IsActive)
+            .ToList()
+            .Select(p =>
+            {
+                var finalPrice = p.Price;
+                var finalCoin = p.CoinAmount + p.BonusCoin;
+
+                if (promo != null)
+                {
+                    finalPrice = (int)(p.Price - (p.Price * promo.DiscountValue / 100));
+                    finalCoin += promo.BonusCoin;
+                }
+
+                return new PackageViewModel
+                {
+                    PackageId = p.PackageId,
+                    Name = p.Name,
+                    Price = p.Price,
+                    CoinAmount = p.CoinAmount,
+                    BonusCoin = p.BonusCoin,
+                    FinalPrice = finalPrice,
+                    FinalCoin = finalCoin,
+                    DiscountApplied = promo?.DiscountValue ?? 0,
+                    BonusApplied = promo?.BonusCoin ?? 0
+                };
+            }).ToList();
+
+        var rewardCoins = _db.UserRewards
+    .Where(x => x.UserId == user.UserId)
+    .Sum(x => (int?)x.CoinAmount) ?? 0;
+
+var walletBalance = UserCoins?.Balance ?? 0;
+
+var total = walletBalance + rewardCoins;
+
+
         var vm = new TopUpViewModel
         {
             Username = username,
-            CurrentBalance = UserCoins?.Balance ?? 0,
-            Packages = _db.Coinpackages
-                            .Where(p => p.IsActive)
-                            .ToList()
+            CurrentBalance = total,
+            Packages = packages
         };
 
         return View(vm);
@@ -59,6 +108,19 @@ public class CoinController : Controller
             return RedirectToAction("TopUp");
         }
 
+        var now = DateTime.Now;
+
+        var promo = _db.Promotions
+            .Where(p => p.StartDate <= now && p.EndDate > now)
+            .FirstOrDefault();
+
+        int totalCoin = package.CoinAmount + package.BonusCoin;
+
+        if (promo != null)
+        {
+            totalCoin += promo.BonusCoin;
+        }
+
         // เริ่ม transaction กันข้อมูลพัง
         using var dbTransaction = _db.Database.BeginTransaction();
 
@@ -78,8 +140,6 @@ public class CoinController : Controller
                 _db.UserCoins.Add(UserCoins);
                 _db.SaveChanges(); // ต้อง save ก่อนเพื่อให้มี row
             }
-
-            int totalCoin = package.CoinAmount + package.BonusCoin;
 
             int before = UserCoins.Balance;
 
@@ -102,7 +162,7 @@ public class CoinController : Controller
             _db.SaveChanges();
             dbTransaction.Commit();
 
-            TempData["Success"] = $"เติมเหรียญสำเร็จ +{totalCoin} เหรียญ 🎉";
+            TempData["Success"] = $"เติมเหรียญสำเร็จ +{totalCoin} เหรียญ";
 
             return RedirectToAction("TopUp");
         }

@@ -54,6 +54,8 @@ public class ChapterController : Controller
     [HttpPost]
     public IActionResult Save(ChapterViewModel model)
     {
+        Chapter chapter;
+
         if (model.ChapterId == 0)
         {
             var maxChapter = _db.Chapters
@@ -61,7 +63,7 @@ public class ChapterController : Controller
                 .Select(c => (int?)c.ChapterNumber)
                 .Max() ?? 0;
 
-            var chapter = new Chapter
+            chapter = new Chapter
             {
                 NovelId = model.NovelId,
                 ChapterNumber = maxChapter + 1,
@@ -89,7 +91,7 @@ public class ChapterController : Controller
         }
         else
         {
-            var chapter = _db.Chapters.FirstOrDefault(c => c.ChapterId == model.ChapterId);
+            chapter = _db.Chapters.FirstOrDefault(c => c.ChapterId == model.ChapterId);
 
             if (chapter == null) return NotFound();
 
@@ -104,6 +106,42 @@ public class ChapterController : Controller
         }
 
         _db.SaveChanges();
+
+        // ✅ ยิง Notification เฉพาะตอนที่ publish
+        if (model.ChapterId == 0 && model.PublishStatus == "published")
+        {
+            // 1. หา user ที่ติดตามเรื่องนี้
+            var followers = _db.Bookshelves
+                .Where(b => b.NovelId == model.NovelId)
+                .Select(b => b.UserId)
+                .ToList();
+
+            // 2. ดึงชื่อเรื่อง (ไว้ใส่ message)
+            var novelTitle = _db.Novels
+                .Where(n => n.NovelId == model.NovelId)
+                .Select(n => n.Title)
+                .FirstOrDefault();
+
+            // 3. สร้าง notification
+            var notifications = new List<Notification>();
+
+            foreach (var userId in followers)
+            {
+                notifications.Add(new Notification
+                {
+                    UserId = userId,
+                    NovelId = model.NovelId,
+                    ChapterId = chapter.ChapterId, // ⭐ สำคัญ
+                    Message = $"นิยาย {novelTitle} มีตอนใหม่แล้ว",
+                    IsRead = false,
+                    CreatedAt = DateTime.Now
+                });
+            }
+
+            // 4. save
+            _db.Notifications.AddRange(notifications);
+            _db.SaveChanges();
+        }
 
         return RedirectToAction("Index", new { novelId = model.NovelId });
     }
@@ -160,7 +198,7 @@ public class ChapterController : Controller
 
         return RedirectToAction("Index", new { novelId = chapter.NovelId });
     }
-    
+
     public IActionResult Privacy()
     {
         return View();

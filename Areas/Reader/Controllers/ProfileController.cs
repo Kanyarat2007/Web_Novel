@@ -136,7 +136,9 @@ public class ProfileController : Controller
                         {
                             NovelId = n.NovelId,
                             Title = n.Title,
-                            CoverImageUrl = n.CoverImageUrl
+                            CoverImageUrl = n.CoverImageUrl,
+                            TotalViews = n.TotalViews,
+                            TotalLikes = n.TotalLikes
                         }).ToList()
                     })
                     .FirstOrDefault()

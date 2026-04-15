@@ -1,0 +1,168 @@
+@model ManageUserPageViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">รายชื่อผู้ใช้</h2>
+
+        <div class="d-flex gap-2">
+            @* ถ้าเพิ่ม dropdown *@
+
+            @* ปุ่มเพิ่ม *@
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                <i class="bi bi-plus-lg"></i>
+                เพิ่มผู้ใช้
+            </button>
+        </div>
+
+        @* modal *@
+        <div class="modal fade" id="createUserModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <form asp-action="Create" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">เพิ่มผู้ใช้</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <input name="Username" class="form-control mb-2" placeholder="Username" />
+                            <input name="Email" class="form-control mb-2" placeholder="Email" />
+                            <input name="Password" type="password" class="form-control mb-2" placeholder="Password" />
+
+                            <label>Roles</label>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <div>
+                                    <input type="checkbox" name="SelectedRoleIds" value="@role.RoleId"
+                                           class="role-checkbox" />
+                                    @role.RoleName
+                                </div>
+                            }
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-primary">บันทึก</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>ชื่อ</th>
+                <th>Role</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var u in Model.Users)
+            {
+                <tr>
+                    <td>@u.Username</td>
+                    <td>@u.DisplayName</td>
+                    <td>@string.Join(", ", u.Roles)</td>
+                    <td>
+                        @* แก้ไข *@
+                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#editRoleModal"
+                                onclick="openEditRole(@u.UserId, '@string.Join(",", u.RoleIds)')">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        @* ลบ *@
+                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                onclick="setDeleteUser(@u.UserId)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+
+            <div class="modal fade" id="editRoleModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <form asp-action="EditRole" method="post">
+                            <input type="hidden" name="UserId" id="editUserId" />
+
+                            <div class="modal-header">
+                                <h5>แก้ Role</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                @foreach (var role in Model.Roles)
+                                {
+                                    <div>
+                                        <input type="checkbox" name="SelectedRoleIds" value="@role.RoleId"
+                                               class="role-checkbox" />
+                                        @role.RoleName
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-primary">บันทึก</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="deleteModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <form asp-action="Delete" method="post">
+                            <input type="hidden" name="id" id="deleteUserId" />
+
+                            <div class="modal-header">
+                                <h5>ยืนยันการลบ</h5>
+                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                คุณต้องการลบผู้ใช้นี้ใช่ไหม?
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-danger">ลบ</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+                    
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function openEditRole(userId, roleIdsCsv) {
+        document.getElementById("editUserId").value = userId;
+
+        const roleIds = roleIdsCsv.split(',').map(x => parseInt(x));
+
+        document.querySelectorAll(".role-checkbox").forEach(cb => {
+            cb.checked = roleIds.includes(parseInt(cb.value));
+        });
+    }
+
+    function setDeleteUser(id) {
+        document.getElementById("deleteUserId").value = id;
+    }
+</script>

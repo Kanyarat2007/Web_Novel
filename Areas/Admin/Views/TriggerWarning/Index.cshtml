@@ -1,0 +1,120 @@
+@model Web_Novel.ViewModels.Admin.TriggerWarningPageViewModel
+    
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2 class="mb-0">คำเตือนนิยาย</h2>
+
+        <div class="d-flex gap-2">
+
+            <!-- dropdown -->
+            <form method="get">
+                <select name="sortBy" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- เรียงข้อมูล --</option>
+                    <option value="name_asc" selected="@(Model.SortBy == "name_asc")">ชื่อ A-Z</option>
+                    <option value="name_desc" selected="@(Model.SortBy == "name_desc")">ชื่อ Z-A</option>
+                </select>
+            </form>
+
+            @* ปุ่มเพิ่ม *@
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-lg"></i>
+                เพิ่มคำเตือน
+            </button>
+
+        </div>
+
+        @* modal *@
+        <div class="modal fade" id="addModal">
+            <div class="modal-dialog">
+                <form asp-action="Create" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5>เพิ่ม Trigger Warning</h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <input name="Form.Name" class="form-control mb-2" placeholder="ชื่อคำเตือน" />
+                        <textarea name="Form.Description" class="form-control" placeholder="คำอธิบาย"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-success">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                @* <th>ID</th> *@
+                <th>ชื่อคำเตือน</th>
+                <th>คำอธิบาย</th>
+                <th style="width: 150px;">แก้ไข</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var w in Model.Warnings)
+            {
+                <tr>
+                    @* <td>@w.WarningId</td> *@
+                    <td>@w.Name</td>
+                    <td>@w.Description</td>
+                    <td>
+                        @* แก้ไข *@
+                        <button class="btn btn-light btn-sm" onclick="openEdit(@w.WarningId, '@w.Name', '@w.Description')">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        @* ลบ *@
+                        <form asp-action="Delete" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@w.WarningId" />
+                            <button class="btn btn-outline-danger btn-sm" onclick="return confirm('ยืนยัน')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="editModal">
+    <div class="modal-dialog">
+        <form asp-action="Edit" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5>แก้ไข Trigger Warning</h5>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="editId" name="Form.WarningId" />
+
+                <input id="editName" name="Form.Name" class="form-control mb-2" />
+                <textarea id="editDescription" name="Form.Description" class="form-control"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEdit(id, name, description) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editDescription").value = description;
+
+        var modal = new bootstrap.Modal(document.getElementById('editModal'));
+        modal.show();
+    }
+</script>

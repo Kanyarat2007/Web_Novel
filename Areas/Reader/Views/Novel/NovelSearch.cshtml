@@ -6,12 +6,12 @@
 
 <div class="container-xxl" style="max-width:950px;">
 
-    <h5 class="text-body my-3">
+    <h2 class="my-3">
         ผลการค้นหา "@Model.Query"
         <span class="text-body-secondary small fw-normal">
             (@Model.Novels.Count เรื่อง)
         </span>
-    </h5>
+    </h2>
 
     @if (!Model.Novels.Any())
     {
@@ -27,7 +27,7 @@
                 <div class="col">
                     <a asp-area="Reader" asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId"
                            class="text-decoration-none">
-                        <div class="card h-100 bg-body-secondary border-0">
+                        <div class="card h-100 border-0">
                             <img src="@(novel.CoverImageUrl ?? "https://picsum.photos/seed/@novel.NovelId/300/400")"
                                  class="card-img-top object-fit-cover" style="height:180px;" alt="@novel.Title" />
                             <div class="card-body p-2">

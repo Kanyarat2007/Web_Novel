@@ -1,20 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 
-<body>
-    <footer class="border-top">
-        <div class="container-fluid bg-secondary-subtle">
-            <div class="d-flex justify-content-center align-items-center" style="height:300px">
-                <h2></h2>
-            </div>
-        </div>
-    </footer>
+<body style="margin:0;">
 
-</body>
+    <footer class="border-top mt-5" style="background-color: var(--bg-surface);">
 
-</html>
+        <div class="container py-4" style="max-width:950px;">
+
+            <div class="row">
+
+                <!-- 🔹 ซ้าย -->
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-semibold mb-3">เมนูของฉัน</h6>
+
+                    <div class="d-flex flex-column gap-2 small">
+                        <a asp-area="Reader" asp-controller="Profile" asp-action="UserProfile"
+                           class="text-decoration-none text-body">โปรไฟล์</a>
+
+                        <a asp-area="Reader" asp-controller="Coin" asp-action="TopUp"
+                           class="text-decoration-none text-body">เหรียญของฉัน</a>
+
+                        <a asp-area="Reader" asp-controller="Coin" asp-action="History"
+                           class="text-decoration-none text-body">ประวัติการสั่งซื้อ</a>
+
+                        <a asp-area="Reader" asp-controller="Bookshelf" asp-action="Index"
+                           class="text-decoration-none text-body">ชั้นหนังสือ</a>
+
+                        <a asp-area="Writer" asp-controller="Writer" asp-action="Dashboard"
+                           class="text-decoration-none text-body">โหมดนักเขียน</a>
+                    </div>
+                </div>
+
+                <!-- 🔹 กลาง -->
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-semibold mb-3">ชั้นหนังสือ</h6>
+
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+
+                        <li><a asp-action="Index" asp-route-tab="shelf"
+                                   class="text-decoration-none text-body">นิยายที่เพิ่มไว้</a></li>
+
+                            <li><a asp-action="Index" asp-route-tab="bookmark"
+                                       class="text-decoration-none text-body">บุ๊คมาร์ค</a></li>
+
+                                <li><a asp-action="Index" asp-route-tab="recent"
+                                           class="text-decoration-none text-body">อ่านล่าสุด</a></li>
+
+                                </ul>
+                            </div>
+
+                            <!-- 🔹 ขวา -->
+                            <div class="col-md-4 mb-3">
+                                <h6 class="fw-semibold mb-3">เกี่ยวกับเรา</h6>
+
+                                <ul class="list-unstyled small d-flex flex-column gap-2">
+
+                                    <li><a href="#" class="text-decoration-none text-body">ติดต่อเรา</a></li>
+                                    <li><a href="#" class="text-decoration-none text-body">เงื่อนไขการใช้งาน</a></li>
+                                    <li><a href="#" class="text-decoration-none text-body">นโยบายความเป็นส่วนตัว</a></li>
+                                    <li><a href="#" class="text-decoration-none text-body">วิธีเติมเหรียญ</a></li>
+
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 🔻 bottom bar -->
+                    <div class="border-top py-3 text-center small text-body-secondary">
+                        © 2026 NovelWeb. All rights reserved.
+                    </div>
+
+                </footer>
+
+            </body>
+
+        </html>

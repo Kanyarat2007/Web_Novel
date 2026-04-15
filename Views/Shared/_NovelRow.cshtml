@@ -1,19 +1,23 @@
 @model List<Web_Novel.Models.Novel>
 
-<div class="d-flex gap-3 overflow-auto pb-2">
+<div class="d-flex gap-2 overflow-auto pb-3">
     @foreach (var novel in Model)
     {
         <a asp-area="Reader" asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId"
                class="text-decoration-none flex-shrink-0">
                
-            <div style="width:100px;">
-                <img src="@(novel.CoverImageUrl ?? "https://picsum.photos/seed/@novel.NovelId/100/140")"
-                     class="rounded-2 object-fit-cover w-100" style="height:140px;" alt="@novel.Title" />
+            <div class="ps-2" style="width:130px;">
+                <img src="@(novel.CoverImageUrl ?? "/images/default-novel.png")" class="rounded-2"
+                     style="width:110px; height:140px; object-fit:cover;" alt="@novel.Title" />
+                
                 <p class="text-body small mt-1 mb-0" style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
                     @novel.Title
                 </p>
+                
                 <p class="text-body-secondary mb-0" style="font-size:11px;">
-                    👁 @novel.TotalViews
+                    <i class="bi bi-eye"></i> @novel.TotalViews
+                    <i class="bi bi-heart"></i> @novel.TotalLikes
+                    @* <i class="bi bi-list-ul"></i> ตอน *@
                 </p>
             </div>
         </a>

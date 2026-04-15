@@ -6,43 +6,41 @@
     <h4>นามปากกา</h4>
 
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#penModal" onclick="openCreate()">
-        + เพิ่มนามปากกา
+        <i class="bi bi-plus-lg"></i> เพิ่มนามปากกา
     </button>
 </div>
 
 @if (Model == null || !Model.Any())
 {
-    <p>ยังไม่มีนามปากกา</p>
+    <div class="card-soft">
+        <p>ยังไม่มีนามปากกา</p>
+    </div>
 }
 else
 {
-    <div class="list-group">
+    <div class="card-soft">
         @foreach (var p in Model)
         {
-            <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="card-list list-group-item d-flex justify-content-between align-items-center">
 
                 <div>
                     <strong>@p.PenName</strong>
-
-                    
                     @if (p.IsDefault)
                     {
                         <span class="badge bg-success ms-2">หลัก</span>
                     }
-
                     <div class="text-muted small">@p.Bio</div>
                 </div>
 
                 <div>
-
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#penModal"
                             onclick="openEdit(this)" data-id="@p.PenNameId" data-name="@p.PenName" data-bio="@p.Bio">
-                        แก้ไข
+                        <i class="bi bi-pencil-square"></i> แก้ไข
                     </button>
 
                     <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
                             onclick="setDeleteId(@p.PenNameId, '@p.PenName')">
-                        ลบ
+                        <i class="bi bi-trash3"></i>
                     </button>
                 </div>
 

@@ -5,23 +5,25 @@
 @model WriterDashboardViewModel
 
 <div class="d-flex justify-content-between mb-3">
-    <h4>การชำระเงิน</h4>
+    <h4>บัญชีธนาคาร</h4>
 
     @if (Model.Payments == null || !Model.Payments.Any())
     {
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal" onclick="openpaymentCreate()">
-            + เพิ่มช่องทางการชำระเงิน
+            <i class="bi bi-plus-lg"></i> เพิ่มบัญชีธนาคาร
         </button>
     }
 </div>
 
 @if (Model.Payments == null || !Model.Payments.Any())
 {
-    <p>ยังไม่มีช่องทางการชำระเงิน</p>
+    <div class="card-soft">
+        <p>ยังไม่มีช่องทางการชำระเงิน</p>
+    </div>
 }
 else
 {
-    <div class="list-group">
+    <div class="card-soft">
         @foreach (var p in Model.Payments)
         {
             <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -29,7 +31,9 @@ else
                 <div>
                     @if (!string.IsNullOrEmpty(p.BankAccountNumber))
                     {
-                        <strong>@p.BankName : @p.BankAccountNumber</strong>
+                        <p>ชื่อบัญชี : @p.BankAccountName</p>
+                        <p>เลขบัญชี : @p.BankAccountNumber</p>
+                        <p>ชื่อธนาคาร : @p.BankName</p>
                     }
                     else
                     {
@@ -41,14 +45,14 @@ else
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paymentModal"
                             onclick="openpaymentEdit(this)" data-id="@p.PaymentId" data-bank-name="@p.BankName"
                             data-bank-account-number="@p.BankAccountNumber" data-bank-account-name="@p.BankAccountName">
-                        แก้ไข
+                        <i class="bi bi-pencil-square"></i> แก้ไข
                     </button>
 
                     <form asp-action="DeleteConfirmed" asp-area="Writer" asp-controller="Payment" method="post"
                           style="display:inline;">
                         <input type="hidden" name="PaymentId" value="@p.PaymentId" />
                         <button class="btn btn-sm btn-outline-danger">
-                            ลบ
+                            <i class="bi bi-trash3"></i>
                         </button>
                     </form>
                 </div>
@@ -59,7 +63,7 @@ else
 
     <hr class="my-4" />
 
-    <h4>รายได้ของนักเขียน</h4>
+    <h2 class="mb-4">รายได้ของนักเขียน</h2>
 
     @if (Model.EarningSummary != null)
     {
@@ -89,12 +93,12 @@ else
 
     @if (Model.Earnings != null && Model.Earnings.Any())
     {
-        <div class="table-responsive">
-            <table class="table table-bordered">
+        <div class="card-soft">
+            <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>ชื่อเรื่อง</th>
-                        <th>จำนวน</th>
+                        <th>ชื่อนิยาย</th>
+                        <th>จำนวนเงิน</th>
                         <th>วันที่</th>
                     </tr>
                 </thead>
@@ -116,7 +120,9 @@ else
     }
     else
     {
-        <p class="text-muted">ยังไม่มีรายได้</p>
+        <div class="card-soft">
+            <p class="text-muted">ยังไม่มีรายได้</p>
+        </div>
     }
 }
 
@@ -137,16 +143,18 @@ else
 
                     <input type="hidden" name="PaymentId" id="paymentId" />
 
-                    <label for="bankName">ธนาคาร</label>
-                    <input name="BankName" id="bankName" class="form-control mb-2" placeholder="ธนาคาร" />
+                    <label for="bankAccountName">ชื่อบัญชี</label>
+                    <input name="BankAccountName" id="bankAccountName" class="form-control mb-2"
+                           placeholder="ชื่อบัญชี" />
 
                     <label for="bankAccountNumber">เลขที่บัญชี</label>
                     <input name="BankAccountNumber" id="bankAccountNumber" class="form-control mb-2"
                            placeholder="เลขที่บัญชี" />
 
-                    <label for="bankAccountName">ชื่อบัญชี</label>
-                    <input name="BankAccountName" id="bankAccountName" class="form-control mb-2"
-                           placeholder="ชื่อบัญชี" />
+                    <label for="bankName">ธนาคาร</label>
+                    <input name="BankName" id="bankName" class="form-control mb-2" placeholder="ธนาคาร" />
+
+
 
                     <button class="btn btn-primary mt-3 w-100">บันทึก</button>
 

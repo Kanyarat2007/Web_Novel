@@ -7,10 +7,10 @@
 }
 
 <div class="container-xxl" style="max-width:950px;">
-    <h4 class="my-3 text-body">นักเขียน</h4>
+    <h1 class="mt-3">นักเขียน</h1>
 
     @* ── Tabs ── *@
-    <ul class="nav nav-tabs mb-4">
+    <ul class="nav nav-underline-custom mb-4">
 
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "novels" ? "active" : "")" asp-area="Writer" asp-controller="Writer"
@@ -29,7 +29,7 @@
         <li class="nav-item">
             <a class="nav-link @(Model.ActiveTab == "stats" ? "active" : "")" asp-area="Writer" asp-controller="Writer"
                    asp-action="Dashboard" asp-route-tab="stats">
-                ดูสถิติ
+                สถิติงานเขียน
             </a>
         </li>
 
@@ -54,39 +54,43 @@
     @if (Model.ActiveTab == "stats")
     {
         <h3>สถิติผลงาน</h3>
+        <div class="card-soft">
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>เรื่อง</th>
-                    @* <th>ประเภท</th> *@
-                    <th>ยอดวิว</th>
-                    <th>ยอดกดถูกใจ</th>
-                    <th>ยอดเพิ่มเข้าชั้นหนังสือ</th>
-                    @* <th>เหรียญ</th> *@
-                    @* <th>อัปเดต</th> *@
-                </tr>
-            </thead>
+        
 
-            <tbody>
-                @foreach (var item in Model.Stats)
-                {
+            <table class="table table-hover">
+                <thead class="">
                     <tr>
-                        <td>
-                            @(item.ContentType == "Novel"
-                                ? item.NovelTitle
-                                : item.MangaTitle)
-                        </td>
-                        @* <td>@item.ContentType</td> *@
-                        <td>@item.TotalViews</td>
-                        <td>@item.TotalLikes</td>
-                        <td>@item.TotalBookshelf</td>
-                        @* <td>@item.TotalCoinEarned</td> *@
-                        @* <td>@(item.UpdatedAt.HasValue? item.UpdatedAt.Value.ToString("dd/MM/yyyy") : "")</td> *@
+                        <th>ชื่อนิยาย</th>
+                        @* <th>ประเภท</th> *@
+                        <th>ยอดเข้าอ่าน</th>
+                        <th>ยอดกดถูกใจ</th>
+                        <th>ยอดเพิ่มเข้าชั้นหนังสือ</th>
+                        @* <th>เหรียญ</th> *@
+                        @* <th>อัปเดต</th> *@
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model.Stats)
+                    {
+                        <tr>
+                            <td>
+                                @(item.ContentType == "Novel"
+                                    ? item.NovelTitle
+                                    : item.MangaTitle)
+                            </td>
+                            @* <td>@item.ContentType</td> *@
+                            <td>@item.TotalViews</td>
+                            <td>@item.TotalLikes</td>
+                            <td>@item.TotalBookshelf</td>
+                            @* <td>@item.TotalCoinEarned</td> *@
+                            @* <td>@(item.UpdatedAt.HasValue? item.UpdatedAt.Value.ToString("dd/MM/yyyy") : "")</td> *@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 
     @if (Model.ActiveTab == "payments")

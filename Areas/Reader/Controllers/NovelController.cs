@@ -24,7 +24,7 @@ public class NovelController : Controller
             .Include(n => n.PenName)
             .Include(n => n.NovelTriggerWarnings)
         .ThenInclude(ntw => ntw.TriggerWarning)
-            .FirstOrDefault(n => n.NovelId == id);
+            .FirstOrDefault(n => n.NovelId == id && !n.IsDeleted);
 
         if (novel == null)
             return NotFound();
@@ -87,6 +87,8 @@ public class NovelController : Controller
             })
             .ToList();
 
+
+
         // Map ไปยัง ViewModel
         var vm = new NovelDetailViewModel
         {
@@ -105,11 +107,7 @@ public class NovelController : Controller
             NovelTriggerWarnings = novel.NovelTriggerWarnings,
             Comments = comments,
             CurrentUserId = userId,
-            GenreNames = novel.GenreId > 0
-        ? (from g in _db.Genres
-           where g.GenreId == novel.GenreId
-           select g.Name).ToList()
-        : new List<string>(),
+            GenreNames = novel.NovelGenres.Select(x => x.Genre.Name).ToList(),
 
             AuthorNote = novel.AuthorNote,
 
@@ -118,6 +116,8 @@ public class NovelController : Controller
             IsLiked = isLiked,
             LastReadChapterNumber = lastRead?.ChapterNumber,
             Chapters = (from c in novel.Chapters
+                        where !c.IsDeleted
+                           && c.PublishStatus == "published"
                         orderby c.ChapterNumber
                         select new ChapterItemViewModel
                         {
@@ -149,6 +149,7 @@ public class NovelController : Controller
     {
         var chapter = _db.Chapters
     .FirstOrDefault(c =>
+
         c.NovelId == novelId &&
         c.ChapterNumber == chapterNumber &&
         c.PublishStatus.ToLower() == "published");
@@ -157,15 +158,16 @@ public class NovelController : Controller
             return BadRequest();
 
         var chapters = _db.Chapters
-            .Where(c => c.NovelId == novelId &&
-            c.PublishStatus.ToLower() == "published")
-            .OrderBy(c => c.ChapterNumber)
-            .Select(c => new ChapterItemViewModel
-            {
-                ChapterNumber = c.ChapterNumber,
-                Title = c.Title
-            })
-            .ToList();
+    .Where(c => c.NovelId == novelId
+             && !c.IsDeleted
+             && c.PublishStatus == "published") // 👈 ตรง ๆ เลย
+    .OrderBy(c => c.ChapterNumber)
+    .Select(c => new ChapterItemViewModel
+    {
+        ChapterNumber = c.ChapterNumber,
+        Title = c.Title
+    })
+    .ToList();
 
         var novel = (from n in _db.Novels
                      where n.NovelId == novelId
@@ -322,6 +324,8 @@ public class NovelController : Controller
             IsBookmarked = isBookmarked
         };
 
+        chapter.IsDeleted = true;
+
         ViewBag.Debug = $"CoinRequired: {chapter.IsCoinRequired}, Purchased: {isPurchased}, CanRead: {canRead}";
 
         return View(vm);
@@ -351,6 +355,16 @@ public class NovelController : Controller
         };
 
         return View(vm);
+    }
+
+    public IActionResult Read(int id)
+    {
+        var chapter = _db.Chapters
+            .FirstOrDefault(c => c.ChapterId == id);
+
+        if (chapter == null) return NotFound();
+
+        return View(chapter);
     }
 
     [HttpPost]
@@ -428,15 +442,13 @@ public class NovelController : Controller
     {
         int pageSize = 12;
 
-        var genre = _db.Genres
-            .FirstOrDefault(g => g.GenreId == genreId);
-
+        var genre = _db.Genres.FirstOrDefault(g => g.GenreId == genreId);
         if (genre == null)
             return NotFound();
 
         var query = _db.Novels
-            .Where(n => n.GenreId == genreId
-                     && n.PublishStatus == "published");
+            .Where(n => n.PublishStatus == "published"
+                     && n.NovelGenres.Any(g => g.GenreId == genreId));
 
         var totalCount = query.Count();
 

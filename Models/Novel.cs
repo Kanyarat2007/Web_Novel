@@ -64,5 +64,12 @@ public partial class Novel
 
     public virtual ICollection<Writerstat> Writerstats { get; set; } = new List<Writerstat>();
 
+    public ICollection<NovelGenre> NovelGenres { get; set; } = new List<NovelGenre>();
+
+    public bool IsDeleted { get; set; } = false;
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+
+
 
 }

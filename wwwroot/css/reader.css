@@ -1,0 +1,73 @@
+.reader-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* ขนาดตัวอักษร */
+.font-small { font-size: 16px; }
+.font-medium { font-size: 20px; }
+.font-large { font-size: 24px; }
+
+/* ฟอนต์ */
+.font-sarabun { font-family: 'Sarabun', sans-serif; }
+.font-prompt { font-family: 'Prompt', sans-serif; }
+
+/* เมนู */
+.reader-controls {
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 10px;
+}
+
+/* ===== Reader Controls ===== */
+.reader-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* ปุ่ม */
+/* .reader-controls .btn {
+    background-color: var(--bg-surface);
+    color: var(--text-basic);
+    transition: 0.2s;
+}
+
+.reader-controls .btn:hover {
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+} */
+
+/* select */
+.reader-controls select {
+    background-color: var(--bg-surface);
+    color: var(--text-basic);
+    width: auto;
+}
+
+/* focus */
+.reader-controls select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+/* แก้พื้นหลังขาวใน dark mode */
+[data-bs-theme="dark"] .reader-controls {
+    background-color: transparent;
+}
+
+/* ปุ่ม */
+[data-bs-theme="dark"] .reader-controls .btn {
+    /* background-color: var(--bg-surface) !important; */
+    /* color: var(--text-basic); */
+    border-color: var(--border-color);
+}
+
+/* select (ตัวปัญหาหลัก) */
+[data-bs-theme="dark"] .reader-controls .form-select {
+    /* background-color: var(--bg-surface) !important;
+    color: var(--text-basic) !important; */
+    border-color: var(--border-color);
+}

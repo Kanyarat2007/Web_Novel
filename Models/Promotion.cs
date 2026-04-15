@@ -9,7 +9,7 @@ public partial class Promotion
 
     public string Name { get; set; } = null!;
 
-    public string Type { get; set; } = null!;
+    // public string Type { get; set; } = null!;
 
     public float DiscountValue { get; set; }
 

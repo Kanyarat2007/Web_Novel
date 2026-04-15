@@ -1,0 +1,204 @@
+@* @model Web_Novel.ViewModels.Admin.GenrePageViewModel *@
+@model List<Web_Novel.Models.Promotion>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2 class="mb-0">โปรโมชั่น</h2>
+
+        <div class="d-flex gap-2">
+
+            @* ปุ่มเพิ่ม *@
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="bi bi-plus-lg"></i>
+                เพิ่มโปรโมชั่น
+            </button>
+        </div>
+
+        @* modal เพิ่ม *@
+        <div class="modal fade" id="createModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <form method="post" action="/Admin/Promotion/Create">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">เพิ่มโปรโมชั่น</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            
+                            <span>ชื่อโปรโมชั่น</span>
+                            <input name="Name" class="form-control" placeholder="ชื่อโปรโมชั่น" />
+                            <br />
+
+                            @* <input name="Type" class="form-control" placeholder="Type" />
+                                <br /> *@
+
+                            <span>ส่วนลด</span>
+                            <input name="DiscountValue" class="form-control" placeholder="%" />
+                            <br />
+
+                            <span>เหรียญโบนัส</span>
+                            <input name="BonusCoin" class="form-control" placeholder="เหรียญโบนัส" />
+                            <br />
+
+                            <span>วันที่เริ่มต้น</span>
+                            <input name="StartDate" id="edit_StartDate" type="datetime-local" class="form-control" />
+                            <br />
+
+                            <span>วันที่สิ้นสุด</span>
+                            <input name="EndDate" id="edit_EndDate" type="datetime-local" class="form-control" />
+                            <br />
+
+                            <label>
+                                <input type="checkbox" name="IsActive" checked /> Active
+                            </label>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">บันทึก</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @* ตาราง *@
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ชื่อโปรโมชั่น</th>
+                @* <th>Type</th> *@
+                <th>ส่วนลด</th>
+                <th>เหรียญโบนัส</th>
+                <th>วันที่เริ่มต้น</th>
+                <th>วันที่สิ้นสุด</th>
+                <th>สถานะ</th>
+                <th>แก้ไข</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    @* <td>@item.Type</td> *@
+                    <td>@item.DiscountValue %</td>
+                    <td>@item.BonusCoin เหรียญ</td>
+                    <td>@item.StartDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@item.EndDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (item.StartDate <= DateTime.Now && item.EndDate > DateTime.Now)
+                        {
+                            <span class="badge bg-success">กำลังดำเนินอยู่</span>
+                        }
+                        else if (item.StartDate > DateTime.Now)
+                        {
+                            <span class="badge bg-warning text-dark">ใกล้ถึง</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">สิ้นสุด</span>
+                        }
+                    </td>
+
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(
+                            @item.PromotionId,
+                            '@item.Name',
+                            @item.DiscountValue,
+                            @item.BonusCoin,
+                            '@item.StartDate?.ToString("yyyy-MM-ddTHH:mm")',
+                            '@item.EndDate?.ToString("yyyy-MM-ddTHH:mm")',
+                            '@item.IsActive'
+                            )">
+                            <i class="bi bi-pencil-square"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @* modal แก้ไข *@
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <form method="post" action="/Admin/Promotion/Edit">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">แก้ไขโปรโมชั่น</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input type="hidden" name="PromotionId" id="edit_PromotionId" />
+
+                        <span>ชื่อโปรโมชั่น</span>
+                        <input name="Name" id="edit_Name" class="form-control" />
+                        <br />
+
+                        <span>ส่วนลด</span>
+                        <input name="DiscountValue" id="edit_DiscountValue" class="form-control" />
+                        <br />
+
+                        <span>เหรียญโบนัส</span>
+                        <input name="BonusCoin" id="edit_BonusCoin" class="form-control" />
+                        <br />
+
+                        <span>วันที่เริ่มต้น</span>
+                        <input name="StartDate" id="edit_StartDate" type="datetime-local" class="form-control" />
+                        <br />
+
+                        <span>วันที่สิ้นสุด</span>
+                        <input name="EndDate" id="edit_EndDate" type="datetime-local" class="form-control" />
+                        <br />
+
+                        <input type="hidden" name="IsActive" value="false" />
+
+                        <label>
+                            <input type="checkbox" name="IsActive" id="edit_IsActive" /> Active
+                        </label>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">อัปเดต</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, name, discount, bonus, start, end, isActive) {
+
+            document.getElementById("edit_PromotionId").value = id;
+            document.getElementById("edit_Name").value = name;
+            document.getElementById("edit_DiscountValue").value = discount;
+            document.getElementById("edit_BonusCoin").value = bonus;
+            document.getElementById("edit_StartDate").value = start;
+            document.getElementById("edit_EndDate").value = end;
+
+            document.getElementById("edit_IsActive").checked = (isActive === "True");
+
+            new bootstrap.Modal(document.getElementById('editModal')).show();
+        }
+    </script>

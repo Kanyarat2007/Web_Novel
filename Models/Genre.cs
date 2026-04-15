@@ -13,9 +13,11 @@ public partial class Genre
     public string Slug { get; set; } = null!;
 
     [NotMapped]
-    public virtual ICollection<Novel> Novels { get; set; } = new List<Novel>();
+    public ICollection<Novel> Novels { get; set; } = new List<Novel>();
 
-    public virtual ICollection<Manga> Mangas { get; set; } = new List<Manga>();
+    public ICollection<Manga> Mangas { get; set; } = new List<Manga>();
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    // public virtual ICollection<User> Users { get; set; } = new List<User>();
+
+    public ICollection<UserGenre> UserGenres { get; set; } = new List<UserGenre>();
 }

@@ -32,11 +32,12 @@ public class BookshelfController : Controller
 
         switch (tab)
         {
-            // ── ชั้นหนังสือ (นิยาย + มังงะที่กด Add) ──
+            // ชั้นหนังสือ
             case "shelf":
             default:
                 vm.Novels = (from b in _db.Bookshelves
                                  .Include(b => b.Novel)
+                                 .ThenInclude(n => n.PenName)
                              where b.UserId == userId
                                && b.ContentType == "novel"
                                && b.Novel != null
@@ -52,17 +53,17 @@ public class BookshelfController : Controller
                              select b.Manga!).ToList();
                 break;
 
-            // ── บุ๊คมาร์ค (ตอนที่บุ๊คมาร์คไว้) ──
+            // บุ๊คมาร์ค 
             case "bookmark":
                 vm.Bookmarks = _db.Chapterbookmarks
                     .Where(bm => bm.UserId == userId)
                     .Include(bm => bm.Chapter)
-                        .ThenInclude(c => c.Novel)   // 🔥 ตัวสำคัญ
+                        .ThenInclude(c => c.Novel)
                     .OrderByDescending(bm => bm.BookmarkedAt)
                     .ToList();
                 break;
 
-            // ── อ่านล่าสุด ──
+            // อ่านล่าสุด
             case "recent":
                 vm.RecentNovels = (from rh in _db.Readinghistories
                                        .Include(rh => rh.Novel)

@@ -9,52 +9,89 @@
 
 <div class="container" style="max-width:950px;">
 
-    <h1>ดูโปรไฟล์คนอื่น</h1>
+    <h2 class="mt-3">โปรไฟล์ผู้ใช้</h2>
 
-    <img src="@(string.IsNullOrEmpty(Model.ProfileImage) 
-                                                                                      ? "/images/default-avatar.png"
-                                                                                      : Model.ProfileImage)"
-         class="rounded-circle border" style="width:90px;height:90px;object-fit:cover;"
-         onerror="this.src='/images/default-avatar.png'" />
+    <div class="card-soft mt-3 p-3">
 
-    <h4>@Model.DisplayName</h4>
-    <p class="text-body-secondary">@Model.Bio</p>
+        <div class="d-flex align-items-start justify-content-between">
 
-    @if (!Model.IsCurrentUser)
-    {
-        <form method="post">
-            <input type="hidden" name="blockedUserId" value="@Model.UserId" />
+            <!-- ซ้าย: รูป -->
+            <div class="flex-shrink-0 me-3">
+                <img src="@(string.IsNullOrEmpty(Model.ProfileImage)
+                                                                                                                                   ? "/images/default-avatar.png"
+                                                                                                                                   : Model.ProfileImage)"
+                     class="rounded-circle border shadow-sm" style="width:80px;height:80px;object-fit:cover;"
+                     onerror="this.src='/images/default-avatar.png'" />
+            </div>
 
-            @if (Model.IsBlocked)
+            <!-- กลาง: ชื่อ + bio -->
+            <div class="flex-grow-1">
+                <h5 class="mb-1">@Model.DisplayName</h5>
+
+                <p class="text-body-secondary small mb-0">
+                    @(string.IsNullOrEmpty(Model.Bio)
+                        ? "ยังไม่มีข้อมูลแนะนำตัว"
+                        : Model.Bio)
+                </p>
+            </div>
+
+            <!-- ขวาบน: ปุ่ม -->
+            @if (!Model.IsCurrentUser)
             {
-                <button asp-action="UnblockUser" asp-controller="Block" class="btn btn-secondary btn-sm">ยกเลิกบล็อค</button>
+                <form method="post" class="ms-3">
+
+                    <input type="hidden" name="blockedUserId" value="@Model.UserId" />
+
+                    @if (Model.IsBlocked)
+                    {
+                        <button asp-action="UnblockUser" asp-controller="Block" class="btn btn-outline-secondary btn-sm">
+                            ยกเลิกบล็อค
+                        </button>
+                    }
+                    else
+                    {
+                        <button asp-action="BlockUser" asp-controller="Block" class="btn btn-danger btn-sm">
+                            บล็อค
+                        </button>
+                    }
+
+                </form>
             }
-            else
-            {
-                <button asp-action="BlockUser" asp-controller="Block" class="btn btn-danger btn-sm">บล็อคผู้ใช้</button>
-            }
-        </form>
-    }
-    
+
+        </div>
+
+    </div>
+
     @if (Model.HasPenName)
     {
-        @* <span class="badge bg-dark">นักเขียน</span> *@
-        <hr />
-        <h5>ผลงานของ @Model.PenName</h5>
+        <div class="card-soft mt-4">
+            <h2 class="mb-3">งานเขียนของ @Model.PenName</h2>
 
-        <div class="row">
-            @foreach (var novel in Model.Novels)
-            {
-                <div class="col-3">
-                    <a asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId">
+            <div class="d-flex gap-2 overflow-auto pb-3">
+                @foreach (var novel in Model.Novels)
+                {
+                    <a asp-controller="Novel" asp-action="NovelDetail" asp-route-id="@novel.NovelId"
+                           class="text-decoration-none flex-shrink-0">
 
-                        <img src="@novel.CoverImageUrl" class="img-fluid rounded" />
+                        <div class="ps-2" style="width:130px;">
+                            <img src="@(string.IsNullOrEmpty(@novel.CoverImageUrl) 
+                                                                                                 ? "/images/default-novel.png"
+                                                                                                 : @novel.CoverImageUrl)" class="rounded-2"
+                                 style="width:110px; height:140px; object-fit:cover;" />
+                                             
+                            <p class="text-body small mt-1 mb-0"
+                                   style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+                                @novel.Title</p>
 
-                        <p>@novel.Title</p>
-                    </a>
+                                <p class="text-body-secondary mb-0" style="font-size:11px;">
+                                    <i class="bi bi-eye"></i> @novel.TotalViews
+                                    <i class="bi bi-heart"></i> @novel.TotalLikes
+                                    @* <i class="bi bi-list-ul"></i> ตอน *@
+                                </p>
+                            </div>
+                        </a>
+                    }
                 </div>
-            }
-        </div>
-    }
-
-</div>
+            </div>
+        }
+    </div>

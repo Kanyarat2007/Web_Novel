@@ -26,13 +26,14 @@ namespace Web_Novel.ViewModels.Writer
 
         // public List<SelectListItem> Genres { get; set; } = new();
         public List<Genre> Genres { get; set; } = new List<Genre>();
-        public string Slug { get; set; } = null!;
+        public string? Slug { get; set; }
         public List<Penname> PenNames { get; set; } = new List<Penname>();
 
         public List<NovelTriggerWarning> NovelTriggerWarning { get; set; } = new List<NovelTriggerWarning>();
         public List<TriggerWarning> TriggerWarnings { get; set; } = new List<TriggerWarning>();
         public List<TriggerWarning> SelectedTriggerWarnings { get; set; } = new List<TriggerWarning>();
         public List<int> TriggerWarningIds { get; set; } = new();
+        public List<int> SelectedGenreIds { get; set; } = new();
 
 
         // public virtual ICollection<NovelTriggerWarning> NovelTriggerWarnings { get; set; }

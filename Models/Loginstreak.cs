@@ -16,6 +16,7 @@ public partial class Loginstreak
     public int LongestStreak { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+    public DateOnly? LastRewardDate { get; set; }
 
     public virtual User User { get; set; } = null!;
 }

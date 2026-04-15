@@ -18,6 +18,11 @@ namespace Web_Novel.Areas.Admin.Controllers
         // 📋 รายการ report
         public IActionResult Index(string? type, string? status)
         {
+            var role = HttpContext.Session.GetString("Role");
+
+            if (role != "Admin" && role != "Moderator")
+                return Unauthorized();
+                
             var query = _db.Reports.AsQueryable();
 
             if (!string.IsNullOrEmpty(type))

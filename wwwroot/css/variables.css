@@ -1,17 +1,22 @@
 /* ===== Light Mode (default) ===== */
 :root {
   /* Colors */
-  --color-primary:        #ffe2fa;   /* สีหลัก (purple) */
-  --color-primary-hover:  #ffd6e3;
+    --color-primary: #ff9bc0;
+  /* --color-primary:        #ffe2fa; */
+  --color-primary-hover:  #ff6fa5;
   --color-secondary:      #F3F4F6;
   --color-accent:         #F59E0B;   /* สีเหรียญ */
 
   /* Background */
-  --bg-base:        #FFFFFF;
-  --bg-surface:     #F9FAFB;         /* card, sidebar */
-  --bg-elevated:    #F3F4F6;         /* dropdown, modal */
+  /* --bg-main: #fff0f6; */
+  --bg-base:        #fff9fb;
+  --bg-surface:     #ffffff;         /* card, sidebar */
+  --bg-elevated:    #ffffff;         /* dropdown, modal */
+    --bg-pink:     #fff0f6; 
 
   /* Text */
+    /* --text-primary: #333; */
+  /* --text-secondary: #777; */
   --text-primary:   #ff5d90;
   --text-secondary: #ff8fb2;
   --text-basic: #000000;
@@ -19,7 +24,8 @@
   --text-inverse:   #FFFFFF;
 
   /* Border */
-  --border-color:   #E5E7EB;
+    --border-color: #f3c6d8;
+  /* --border-color:   #E5E7EB; */
   --border-radius:  8px;
   --border-radius-lg: 12px;
 

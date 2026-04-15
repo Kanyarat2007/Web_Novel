@@ -9,28 +9,145 @@
     @* ── Banner ── *@
     @if (!Model.IsLoggedIn)
     {
-        <div class="bg-body-secondary border rounded-3 my-3
-            d-flex flex-column align-items-center justify-content-center gap-3" style="height:300px;">
-            <h4 class="text-body m-0">อ่านนิยายออนไลน์ฟรี</h4>
-            <p class="text-body-secondary small mb-0">สมัครสมาชิกเพื่ออ่านได้ไม่จำกัด</p>
+        <div class="card-soft my-3
+            d-flex flex-column align-items-center justify-content-center gap-3" style="height:350px;">
+            <h4 class="text-body m-0">สมัครสมาชิก รับฟรี 5 เหรียญ !</h4>
             <div class="d-flex gap-2">
-                <a asp-area="" asp-controller="Account" asp-action="Register" class="btn btn-primary">สมัครสมาชิกฟรี</a>
-                <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">เข้าสู่ระบบ</a>
+                <a asp-area="" asp-controller="Account" asp-action="Register" class="btn btn-primary">สมัครสมาชิก</a>
             </div>
         </div>
+        
     }
     else
     {
-        <div class="bg-body-secondary border rounded-3 my-3
-            d-flex align-items-center justify-content-center" style="height:300px;">
-            <h2 class="m-0 text-body">ยินดีต้อนรับ</h2>
+        <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
+
+            <div class="carousel-inner rounded-4 my-3" style="height:350px;">
+
+                @for (int i = 0; i < Model.Banners.Count; i++)
+                {
+                    var item = Model.Banners[i];
+
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <a href="@item.RedirectUrl">
+                            <img src="@item.ImageUrl" class="d-block w-100" />
+                        </a>
+                    </div>
+                }
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+
+            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+
         </div>
     }
 
     @* ── กิจกรรม ── *@
-    <div class="mb-3">
-        <p class="fw-semibold text-body-secondary mb-2">กิจกรรม</p>
-    </div>
+    @if (Model.IsLoggedIn)
+    {
+        <div class="mt-5">
+            @* เหรียญ *@
+            @* <div class="card shadow-sm mb-4 border-0">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">💰 เหรียญของฉัน</h5>
+                        <h2 class="text-warning">@Model.CurrentBalance</h2>
+                    </div>
+                    <a href="/Reader/Coin/TopUp" class="btn btn-outline-primary">
+                        เติมเหรียญ
+                    </a>
+                </div>
+            </div> *@
+
+            <div class="row">
+
+                @* รางวัลรายวัน *@
+                <div class="col-md-6 mb-3">
+                    <div class="card-soft h-100">
+                        <div class="card-body text-center">
+
+                            <h5>รับรางวัลรายวัน</h5>
+                            <p class="text-muted">รับเหรียญฟรีทุกวัน</p>
+
+                            @if (Model.CanClaimDaily)
+                            {
+                                <form asp-action="ClaimDaily" method="post">
+                                    @Html.AntiForgeryToken()
+
+                                    <button class="btn btn-success btn-lg w-100" onclick="return confirm('รับเหรียญวันนี้?')">
+                                        รับฟรี 1 เหรียญ
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-succes btn-lg w-100" disabled>
+                                    รับเหรียญฟรีแล้ว
+                                </button>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+                @* ล้อคอินStreak *@
+                <div class="col-md-6 mb-3">
+                    <div class="card-soft h-100">
+                        <div class="card-body text-center">
+
+                            <h5>Login ต่อเนื่อง</h5>
+
+                            <h4 class="text-danger">
+                                Day @Model.CurrentStreak / 7
+                            </h4>
+
+                            <p class="text-muted">
+                                วันนี้ได้ +@Model.TodayReward เหรียญ
+                            </p>
+
+                            @* Progress วงกลม *@
+                            <div class="d-flex justify-content-center gap-2 mt-3">
+                                @for (int i = 1; i <= 7; i++)
+                                {
+                                    if (i <= Model.CurrentStreak)
+                                    {
+                                        <div class="rounded-circle bg-danger" style="width:20px;height:20px;"></div>
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-light border" style="width:20px;height:20px;"></div>
+                                    }
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            @* แจ้งเตือน *@
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success mt-3">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger mt-3">
+                    @TempData["Error"]
+                </div>
+            }
+        </div>
+    }
 
 
     @* ── ส่วนที่แสดงเฉพาะ login ── *@
@@ -41,7 +158,7 @@
 
             @* Header แบบเดียวกับหมวดหมู่ *@
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-body fw-semibold mb-0">
+                <h5>
                     อ่านล่าสุด
                 </h5>
 
@@ -53,14 +170,14 @@
 
             @if (!Model.RecentNovels.Any())
             {
-                <div class="text-body-secondary small">
+                <div class="card-soft text-body-secondary small">
                     ยังไม่มีประวัติการอ่าน
                 </div>
             }
             else
             {
                 {
-                    <div class="my-4">
+                    <div class="card-soft my-4">
                         <partial name="_RecentNovelRow" model="Model.RecentNovels" />
                     </div>
                 }
@@ -74,119 +191,134 @@
     {
         @if (!Model.InterestedGenres.Any())
         {
-            <h5 class="mt-4 text-body fw-bold">หมวดที่คุณสนใจ</h5>
+            <div class="card-soft my-4">
+                <h5>หมวดหมู่ที่คุณสนใจ</h5>
 
-            <div class="card bg-body-secondary border-0 p-4 my-3 text-center">
-                <h6 class="text-body">เลือกหมวดหมู่ที่คุณสนใจ</h6>
+                <div class="card bg-body-secondary border-0 p-4 my-3 text-center">
+                    <h6>เลือกหมวดหมู่ที่คุณสนใจ</h6>
 
-                <p class="text-body-secondary small mb-3">
-                    เพื่อให้เราแนะนำนิยายที่ตรงใจคุณมากขึ้น
-                </p>
+                    <p class="text-body-secondary small mb-3">
+                        เพื่อให้เราแนะนำนิยายที่ตรงใจคุณมากขึ้น
+                    </p>
 
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editGenreModal">
-                    เลือกหมวดหมู่
-                </button>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#editGenreModal">
+                        เลือกหมวดหมู่
+                    </button>
+                </div>
             </div>
         }
         else
         {
             @* ✅ header + ปุ่มอยู่บรรทัดเดียว *@
-            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-                <h5 class="text-body fw-bold mb-0">
-                    หมวดที่คุณสนใจ
-                </h5>
+            <div>
+                <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
 
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#editGenreModal">
-                    ✎ แก้ไข
-                </button>
+                    <h5>
+                        หมวดหมู่ที่คุณสนใจ
+                    </h5>
+
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#editGenreModal">
+                        <i class="bi bi-pencil-square"></i> แก้ไข
+                    </button>
                 
-                <div class="modal fade" id="editGenreModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content bg-body">
-                            <div class="modal-header border-0">
-                                <h5 class="modal-title text-body">เลือกหมวดหมู่ที่สนใจ</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
+                    <div class="modal fade" id="editGenreModal" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
 
-                            <form asp-area="Reader" asp-controller="Home" asp-action="SaveGenrePreferences" method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="modal-body">
-                                    <div class="d-flex flex-wrap gap-2">
+                                <!-- Header -->
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title">เลือกหมวดหมู่ที่สนใจ</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
 
-                                        @foreach (var genre in Model.InterestedGenres)
-                                        {
-                                            <div class="form-check form-check-inline m-0">
-                                                <input class="form-check-input" type="checkbox" name="genreIds"
-                                                       value="@genre.GenreId" id="gm_@genre.GenreId" checked />
-                                                <label class="form-check-label text-body" for="gm_@genre.GenreId">
-                                                    @genre.GenreName
-                                                </label>
-                                            </div>
-                                        }
+                                <!-- Form -->
+                                <form asp-area="Reader" asp-controller="Home" asp-action="SaveGenrePreferences" method="post">
 
-                                        @foreach (var genre in Model.AllGenres)
-                                        {
-                                            <div class="form-check form-check-inline m-0">
-                                                <input class="form-check-input" type="checkbox" name="genreIds"
-                                                       value="@genre.GenreId" id="gm_@genre.GenreId" />
-                                                <label class="form-check-label text-body" for="gm_@genre.GenreId">
-                                                    @genre.GenreName
-                                                </label>
-                                            </div>
-                                        }
+                                    @Html.AntiForgeryToken()
 
+                                    <!-- Body -->
+                                    <div class="modal-body pt-2">
+                                        <div class="row g-2">
+
+                                            @foreach (var genre in Model.AllGenres)
+                                            {
+                                                <div class="col-6 col-md-4">
+                                                    <div class="form-check genre-item">
+                                                        <input class="form-check-input d-none" type="checkbox" name="genreIds"
+                                                               value="@genre.GenreId" id="gm_@genre.GenreId"
+                                                        @(Model.InterestedGenres.Any(g => g.GenreId == genre.GenreId) ?
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "checked" : "") />
+
+                                                        <label class="form-check-label w-100 text-center" for="gm_@genre.GenreId">
+                                                            @genre.GenreName
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="modal-footer border-0">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                                            data-bs-dismiss="modal">ยกเลิก</button>
-                                    <button type="submit" class="btn btn-primary btn-sm">บันทึก</button>
-                                </div>
-                            </form>
 
+                                    <!-- Footer -->
+                                    <div class="modal-footer border-0">
+                                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3"
+                                                data-bs-dismiss="modal">
+                                            ยกเลิก
+                                        </button>
+
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            บันทึก
+                                        </button>
+                                    </div>
+
+                                </form>
+
+                            </div>
                         </div>
                     </div>
+
                 </div>
+
+                @foreach (var genre in Model.InterestedGenres)
+                {
+                    <div class="card-soft my-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-primary">@genre.GenreName</h5>
+
+                            <a asp-area="Reader" asp-controller="Novel" asp-action="ByGenre" asp-route-genreId="@genre.GenreId"
+                                   class="btn btn-outline-secondary btn-sm">
+                                ดูทั้งหมด
+                            </a>
+                        </div>
+
+                        @if (genre.Novels != null && genre.Novels.Any())
+                        {
+                            <partial name="_NovelRow" model="genre.Novels" />
+                        }
+                        else
+                        {
+                            <div class="bg-body-secondary rounded-3 p-3 text-center">
+                                <p class="text-body-secondary small mb-2">
+                                    ยังไม่มีนิยายในหมวดหมู่นี้
+                                </p>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
-
-            @foreach (var genre in Model.InterestedGenres)
-            {
-                <div class="my-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-body fw-semibold mb-0">@genre.GenreName</h5>
-
-                        <a asp-area="Reader" asp-controller="Novel" asp-action="ByGenre" asp-route-genreId="@genre.GenreId"
-                               class="btn btn-outline-secondary btn-sm">
-                            ดูทั้งหมด
-                        </a>
-                    </div>
-
-                    @if (genre.Novels != null && genre.Novels.Any())
-                    {
-                        <partial name="_NovelRow" model="genre.Novels" />
-                    }
-                    else
-                    {
-                        <div class="bg-body-secondary d-flex gap-3 overflow-auto pb-2 text-center" style="width:100px;">
-                            <p class="text-body-secondary small mb-0">
-                                ยังไม่มีนิยายในหมวดนี้
-                            </p>
-                        </div>
-                    }
-                </div>
-            }
         }
     }
 
     @* ── หมวดหมู่ทั้งหมด ── *@
-    <h5 class="mt-5 text-body fw-bold">หมวดทั้งหมด</h5>
+    <h5>หมวดหมู่ทั้งหมด</h5>
     @foreach (var genre in Model.AllGenres
-                                                                .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
+                                                                                                                                            .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
     {
-        <div class="my-4">
+        <div class="card-soft my-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-body fw-semibold mb-0">@genre.GenreName</h5>
+                <h5 class="text-primary">@genre.GenreName</h5>
 
                 <a asp-area="Reader" asp-controller="Novel" asp-action="ByGenre" asp-route-genreId="@genre.GenreId"
                        class="btn btn-outline-secondary btn-sm">
@@ -202,10 +334,9 @@
             {
                 <div class="bg-body-secondary rounded-3 p-3 text-center">
                     <p class="text-body-secondary small mb-2">
-                        ยังไม่มีนิยายในหมวดนี้
+                        ยังไม่มีนิยายในหมวดหมู่นี้
                     </p>
                 </div>
             }
         </div>
     }
-

@@ -2,18 +2,22 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_Novel.Models;
+using Web_Novel.Services;
 using Web_Novel.ViewModels;
 using Web_Novel.Helpers;
+
 
 namespace Web_Novel.Controllers;
 
 public class AccountController : Controller
 {
     private readonly WebnoveldbContext _db;
+    private readonly RewardService _rewardService;
 
-    public AccountController(WebnoveldbContext db)
+    public AccountController(WebnoveldbContext db, RewardService rewardService)
     {
         _db = db;
+        _rewardService = rewardService;
     }
 
     // =========================
@@ -28,11 +32,13 @@ public class AccountController : Controller
     [HttpPost]
     public IActionResult Login(LoginViewModel data)
     {
+
         if (!ModelState.IsValid)
             return View(data);
 
         var user = _db.Users
-            .Include(u => u.Roles)
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
             .FirstOrDefault(u => u.Username == data.Username);
 
         if (user == null)
@@ -56,19 +62,20 @@ public class AccountController : Controller
         // =========================
         // update login time
         // =========================
+        Console.WriteLine("👉 LOGIN START: " + user.UserId);
         user.LastLoginAt = DateTime.UtcNow;
+
+        Console.WriteLine("👉 CALL LOGIN STREAK SERVICE");
+        _rewardService.HandleLoginStreak(user.UserId);
+        Console.WriteLine("👉 AFTER LOGIN STREAK SERVICE");
+
         _db.SaveChanges();
 
-        // =========================
-        // ROLE PRIORITY
-        // =========================
         var roleName =
-            user.Roles.Any(r => r.RoleName == "Admin") ? "Admin" :
-            user.Roles.Any(r => r.RoleName == "Moderator") ? "Moderator" :
-            user.Roles.Any(r => r.RoleName == "Writer") ? "Writer" :
+            user.UserRoles.Any(r => r.Role.RoleName == "Admin") ? "Admin" :
+            user.UserRoles.Any(r => r.Role.RoleName == "Moderator") ? "Moderator" :
+            user.UserRoles.Any(r => r.Role.RoleName == "Writer") ? "Writer" :
             "Reader";
-
-        var role = HttpContext.Session.GetString("Role");
 
         // =========================
         // SESSION
@@ -76,7 +83,6 @@ public class AccountController : Controller
         HttpContext.Session.SetString("UserId", user.UserId.ToString());
         HttpContext.Session.SetString("Username", user.Username);
         HttpContext.Session.SetString("DisplayName", user.DisplayName ?? user.Username);
-        HttpContext.Session.SetString("CoinBalance", user.CoinBalance.ToString());
         HttpContext.Session.SetString("AvatarUrl", user.ProfileImageUrl ?? "");
         HttpContext.Session.SetString("Role", roleName);
 
@@ -85,7 +91,7 @@ public class AccountController : Controller
         // =========================
         return roleName switch
         {
-            "Admin" => RedirectToAction("Index", "Report", new { area = "Admin" }),
+            "Admin" => RedirectToAction("Index", "User", new { area = "Admin" }),
 
             "Moderator" => RedirectToAction("Index", "Report", new { area = "Admin" }),
 
@@ -155,22 +161,27 @@ public class AccountController : Controller
             Email = data.Email,
             BirthDate = birth,
             PasswordHash = PasswordHelper.HashPassword(data.Password),
-
             CoinBalance = 0,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            UserRoles = new List<UserRole>()
         };
 
-        newUser.Roles.Add(readerRole);
+        newUser.UserRoles.Add(new UserRole
+        {
+            RoleId = readerRole.RoleId
+        });
+
 
         _db.Users.Add(newUser);
         _db.SaveChanges();
+
+        _rewardService.GiveRegisterReward(newUser.UserId);
 
         // login ทันที
         HttpContext.Session.SetString("UserId", newUser.UserId.ToString());
         HttpContext.Session.SetString("Username", newUser.Username);
         HttpContext.Session.SetString("DisplayName", newUser.DisplayName);
-        HttpContext.Session.SetString("CoinBalance", "0");
         HttpContext.Session.SetString("AvatarUrl", "");
         HttpContext.Session.SetString("Role", "Reader");
 

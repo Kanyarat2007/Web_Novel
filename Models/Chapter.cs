@@ -39,4 +39,5 @@ public partial class Chapter
     public virtual ICollection<Novelpurchase> Novelpurchases { get; set; } = new List<Novelpurchase>();
 
     public virtual ICollection<Readinghistory> Readinghistories { get; set; } = new List<Readinghistory>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

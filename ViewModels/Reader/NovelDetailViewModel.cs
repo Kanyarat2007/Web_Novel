@@ -36,7 +36,8 @@ namespace Web_Novel.ViewModels.Reader
 
         public string Sort { get; set; } = "new";
         public int CurrentUserId { get; set; }
-        public int? ChapterId { get; set; }  // ✅ ต้องเป็น nullable
+        public int? ChapterId { get; set; }
+        public List<TriggerWarningDisplay> NovelWarnings { get; set; } = new();
     }
 
     public class ChapterItemViewModel

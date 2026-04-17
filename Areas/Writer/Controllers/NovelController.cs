@@ -27,7 +27,11 @@ public class NovelController : Controller
         {
             PenNames = _db.Pennames.Where(p => p.UserId == userId).ToList(),
             Genres = _db.Genres.ToList(),
-            TriggerWarnings = _db.TriggerWarnings.OrderBy(t => t.Name).ToList()
+            TriggerWarnings = _db.TriggerWarnings
+                .OrderBy(t => t.Name)
+                .ToList(),
+
+            SelectedWarningIds = new List<int>() // ✅ ว่าง
         };
 
         return View("Create", model);
@@ -192,7 +196,7 @@ public class NovelController : Controller
             ExistingCoverImageUrl = novel.CoverImageUrl,
             Status = novel.Status,
 
-            TriggerWarningIds = novel.NovelTriggerWarnings
+            SelectedWarningIds = novel.NovelTriggerWarnings
                 .Select(x => x.WarningId)
                 .ToList(),
 
@@ -433,9 +437,9 @@ public class NovelController : Controller
         _db.NovelTriggerWarnings.RemoveRange(old);
 
 
-        if (model.TriggerWarningIds != null)
+        if (model.SelectedWarningIds != null && model.SelectedWarningIds.Any())
         {
-            foreach (var id in model.TriggerWarningIds)
+            foreach (var id in model.SelectedWarningIds)
             {
                 _db.NovelTriggerWarnings.Add(new NovelTriggerWarning
                 {
@@ -444,7 +448,7 @@ public class NovelController : Controller
                 });
             }
         }
-
+    
         _db.SaveChanges();
 
         return RedirectToAction("Dashboard", "Writer", new { area = "Writer" });

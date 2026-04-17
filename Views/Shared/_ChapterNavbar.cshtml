@@ -8,8 +8,7 @@
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <a asp-action="NovelDetail" asp-route-id="@Model.NovelId"
                        class="btn btn-sm btn-outline-primary rounded-pill">
-                    <i class="bi bi-book"></i>
-                    นิยาย
+                    <i class="bi bi-house-door"></i>
                 </a>
 
                 <!-- สารบัญ -->
@@ -116,7 +115,7 @@
     <div class="container" style="max-width:950px;">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-            <!-- ซ้าย คอมเม้น -->
+            @* ซ้าย คอมเม้น *@
             <div>
                 <a href="#commentSection" class="btn btn-sm btn-outline-primary rounded-pill">
                     <i class="bi bi-chat-dots"></i>
@@ -124,7 +123,7 @@
                 </a>
             </div>
 
-            <!-- ขวา ปุ่ม -->
+            @* ขวา ปุ่ม  *@
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 @if (Model.PrevChapterNumber != null)
                 {

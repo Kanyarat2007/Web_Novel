@@ -87,8 +87,6 @@ public class NovelController : Controller
             })
             .ToList();
 
-
-
         // Map ไปยัง ViewModel
         var vm = new NovelDetailViewModel
         {
@@ -104,7 +102,6 @@ public class NovelController : Controller
             TotalViews = novel.TotalViews,
             TotalLikes = novel.TotalLikes,
             TotalBookshelf = novel.TotalBookshelf,
-            NovelTriggerWarnings = novel.NovelTriggerWarnings,
             Comments = comments,
             CurrentUserId = userId,
             GenreNames = novel.NovelGenres.Select(x => x.Genre.Name).ToList(),
@@ -128,7 +125,15 @@ public class NovelController : Controller
                             CoinPrice = c.CoinPrice,
                             ViewCount = c.ViewCount,
                             IsPurchased = purchasedChapterIds.Contains(c.ChapterId)
-                        }).ToList()
+                        }).ToList(),
+
+            NovelWarnings = novel.NovelTriggerWarnings
+                            .Select(w => new TriggerWarningDisplay
+                            {
+                                Name = w.TriggerWarning.Name,
+                                Description = w.TriggerWarning.Description
+                            })
+                            .ToList(),
         };
 
         // เพิ่มยอดวิว
@@ -148,26 +153,56 @@ public class NovelController : Controller
     public IActionResult NovelChapter(int novelId, int chapterNumber, string sort = "new")
     {
         var chapter = _db.Chapters
-    .FirstOrDefault(c =>
+             .Include(c => c.ChapterTriggerWarnings)
+                .ThenInclude(ctw => ctw.Warning)
+            // .Include(c => c.Novel)
+            //     .ThenInclude(n => n.NovelTriggerWarnings)
+            //         .ThenInclude(ntw => ntw.TriggerWarning)
+            .FirstOrDefault(c =>
 
-        c.NovelId == novelId &&
-        c.ChapterNumber == chapterNumber &&
-        c.PublishStatus.ToLower() == "published");
+                c.NovelId == novelId &&
+                c.ChapterNumber == chapterNumber &&
+                c.PublishStatus.ToLower() == "published");
 
         if (novelId == null || chapterNumber == null)
             return BadRequest();
 
+        // 2. รวม Warning ของ "ตอน"
+        var chapterWarnings = chapter.ChapterTriggerWarnings
+            .Select(w => new TriggerWarningDisplay
+            {
+                Name = w.Warning.Name,
+                Description = w.Warning.Description
+            });
+
+        // 3. รวม Warning ของ "เรื่อง"
+        // var novelWarnings = chapter.Novel.NovelTriggerWarnings
+        //     .Select(w => new TriggerWarningDisplay
+        //     {
+        //         Name = w.TriggerWarning.Name,
+        //         Description = w.TriggerWarning.Description
+        //     });
+
+        // 4. merge + กันซ้ำ (ใช้ Name เป็น key)
+        var allWarnings = chapter.ChapterTriggerWarnings
+            .Select(w => new TriggerWarningDisplay
+            {
+                Name = w.Warning.Name,
+                Description = w.Warning.Description
+            })
+            .ToList();
+
         var chapters = _db.Chapters
-    .Where(c => c.NovelId == novelId
-             && !c.IsDeleted
-             && c.PublishStatus == "published") // 👈 ตรง ๆ เลย
-    .OrderBy(c => c.ChapterNumber)
-    .Select(c => new ChapterItemViewModel
-    {
-        ChapterNumber = c.ChapterNumber,
-        Title = c.Title
-    })
-    .ToList();
+            .Where(c => c.NovelId == novelId
+                    && !c.IsDeleted
+                    && c.PublishStatus == "published") // 👈 ตรง ๆ เลย
+            .OrderBy(c => c.ChapterNumber)
+            .Select(c => new ChapterItemViewModel
+            {
+                ChapterNumber = c.ChapterNumber,
+                Title = c.Title
+            })
+            .ToList();
 
         var novel = (from n in _db.Novels
                      where n.NovelId == novelId
@@ -212,15 +247,17 @@ public class NovelController : Controller
 
         // ดึง prev/next
         var prevNumber = _db.Chapters
-    .Where(c => c.NovelId == novelId &&
-                c.PublishStatus == "published" &&
-                c.ChapterNumber < chapterNumber)
-    .OrderByDescending(c => c.ChapterNumber)
-    .Select(c => c.ChapterNumber)
-    .FirstOrDefault();
+            .Where(c => c.NovelId == novelId &&
+                        !c.IsDeleted &&
+                        c.PublishStatus == "published" &&
+                        c.ChapterNumber < chapterNumber)
+            .OrderByDescending(c => c.ChapterNumber)
+            .Select(c => c.ChapterNumber)
+            .FirstOrDefault();
 
         var nextNumber = _db.Chapters
             .Where(c => c.NovelId == novelId &&
+                        !c.IsDeleted &&
                         c.PublishStatus == "published" &&
                         c.ChapterNumber > chapterNumber)
             .OrderBy(c => c.ChapterNumber)
@@ -321,7 +358,9 @@ public class NovelController : Controller
             Comments = comments,
             Sort = sort,
             CurrentUserId = userId,
-            IsBookmarked = isBookmarked
+            IsBookmarked = isBookmarked,
+
+            ChapterWarnings = allWarnings
         };
 
         chapter.IsDeleted = true;

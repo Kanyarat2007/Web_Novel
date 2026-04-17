@@ -53,7 +53,7 @@
     </table>
 </div>
 
-@* modal เพิ่ม แก้ไข *@   
+@* modal เพิ่ม แก้ไข *@
 <div class="modal fade" id="bannerModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -93,6 +93,16 @@
                 <div class="mb-2">
                     <label>ลำดับที่แสดง</label>
                     <input type="number" id="DisplayOrder" class="form-control" />
+                </div>
+
+                <div class="mb-2">
+                    <label>วันเริ่มแสดง</label>
+                    <input type="datetime-local" id="StartDate" class="form-control" />
+                </div>
+
+                <div class="mb-2">
+                    <label>วันสิ้นสุด</label>
+                    <input type="datetime-local" id="EndDate" class="form-control" />
                 </div>
 
                 <div class="form-check mb-2">
@@ -161,7 +171,8 @@
                 document.getElementById('Title').value = data.title;
                 document.getElementById('RedirectUrl').value = data.redirectUrl;
                 document.getElementById('DisplayOrder').value = data.displayOrder;
-
+                document.getElementById('StartDate').value = formatDateTimeLocal(data.startDate);
+                document.getElementById('EndDate').value = formatDateTimeLocal(data.endDate);
                 document.getElementById('IsActive').checked = data.isActive;
 
                 if (data.imageUrl) {
@@ -198,6 +209,8 @@
         formData.append("Title", document.getElementById("Title").value);
         formData.append("RedirectUrl", document.getElementById("RedirectUrl").value);
         formData.append("DisplayOrder", document.getElementById("DisplayOrder").value);
+        formData.append("StartDate", document.getElementById("StartDate").value);
+        formData.append("EndDate", document.getElementById("EndDate").value);
         formData.append("IsActive", document.getElementById("IsActive").checked);
 
         const file = document.getElementById("ImageFile").files[0];
@@ -239,5 +252,19 @@
                     location.reload();
                 }
             });
+    }
+
+    function formatDateTimeLocal(dateString) {
+        if (!dateString) return "";
+
+        const date = new Date(dateString);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 </script>

@@ -14,9 +14,9 @@
         @* ปก *@
         <div class="col-auto">
             <img src="@(string.IsNullOrEmpty(Model.CoverImageUrl) 
-                                         ? "/images/default-novel.png"
-                                         : Model.CoverImageUrl)" class="rounded-4 object-fit-cover" style="width:250px; height:350px;"
-                 alt="@Model.Title" />
+                                                                                                                                                             ? "/images/default-novel.png"
+                                                                                                                                                             : Model.CoverImageUrl)"
+                 class="rounded-4 object-fit-cover" style="width:250px; height:350px;" alt="@Model.Title" />
         </div>
 
         @* รายละเอียด + ปุ่ม (อยู่ใน col เดียวกัน) *@
@@ -100,7 +100,7 @@
                     </form>
 
                     @* รายงานนิยาย *@
-                    <div class="dropdown">
+                    @* <div class="dropdown">
                         <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
@@ -113,7 +113,7 @@
                                 </button>
                             </li>
                         </ul>
-                    </div>
+                    </div> *@
 
                     @* Modal รายงานนิยาย *@
                     <div class="modal fade" id="reportNovelModal">
@@ -162,53 +162,31 @@
         </div>
     </div>
 
-    @* trigger warning *@
-    <h5 class="mt-4 mb-3">คำเตือนเนื้อหา</h5>
-    <div class="card-soft">
+    @* คำเตือน *@
+    <h5 class="mt-4 mb-3">คำเตือนเนื้อเรื่อง</h5>
 
-        @if (Model.NovelTriggerWarnings.Any())
+    <div class="alert alert-warning rounded-4">
+
+        @if (Model.NovelWarnings.Any())
         {
-            @* ตัวแรก *@
-            <div class="warning-item">
-                <div class="fw-semibold">
-                    @Model.NovelTriggerWarnings.First().TriggerWarning.Name
-                </div>
-
-                <div class="small text-body-secondary mt-1">
-                    @Model.NovelTriggerWarnings.First().TriggerWarning.Description
-                </div>
-            </div>
-
-            @* ตัวที่เหลือ (ซ่อน) *@
-            @if (Model.NovelTriggerWarnings.Count > 1)
-            {
-                <div class="collapse mt-2" id="moreWarnings">
-
-                    @foreach (var item in Model.NovelTriggerWarnings.Skip(1))
-                    {
-                        <div class="warning-item">
-                            <div class="fw-semibold">
-                                @item.TriggerWarning.Name
-                            </div>
-
-                            <div class="small text-body-secondary mt-1">
-                                @item.TriggerWarning.Description
-                            </div>
+            <ul class="mb-0 ps-3">
+                @foreach (var w in Model.NovelWarnings)
+                {
+                    <li class="mb-2">
+                        <div class="fw-semibold">
+                            @w.Name
                         </div>
-                    }
 
-                </div>
-
-                @* ปุ่ม *@
-                <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-bs-toggle="collapse"
-                        data-bs-target="#moreWarnings">
-                    แสดงเพิ่มเติม
-                </button>
-            }
+                        <div class="small text-body-secondary">
+                            @w.Description
+                        </div>
+                    </li>
+                }
+            </ul>
         }
         else
         {
-            <p class="text-body-secondary small mb-0">
+            <p class="text-body-primary small mb-0">
                 ไม่มีคำเตือน
             </p>
         }
@@ -222,7 +200,7 @@
         @if (!string.IsNullOrWhiteSpace(Model.AuthorNote))
         {
             <p class="text-body small mb-0" style="white-space: pre-line;">
-                @Model.AuthorNote
+                @Html.Raw(@Model.AuthorNote)
             </p>
         }
         else

@@ -17,5 +17,8 @@ namespace Web_Novel.ViewModels.Writer
 
         // optional (เผื่อใช้)
         public string? PromptPay { get; set; }
+
+        public List<WriterPayoutViewModel> Payouts { get; set; }
+        public decimal Balance { get; set; }
     }
 }

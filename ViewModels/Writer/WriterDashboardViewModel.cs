@@ -17,5 +17,8 @@ namespace Web_Novel.ViewModels.Writer
         public int TotalViews { get; set; }
         public int TotalLikes { get; set; }
         public string ActiveTab { get; set; }
+
+        public List<WriterPayoutViewModel> Payouts { get; set; }
+        public decimal Balance { get; set; }
     }
 }

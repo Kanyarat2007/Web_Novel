@@ -20,22 +20,24 @@
 //         if (!int.TryParse(userIdStr, out int userId))
 //             return RedirectToAction("Login", "Account", new { area = "" });
 
+//         var vm = new StatsViewModel(); // 👈 ต้องมีบรรทัดนี้
+
 //         vm.Stats = _db.Writerstats
-//     .Where(x => x.UserId == userId)
-//     .Select(x => new WriterStatsViewModel
-//     {
-//         UserId = x.UserId,
-//         ContentType = x.ContentType,
-//         TotalViews = x.TotalViews,
-//         TotalLikes = x.TotalLikes,
-//         TotalBookshelf = x.TotalBookshelf,
-//         TotalCoinEarned = x.TotalCoinEarned,
-//         TotalChaptersSold = x.TotalChaptersSold,
-//         UpdatedAt = x.UpdatedAt,
-//         NovelId = x.NovelId,
-//         NovelTitle = x.Novel.Title
-//     })
-//     .ToList();
+//             .Where(x => x.UserId == userId)
+//             .Select(x => new WriterStatsViewModel
+//             {
+//                 UserId = x.UserId,
+//                 ContentType = x.ContentType,
+//                 TotalViews = x.TotalViews,
+//                 TotalLikes = x.TotalLikes,
+//                 TotalBookshelf = x.TotalBookshelf,
+//                 TotalCoinEarned = x.TotalCoinEarned,
+//                 TotalChaptersSold = x.TotalChaptersSold,
+//                 UpdatedAt = x.UpdatedAt,
+//                 NovelId = x.NovelId,
+//                 NovelTitle = x.Novel.Title
+//             })
+//             .ToList();
 
 //         return View("Dashboard", vm);
 //     }

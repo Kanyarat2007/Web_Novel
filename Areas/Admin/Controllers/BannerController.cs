@@ -112,6 +112,8 @@ namespace Web_Novel.Areas.Admin.Controllers
                 banner.RedirectUrl = model.RedirectUrl;
                 banner.DisplayOrder = model.DisplayOrder;
                 banner.IsActive = model.IsActive;
+                banner.StartDate = model.StartDate;
+                banner.EndDate = model.EndDate;
                 banner.UpdatedAt = DateTime.Now;
 
                 if (imagePath != null)

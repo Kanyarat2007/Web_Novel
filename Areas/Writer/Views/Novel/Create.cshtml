@@ -85,20 +85,34 @@
                 <span asp-validation-for="GenreId" class="text-danger"></span>
                 </div>
 
-
                 @* คำเตือน *@
-                <div class="mb-3">
-                    <label for="genreId" class="form-label">คำเตือนเนื้อหา</label> 
-                    <br>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#editTWModal">
-                        เลือกคำเตือนเนื้อหา
-                    </button>
+                <label class="form-label fw-semibold">คำเตือนเนื้อหา</label>
 
-                    @* คำเตือนที่เลือก *@
-                    <div class="mt-2" id="selectedWarningsContainer"></div>
-                    </div>
+                <!-- checkbox -->
+                <div class="row">
+                    @foreach (var tw in Model.TriggerWarnings)
+                    {
+                        <div class="col-md-4">
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    name="SelectedWarningIds"
+                                    value="@tw.WarningId"
+                                    id="tw_@tw.WarningId"
+                                    @(Model.SelectedWarningIds.Contains(tw.WarningId) ? "checked" : "") />
+
+                                <label class="form-check-label w-100" for="tw_@tw.WarningId">
+                                    <div class="fw-semibold">@tw.Name</div>
+                                    <div class="small text-muted">@tw.Description</div>
+                                </label>
+
+                            </div>
+                        </div>
+                    }
                 </div>
+
+            </div>
 
             @* รูป ชื่อเรื่อง เรื่องย่อ *@
             <div class="card-soft mb-3">
@@ -131,7 +145,8 @@
                         @* เรื่องย่อ *@
                         <div class="mb-3">
                             <label for="synopsis" class="form-label">เรื่องย่อ</label>
-                            <textarea asp-for="Synopsis" class="form-control" rows="5"></textarea>
+                            <textarea asp-for="Synopsis" class="form-control" rows="5">@Model.Synopsis</textarea>
+                            
                         </div>
                     </div>
                 </div>
@@ -140,7 +155,7 @@
             @* ข้อมูลเกี่ยวกับนิยาย *@
             <div class="card-soft mb-3">
                 <label for="authorNote" class="form-label">ข้อมูลเกี่ยวกับนิยาย</label>
-                <textarea asp-for="AuthorNote" class="form-control" rows="10"></textarea>
+                <textarea id="summernote" asp-for="AuthorNote" class="form-control" rows="10">@Model.AuthorNote</textarea>
             </div>
 
             @* ปุ่มสร้างนิยาย แก้ไข *@
@@ -238,6 +253,9 @@
             </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
 <script>
     function previewFile(event) {
         const reader = new FileReader();
@@ -253,18 +271,31 @@
 </script>
 
 <script>
-window.addEventListener('load', () => {
+$(document).ready(function () {
+
+    // ===== Summernote =====
+    $('#summernote').summernote({
+        height: 500,
+        placeholder: 'เริ่มเขียนที่นี่...',
+        callbacks: {
+            onChange: function(contents) {
+                $('textarea[name="AuthorNote"]').val(contents);
+            }
+        }
+    });
+
+    // ===== Warnings =====
     const selectedContainer = document.getElementById('selectedWarningsContainer');
     const checkboxes = document.querySelectorAll('.trigger-checkbox');
 
     function renderWarnings() {
+        if (!selectedContainer) return;
+
         selectedContainer.innerHTML = '';
 
         checkboxes.forEach(cb => {
             if (cb.checked) {
                 const label = document.querySelector(`label[for="${cb.id}"]`);
-
-                // 🔥 สมมติ format: "ชื่อ|คำอธิบาย"
                 const text = label.innerText.trim();
                 const parts = text.split('|');
 
@@ -288,15 +319,20 @@ window.addEventListener('load', () => {
         }
     }
 
-    // โหลดตอนเปิดหน้า
     renderWarnings();
 
-    // กดบันทึก
-    document.getElementById('saveTWBtn').addEventListener('click', () => {
-        renderWarnings();
+    const saveBtn = document.getElementById('saveTWBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            renderWarnings();
 
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editTWModal'));
-        modal.hide();
-    });
+            const modalEl = document.getElementById('editTWModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            }
+        });
+    }
+
 });
 </script>

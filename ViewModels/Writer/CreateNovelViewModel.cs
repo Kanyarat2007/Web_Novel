@@ -19,6 +19,8 @@ namespace Web_Novel.ViewModels.Writer
         public int PenNameId { get; set; }
         public NovelStatus Status { get; set; }
         public string SeriesType { get; set; } = null!;
+        // public string Content { get; set; }
+        
         public int TotalViews { get; set; }
 
         // public string PublishStatus { get; set; } = null!;
@@ -34,7 +36,7 @@ namespace Web_Novel.ViewModels.Writer
         public List<TriggerWarning> SelectedTriggerWarnings { get; set; } = new List<TriggerWarning>();
         public List<int> TriggerWarningIds { get; set; } = new();
         public List<int> SelectedGenreIds { get; set; } = new();
-
+        public List<int> SelectedWarningIds { get; set; }
 
         // public virtual ICollection<NovelTriggerWarning> NovelTriggerWarnings { get; set; }
     }

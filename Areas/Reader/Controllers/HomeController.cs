@@ -59,8 +59,12 @@ namespace Web_Novel.Areas.Reader.Controllers
                 {
                     BannerId = b.BannerId,
                     Title = b.Title,
-                    ImageUrl = b.ImageUrl,
-                    RedirectUrl = b.RedirectUrl,
+                    ImageUrl = string.IsNullOrEmpty(b.ImageUrl)
+                        ? "/images/default-banner.jpg"
+                        : b.ImageUrl,
+                    RedirectUrl = string.IsNullOrEmpty(b.RedirectUrl)
+                        ? "#"
+                        : b.RedirectUrl,
                     DisplayOrder = b.DisplayOrder
                 })
                 .ToList();

@@ -10,6 +10,23 @@
     
     <div class="mt-5" style="height:50px;"></div>
 
+    @* คำเตือน *@
+    @if (Model.ChapterWarnings.Any())
+    {
+        <div class="alert alert-warning rounded-4">
+            <strong>คำเตือนเนื้อหา</strong>
+
+            <ul>
+                @foreach (var w in Model.ChapterWarnings)
+                {
+                    <li>
+                        <b>@w.Name</b> - @w.Description
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
     @if (Model.CanRead)
     {
         @* อ่านได้เลย *@

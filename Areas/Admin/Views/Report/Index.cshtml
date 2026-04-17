@@ -30,15 +30,15 @@
                     <td>@r.ReporterName</td>
                     <td>@TimeHelper.ToThaiString(r.CreatedAt)</td>
                     <td>
-                        <span class="badge bg-primary">@r.Status</span>
+                        <span class="badge bg-success">@r.Status</span>
                     </td>
 
                     <td class="d-flex gap-1">
 
-                        <form asp-action="Approve" method="post">
+                        @* <form asp-action="Approve" method="post">
                             <input type="hidden" name="reportId" value="@r.ReportId" />
                             <button class="btn btn-success btn-sm">อนุมัติ</button>
-                        </form>
+                        </form> *@
 
                         <form asp-action="Reject" method="post">
                             <input type="hidden" name="reportId" value="@r.ReportId" />
@@ -49,7 +49,7 @@
                         {
                             <form asp-action="DeleteComment" method="post">
                                 <input type="hidden" name="reportId" value="@r.ReportId" />
-                                <button class="btn btn-outline-danger btn-sm">ลบคอมเมนต์</button>
+                                <button class="btn btn-danger btn-sm">ลบคอมเมนต์</button>
                             </form>
 
                             <form asp-action="MarkSpoiler" method="post">

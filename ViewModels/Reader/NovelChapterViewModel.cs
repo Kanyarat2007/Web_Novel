@@ -25,5 +25,12 @@ namespace Web_Novel.ViewModels.Reader
         public List<CommentViewModel> Comments { get; set; } = new();
         public string Sort { get; set; } = "new";
         public int CurrentUserId { get; set; }
+        public List<TriggerWarningDisplay> ChapterWarnings { get; set; } = new();
+    }
+
+    public class TriggerWarningDisplay
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 }

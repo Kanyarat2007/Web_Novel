@@ -10,15 +10,18 @@ namespace Web_Novel.ViewModels.Writer
         public int UserId { get; set; }
 
         // รายได้รวมทั้งหมด
-        public int TotalEarning { get; set; }
+        public decimal TotalEarning { get; set; }
 
         // รายได้เดือนนี้
-        public int MonthlyEarning { get; set; }
+        public decimal MonthlyEarning { get; set; }
 
         // รายได้วันนี้
-        public int TodayEarning { get; set; }
+        public decimal TodayEarning { get; set; }
 
         // จำนวน transaction
-        public int TotalTransactions { get; set; }
+        public decimal TotalTransactions { get; set; }
+
+        public List<WriterPayoutViewModel> Payouts { get; set; }
+        public decimal Balance { get; set; }
     }
 }

@@ -1,10 +1,176 @@
-@* views/Shared/_Payments.cshtml *@
-
-@* @model List<Web_Novel.ViewModels.WriterPaymentViewModel> *@
-
 @model WriterDashboardViewModel
 
-<div class="d-flex justify-content-between mb-3">
+@* รายได้ของนักเขียน *@
+<h4>รายได้</h4>
+
+@if (Model.EarningSummary != null)
+{
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <small>รายได้รวม</small>
+                <h5>@Model.EarningSummary.TotalEarning.ToString("N2")</h5>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3">
+                <small>รายได้เดือนนี้</small>
+                <h5>@Model.EarningSummary.MonthlyEarning.ToString("N2")</h5>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3">
+                <small>รายได้วันนี้</small>
+                <h5>@Model.EarningSummary.TodayEarning.ToString("N2")</h5>
+            </div>
+        </div>
+    </div>
+}
+
+@* ตารางแสดงรายได้ *@
+@if (Model.Earnings != null && Model.Earnings.Any())
+{
+    <div class="card-soft">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>งานเขียน</th>
+                    <th>จำนวนเงิน</th>
+                    <th>วันที่</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var e in Model.Earnings)
+                {
+                    <tr>
+                        <td>
+                            @e.NovelTitle
+                        </td>
+                        <td>@e.Amount.ToString("N2")</td>
+                        <td>@e.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="card-soft">
+        <p class="text-muted">ยังไม่มีรายได้</p>
+    </div>
+}
+
+<hr class="my-4" />
+    
+@* ยอดคงเหลือ *@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>ยอดคงเหลือ @Model.Balance.ToString("N2") บาท</h4>
+
+    <div>
+        <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+            ขอถอนเงิน
+        </button>
+    </div>
+</div>
+
+@* modal ยอดคงเหลือ *@
+<div class="modal fade" id="withdrawModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="RequestPayout" asp-controller="Payment" asp-area="Writer" method="post">
+               
+                <div class="modal-header">
+                    <h5 class="modal-title">ขอถอนเงิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>จำนวนเงิน</label>
+                        <input type="number" step="0.01" name="amount" class="form-control" required />
+                    </div>
+
+                    <small class="text-muted">
+                        ยอดคงเหลือ: @Model.Balance.ToString("N2") บาท
+                    </small>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">ยืนยัน</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ประวัติการถอนเงิน *@
+<div class="card-soft p-3">
+    <h5 class="mb-3">ประวัติการถอนเงิน</h5>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>วันที่ทำการถอนเงิน</th>
+                <th>จำนวนเงิน</th>
+                <th>สถานะ</th>
+                <th>วันที่จ่าย</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Payouts != null && Model.Payouts.Any())
+            {
+                foreach (var p in Model.Payouts)
+                {
+                    <tr>
+                        <td>@p.RequestedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@p.Amount.ToString("N2")</td>
+                        <td>
+                            @if (p.Status == "Pending")
+                            {
+                                <span class="badge bg-warning">รอตรวจสอบ</span>
+                            }
+                            else if (p.Status == "Approved")
+                            {
+                                <span class="badge bg-info">อนุมัติแล้ว</span>
+                            }
+                            else if (p.Status == "Paid")
+                            {
+                                <span class="badge bg-success">จ่ายแล้ว</span>
+                            }
+                            else if (p.Status == "Rejected")
+                            {
+                                <span class="badge bg-danger">ไม่ผ่าน</span>
+                            }
+                        </td>
+                        <td>
+                            @(p.PaidAt != null
+                                ? p.PaidAt.Value.ToString("dd/MM/yyyy")
+                                : "-")
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        ยังไม่มีรายการถอนเงิน
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<hr class="my-4" />
+    
+@* บัญชีธนาคาร *@
+<div class="d-flex justify-content-between">
     <h4>บัญชีธนาคาร</h4>
 
     @if (Model.Payments == null || !Model.Payments.Any())
@@ -24,6 +190,8 @@
 else
 {
     <div class="card-soft">
+
+        @* บัญชีธนาคาร *@
         @foreach (var p in Model.Payments)
         {
             <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -60,73 +228,10 @@ else
             </div>
         }
     </div>
-
-    <hr class="my-4" />
-
-    <h2 class="mb-4">รายได้ของนักเขียน</h2>
-
-    @if (Model.EarningSummary != null)
-    {
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <div class="card p-3">
-                    <small>รายได้รวม</small>
-                    <h5>@Model.EarningSummary.TotalEarning</h5>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card p-3">
-                    <small>รายได้เดือนนี้</small>
-                    <h5>@Model.EarningSummary.MonthlyEarning</h5>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card p-3">
-                    <small>รายได้วันนี้</small>
-                    <h5>@Model.EarningSummary.TodayEarning</h5>
-                </div>
-            </div>
-        </div>
-    }
-
-    @if (Model.Earnings != null && Model.Earnings.Any())
-    {
-        <div class="card-soft">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>ชื่อนิยาย</th>
-                        <th>จำนวนเงิน</th>
-                        <th>วันที่</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var e in Model.Earnings)
-                    {
-                        <tr>
-                            <td>
-                                @e.NovelTitle
-                            </td>
-                            <td>@e.Amount</td>
-                            <td>@e.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <div class="card-soft">
-            <p class="text-muted">ยังไม่มีรายได้</p>
-        </div>
-    }
 }
 
-@* เพิ่มช่องทางการชำระเงิน *@
+
+@* modal เพิ่มช่องทางการชำระเงิน *@
 <div class="modal fade" id="paymentModal">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -166,7 +271,7 @@ else
     </div>
 </div>
 
-@* ลบ *@
+@* modal ลบ *@
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

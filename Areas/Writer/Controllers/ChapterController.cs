@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web_Novel.Models;
 using Web_Novel.ViewModels.Writer;
+using Microsoft.EntityFrameworkCore;
 
 namespace Web_Novel.Controllers;
 
@@ -44,11 +45,20 @@ public class ChapterController : Controller
         {
             NovelId = novelId,
             ChapterNumber = _db.Chapters
-                .Where(c => c.NovelId == novelId)
-                .Count() + 1
+            .Where(c => c.NovelId == novelId)
+            .Count() + 1,
+
+            AllWarnings = _db.TriggerWarnings
+            .OrderBy(w => w.Name)
+            .Select(w => new TriggerWarningOption
+            {
+                WarningId = w.WarningId,
+                Name = w.Name,
+                Description = w.Description
+            }).ToList()
         };
 
-        return View("CreateEdit", model); // ✅ ถูกแล้ว
+        return View("CreateEdit", model);
     }
 
     [HttpPost]
@@ -143,12 +153,46 @@ public class ChapterController : Controller
             _db.SaveChanges();
         }
 
+        // ✅ จัดการ ChapterTriggerWarning
+        // ลบของเก่า (กรณี edit)
+        var oldWarnings = _db.ChapterTriggerWarnings
+            .Where(x => x.ChapterId == chapter.ChapterId);
+
+        _db.ChapterTriggerWarnings.RemoveRange(oldWarnings);
+
+        // เพิ่มใหม่
+        if (model.SelectedWarningIds != null && model.SelectedWarningIds.Any())
+        {
+            var newWarnings = model.SelectedWarningIds.Select(wid => new ChapterTriggerWarning
+            {
+                ChapterId = chapter.ChapterId,
+                WarningId = wid
+            });
+
+            _db.ChapterTriggerWarnings.AddRange(newWarnings);
+        }
+
+        _db.SaveChanges();
+
         return RedirectToAction("Index", new { novelId = model.NovelId });
     }
 
+    [HttpPost]
+    public IActionResult Create(Chapter model)
+    {
+        // model.Content จะได้ HTML จาก Quill
+        _db.Chapters.Add(model);
+        _db.SaveChanges();
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet]
     public IActionResult Edit(int id)
     {
-        var chapter = _db.Chapters.FirstOrDefault(c => c.ChapterId == id);
+        var chapter = _db.Chapters
+            .Include(c => c.ChapterTriggerWarnings)
+            .FirstOrDefault(c => c.ChapterId == id);
 
         if (chapter == null) return NotFound();
 
@@ -161,10 +205,23 @@ public class ChapterController : Controller
             ChapterNumber = chapter.ChapterNumber,
             IsCoinRequired = chapter.IsCoinRequired,
             CoinPrice = chapter.CoinPrice,
-            PublishStatus = chapter.PublishStatus
+            PublishStatus = chapter.PublishStatus,
+
+            AllWarnings = _db.TriggerWarnings
+                .OrderBy(w => w.Name)
+                .Select(w => new TriggerWarningOption
+                {
+                    WarningId = w.WarningId,
+                    Name = w.Name,
+                    Description = w.Description
+                }).ToList(),
+
+            SelectedWarningIds = chapter.ChapterTriggerWarnings
+                .Select(ctw => ctw.WarningId)
+                .ToList()
         };
 
-        return View("CreateEdit", model); // ✅ ต้องเป็น ViewModel
+        return View("CreateEdit", model);
     }
 
     [HttpPost]

@@ -1,0 +1,73 @@
+@model List<PayoutViewModel>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<div class="container mt-4">
+    <h4 class="mb-3">คำขอถอนเงินจากนักเขียน</h4>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ผู้ใช้</th>
+                <th>จำนวนเงิน</th>
+                <th>สถานะ</th>
+                <th>วันที่ขอ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Username</td>
+                    <td>@p.Amount.ToString("N2")</td>
+                    <td>
+                        @if (p.Status == "Pending")
+                        {
+                            <span class="badge bg-warning">รอตรวจสอบ</span>
+                        }
+                        else if (p.Status == "Approved")
+                        {
+                            <span class="badge bg-info">อนุมัติแล้ว</span>
+                        }
+                        else if (p.Status == "Paid")
+                        {
+                            <span class="badge bg-success">จ่ายแล้ว</span>
+                        }
+                        else if (p.Status == "Rejected")
+                        {
+                            <span class="badge bg-danger">ไม่ผ่าน</span>
+                        }
+                    </td>
+                    <td>@p.RequestedAt.ToString("dd/MM/yyyy HH:mm")</td>
+
+                    <td>
+                        @if (p.Status == "Pending")
+                        {
+                            <form asp-action="Approve" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@p.PayoutId" />
+                                <button class="btn btn-sm btn-success">อนุมัติ</button>
+                            </form>
+
+                            <form asp-action="Reject" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@p.PayoutId" />
+                                <button class="btn btn-sm btn-danger">ปฏิเสธ</button>
+                            </form>
+                        }
+                        else if (p.Status == "Approved")
+                        {
+                            <form asp-action="MarkAsPaid" method="post">
+                                <input type="hidden" name="id" value="@p.PayoutId" />
+                                <button class="btn btn-sm btn-primary">จ่ายเงินแล้ว</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

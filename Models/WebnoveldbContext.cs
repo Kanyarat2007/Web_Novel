@@ -25,6 +25,7 @@ public partial class WebnoveldbContext : DbContext
     public virtual DbSet<Chapter> Chapters { get; set; }
 
     public virtual DbSet<Chapterbookmark> Chapterbookmarks { get; set; }
+    public virtual DbSet<ChapterTriggerWarning> ChapterTriggerWarnings { get; set; }
 
     public virtual DbSet<Coinpackage> Coinpackages { get; set; }
 
@@ -84,6 +85,7 @@ public partial class WebnoveldbContext : DbContext
     public virtual DbSet<Userpromotion> Userpromotions { get; set; }
     public virtual DbSet<UserReward> UserRewards { get; set; }
     public virtual DbSet<UserRole> UserRoles { get; set; }
+    public virtual DbSet<WriterPayout> WriterPayouts { get; set; }
 
     public virtual DbSet<Writerprofile> Writerprofiles { get; set; }
 
@@ -276,6 +278,23 @@ public partial class WebnoveldbContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Chapterbookmarks)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("chapterbookmarks_ibfk_1");
+        });
+
+        modelBuilder.Entity<ChapterTriggerWarning>(entity =>
+        {
+            entity.HasKey(e => new { e.ChapterId, e.WarningId });
+
+            entity.ToTable("ChapterTriggerWarning");
+
+            entity.HasOne(d => d.Chapter)
+                .WithMany(p => p.ChapterTriggerWarnings)
+                .HasForeignKey(d => d.ChapterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.Warning)
+                .WithMany(p => p.ChapterTriggerWarnings)
+                .HasForeignKey(d => d.WarningId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Coinpackage>(entity =>
@@ -1141,23 +1160,23 @@ public partial class WebnoveldbContext : DbContext
         });
 
         modelBuilder.Entity<UserReward>(entity =>
-{
-    entity.HasKey(e => e.UserRewardId);
+        {
+            entity.HasKey(e => e.UserRewardId);
 
-    entity.Property(e => e.RewardType)
-        .HasMaxLength(50)
-        .IsRequired();
+            entity.Property(e => e.RewardType)
+                .HasMaxLength(50)
+                .IsRequired();
 
-    entity.Property(e => e.CoinAmount)
-        .HasDefaultValue(0);
+            entity.Property(e => e.CoinAmount)
+                .HasDefaultValue(0);
 
-    entity.Property(e => e.CreatedAt)
-        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-    entity.HasOne(d => d.User)
-        .WithMany(p => p.UserRewards)
-        .HasForeignKey(d => d.UserId);
-});
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.UserRewards)
+                .HasForeignKey(d => d.UserId);
+        });
 
         modelBuilder.Entity<UserRole>(entity =>
         {
@@ -1172,6 +1191,31 @@ public partial class WebnoveldbContext : DbContext
             entity.HasOne(e => e.Role)
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(e => e.RoleId);
+        });
+
+        modelBuilder.Entity<WriterPayout>(entity =>
+        {
+            entity.HasKey(e => e.PayoutId);
+
+            entity.Property(e => e.Amount)
+                .HasColumnType("decimal(10,2)");
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(e => e.RequestedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Admin)
+                .WithMany()
+                .HasForeignKey(e => e.ApprovedBy)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Writerprofile>(entity =>

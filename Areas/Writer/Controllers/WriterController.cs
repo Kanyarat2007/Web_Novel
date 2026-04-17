@@ -83,58 +83,74 @@ namespace Web_Novel.Areas.Writer.Controllers
                             BankAccountName = w.BankAccountName,
                             BankAccountNumber = w.BankAccountNo,
                             IsPaymentConfirmed = w.IsVerified,
-                            // PromptPay = w.PromptPay
                         })
                         .ToList();
 
-                    // 💰 รายได้ของนักเขียน
-                    var totalEarning = _db.Cointransactions
-    .Where(x => x.UserId == userId && x.Type == "spend")
-    .Sum(x => x.Amount);
-
-                    var earningsList = _db.Cointransactions
-                    .Where(x => x.UserId == userId && x.Type == "spend")
-                    .OrderByDescending(x => x.CreatedAt)
-                    .ToList();
-
+                    // 💰 รายได้ของนักเขียน (จากนิยายของตัวเอง)
                     vm.Earnings = _db.Novelpurchases
-    .Where(x => x.UserId == userId)
-    .OrderByDescending(x => x.PurchasedAt)
-    .Select(x => new WriterEarningItemViewModel
-    {
-        TransactionId = x.PurchaseId,
-        Amount = x.CoinSpent,
-        Type = "spend",
-        CreatedAt = x.PurchasedAt,
+                        .Where(x => x.Novel.AuthorUserId == userId)
+                        .OrderByDescending(x => x.PurchasedAt)
+                        .Select(x => new WriterEarningItemViewModel
+                        {
+                            TransactionId = x.PurchaseId,
+                            Amount = x.CoinSpent,
+                            Type = "spend",
+                            CreatedAt = x.PurchasedAt,
 
-        NovelId = x.NovelId,
-        NovelTitle = x.Novel != null ? x.Novel.Title : "-",
+                            NovelId = x.NovelId,
+                            NovelTitle = x.Novel != null ? x.Novel.Title : "-",
 
-        BalanceAfter = 0 // ถ้ายังไม่มี logic
-    })
-    .ToList();
+                            BalanceAfter = 0 // ยังไม่ทำก็ได้
+                        })
+                        .ToList();
+
+                    // 📤 ประวัติการถอนเงิน
+                    vm.Payouts = _db.WriterPayouts
+                        .Where(x => x.UserId == userId)
+                        .OrderByDescending(x => x.RequestedAt)
+                        .Select(x => new WriterPayoutViewModel
+                        {
+                            PayoutId = x.PayoutId,
+                            Amount = x.Amount,
+                            Status = x.Status,
+                            RequestedAt = x.RequestedAt,
+                            PaidAt = x.PaidAt
+                        })
+                        .ToList();
+
+                    // 💵 คำนวณรายได้รวม
+                    var totalEarn = _db.Novelpurchases
+                        .Where(x => x.Novel.AuthorUserId == userId)
+                        .Sum(x => (decimal?)x.CoinSpent) ?? 0;
+
+                    // 💸 เงินที่จ่ายไปแล้ว
+                    var totalPaid = _db.WriterPayouts
+                        .Where(x => x.UserId == userId && x.Status == "Paid")
+                        .Sum(x => (decimal?)x.Amount) ?? 0;
+
+                    // 💰 ยอดคงเหลือ
+                    vm.Balance = totalEarn - totalPaid;
 
                     // 📊 summary รายได้
                     vm.EarningSummary = new WriterEarningSummaryViewModel
                     {
                         UserId = userId,
-                        TotalEarning = _db.Novelpurchases
-        .Where(x => x.UserId == userId)
-        .Sum(x => x.CoinSpent),
+
+                        TotalEarning = totalEarn,
 
                         MonthlyEarning = _db.Novelpurchases
-        .Where(x => x.UserId == userId &&
-                    x.PurchasedAt.Month == DateTime.Now.Month &&
-                    x.PurchasedAt.Year == DateTime.Now.Year)
-        .Sum(x => x.CoinSpent),
+                            .Where(x => x.Novel.AuthorUserId == userId &&
+                                        x.PurchasedAt.Month == DateTime.Now.Month &&
+                                        x.PurchasedAt.Year == DateTime.Now.Year)
+                            .Sum(x => (decimal?)x.CoinSpent) ?? 0,
 
                         TodayEarning = _db.Novelpurchases
-        .Where(x => x.UserId == userId &&
-                    x.PurchasedAt.Date == DateTime.Now.Date)
-        .Sum(x => x.CoinSpent),
+                            .Where(x => x.Novel.AuthorUserId == userId &&
+                                        x.PurchasedAt.Date == DateTime.Now.Date)
+                            .Sum(x => (decimal?)x.CoinSpent) ?? 0,
 
                         TotalTransactions = _db.Novelpurchases
-        .Count(x => x.UserId == userId)
+                            .Count(x => x.Novel.AuthorUserId == userId)
                     };
 
                     break;
@@ -142,24 +158,24 @@ namespace Web_Novel.Areas.Writer.Controllers
                 case "stats":
 
                     vm.Stats = _db.Novels
-    .Where(x => x.AuthorUserId == userId)
-    .Select(x => new WriterStatsViewModel
-    {
-        NovelId = x.NovelId,
-        NovelTitle = x.Title,
+                        .Where(x => x.AuthorUserId == userId)
+                        .Select(x => new WriterStatsViewModel
+                        {
+                            NovelId = x.NovelId,
+                            NovelTitle = x.Title,
 
-        ContentType = "Novel",
+                            ContentType = "Novel",
 
-        TotalViews = x.TotalViews,
-        TotalLikes = x.TotalLikes,
-        TotalBookshelf = x.TotalBookshelf,
+                            TotalViews = x.TotalViews,
+                            TotalLikes = x.TotalLikes,
+                            TotalBookshelf = x.TotalBookshelf,
 
-        TotalCoinEarned = 0, // ยังไม่มีระบบนี้
-        TotalChaptersSold = 0,
+                            TotalCoinEarned = 0, // ยังไม่มีระบบนี้
+                            TotalChaptersSold = 0,
 
-        UpdatedAt = x.UpdatedAt
-    })
-    .ToList();
+                            UpdatedAt = x.UpdatedAt
+                        })
+                        .ToList();
                     break;
             }
 

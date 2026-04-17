@@ -8,6 +8,8 @@ namespace Web_Novel.ViewModels.Writer
     public class WriterMoneyViewModel
     {
         public WriterPaymentViewModel Payment { get; set; }
+        public List<WriterPayoutViewModel> Payouts { get; set; }
+        public decimal Balance { get; set; }
 
         // public WriterEarningsViewModel Earnings { get; set; }
     }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Web_Novel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b85c35983e2cccf583acae303b6c38d3bfb01fb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea6c814f42ec03f0b046e01970a953597e3a423a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Web_Novel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Web_Novel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

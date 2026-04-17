@@ -29,9 +29,4 @@ namespace Web_Novel.ViewModels.Writer
         public DateTime? UpdatedAt { get; set; }
         public List<MyNovelItemViewModel> Novels { get; set; } = new();
     }
-
-    // public class MyNovelsViewModel
-    // {
-    //     public List<MyNovelItemViewModel> Novels { get; set; }
-    // }
 }

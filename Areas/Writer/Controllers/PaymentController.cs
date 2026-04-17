@@ -124,6 +124,27 @@ public class PaymentController : Controller
         return RedirectToAction("Dashboard", "Writer", new { area = "Writer", tab = "payments" });
     }
 
+    [HttpPost]
+    public IActionResult RequestPayout(decimal amount)
+    {
+        var userIdStr = HttpContext.Session.GetString("UserId");
+        if (!int.TryParse(userIdStr, out int userId) || userId <= 0)
+            return RedirectToAction("Login", "Account");
+
+        var payout = new WriterPayout
+        {
+            UserId = userId,
+            Amount = amount,
+            Status = "Pending",
+            RequestedAt = DateTime.Now
+        };
+
+        _db.WriterPayouts.Add(payout);
+        _db.SaveChanges();
+
+        return RedirectToAction("Dashboard", "Writer", new { area = "Writer", tab = "payments" });
+    }
+
     public IActionResult Privacy()
     {
         return View();

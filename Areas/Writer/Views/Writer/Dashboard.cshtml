@@ -53,21 +53,15 @@
         
     @if (Model.ActiveTab == "stats")
     {
-        <h3>สถิติผลงาน</h3>
+        <h2 class="mb-3">สถิติผลงาน</h2>
         <div class="card-soft">
-
-        
-
             <table class="table table-hover">
                 <thead class="">
                     <tr>
-                        <th>ชื่อนิยาย</th>
-                        @* <th>ประเภท</th> *@
+                        <th>งานเขียน</th>
                         <th>ยอดเข้าอ่าน</th>
                         <th>ยอดกดถูกใจ</th>
                         <th>ยอดเพิ่มเข้าชั้นหนังสือ</th>
-                        @* <th>เหรียญ</th> *@
-                        @* <th>อัปเดต</th> *@
                     </tr>
                 </thead>
 
@@ -80,12 +74,9 @@
                                     ? item.NovelTitle
                                     : item.MangaTitle)
                             </td>
-                            @* <td>@item.ContentType</td> *@
                             <td>@item.TotalViews</td>
                             <td>@item.TotalLikes</td>
                             <td>@item.TotalBookshelf</td>
-                            @* <td>@item.TotalCoinEarned</td> *@
-                            @* <td>@(item.UpdatedAt.HasValue? item.UpdatedAt.Value.ToString("dd/MM/yyyy") : "")</td> *@
                         </tr>
                     }
                 </tbody>

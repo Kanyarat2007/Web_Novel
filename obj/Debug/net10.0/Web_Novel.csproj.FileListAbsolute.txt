@@ -113,7 +113,6 @@ C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\scopedcss\bundle\We
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\scopedcss\projectbundle\Web_Novel.bundle.scp.css
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\tx1novg5dm-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\pbsdafz8gc-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
-C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\hohv7l7ivj-{0}-pyzigarojc-pyzigarojc.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\kajkmr4txq-{0}-bqjiyaj88i-bqjiyaj88i.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\y5d37jcee4-{0}-c2jlpeoesf-c2jlpeoesf.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\mwgd9hi3hg-{0}-erw9l3u2r3-erw9l3u2r3.gz
@@ -2241,8 +2240,9 @@ C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\12b3jytk
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\2pjc6j3saq-{0}-w8kxt40k85-w8kxt40k85.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\jh50r9sgh6-{0}-cj4ojh8vq2-cj4ojh8vq2.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\wz5stf13m0-{0}-tpa8tcwxyn-tpa8tcwxyn.gz
-C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\y001lccg79-{0}-v6kjhxix89-v6kjhxix89.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\nr5lypi8h3-{0}-hvyrjvhygo-hvyrjvhygo.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\cxaeerappr-{0}-3zhcj4f073-3zhcj4f073.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\v8zlbucq1i-{0}-5sbepzci4t-5sbepzci4t.gz
 C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\e05dmgqg2p-{0}-s579dqrsxy-s579dqrsxy.gz
+C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\hohv7l7ivj-{0}-wvp67l93xj-wvp67l93xj.gz
+C:\Users\kanya\Desktop\Web_Novel\Web_Novel\obj\Debug\net10.0\compressed\y001lccg79-{0}-q7fdjrowg7-q7fdjrowg7.gz

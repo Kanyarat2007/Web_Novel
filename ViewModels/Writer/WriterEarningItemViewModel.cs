@@ -10,12 +10,12 @@ namespace Web_Novel.ViewModels.Writer
         public int TransactionId { get; set; }
         public int? NovelId { get; set; }
         public string NovelTitle { get; set; }
-        public int Amount { get; set; }
+        public decimal Amount { get; set; }
 
         public string Type { get; set; } // purchase / read / bonus
 
         public DateTime CreatedAt { get; set; }
 
-        public int BalanceAfter { get; set; }
+        public decimal BalanceAfter { get; set; }
     }
 }

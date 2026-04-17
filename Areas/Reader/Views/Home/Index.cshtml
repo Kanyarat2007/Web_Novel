@@ -80,7 +80,7 @@
                                 <form asp-action="ClaimDaily" method="post">
                                     @Html.AntiForgeryToken()
 
-                                    <button class="btn btn-success btn-lg w-100" onclick="return confirm('รับเหรียญวันนี้?')">
+                                    <button class="btn btn-primary btn-lg w-100" onclick="return confirm('รับเหรียญวันนี้?')">
                                         รับฟรี 1 เหรียญ
                                     </button>
                                 </form>
@@ -249,7 +249,7 @@
                                                         <input class="form-check-input d-none" type="checkbox" name="genreIds"
                                                                value="@genre.GenreId" id="gm_@genre.GenreId"
                                                         @(Model.InterestedGenres.Any(g => g.GenreId == genre.GenreId) ?
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "checked" : "") />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 "checked" : "") />
 
                                                         <label class="form-check-label w-100 text-center" for="gm_@genre.GenreId">
                                                             @genre.GenreName
@@ -314,7 +314,7 @@
     @* ── หมวดหมู่ทั้งหมด ── *@
     <h5>หมวดหมู่ทั้งหมด</h5>
     @foreach (var genre in Model.AllGenres
-                                                                                                                                            .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
+                                                                                                                                                .Where(g => !Model.InterestedGenres.Any(ig => ig.GenreId == g.GenreId)))
     {
         <div class="card-soft my-4">
             <div class="d-flex justify-content-between align-items-center mb-3">

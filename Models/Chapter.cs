@@ -40,4 +40,6 @@ public partial class Chapter
 
     public virtual ICollection<Readinghistory> Readinghistories { get; set; } = new List<Readinghistory>();
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<ChapterTriggerWarning> ChapterTriggerWarnings { get; set; } = new List<ChapterTriggerWarning>();
 }
